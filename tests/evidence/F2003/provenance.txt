@@ -1,0 +1,64 @@
+Version 2003a.r1
+Mac OS 9.0.4 running in SheepShaver
+
+F2003-beam-16-64brkonly.mus / .etf / -finale27/F2003-beam-16-64brkonly.musx
+    sha256 b3f6559893aefb08bc748276cff76a4019c5e5b9e8f31cc0de833db53f28bf5d (.mus)
+    sha256 b4b885cb79cb15196b299c11ddbebab0cb0cb67b163d52eeaeceacf091661785 (.etf)
+    sha256 ff8639cc01b79af8047b9f541af5b16da1b80ce7911a511f862e2fa037cb17e8 (.musx)
+    Resave of the Finale 1.0 sixteenth-and-sixty-fourth-beam break edit in Finale 2003,
+    with its ETF export and subsequent Finale 27 conversion. Entries 1 and 5 retain the
+    selected secondary beam breaks.
+
+F2003-empty.mus and F2003-empty.etf
+    Untouched new document used as the parent for the controlled bend-connection edits.
+
+F2003-bendcnct-changed.mus and F2003-bendcnct-changed.etf
+    Derived from F2003-empty. Distinct vertical-offset edits in Finale 2003's three visible bend
+    connection controls change selector 98 tuple types 0, 1, 2, 3, and 6. The Finale 27 companion
+    resets every edited value and also changes the hidden top-line types 4, 5, and 7 from 48 to 40.
+
+F2003-bendcnct-change-x.mus and F2003-bendcnct-change-x.etf
+    Derived from F2003-empty. Distinct horizontal-offset edits change the same five selector 98
+    tuple types. The Finale 27 companion resets every edited value. Together with the vertical
+    fixture, this establishes lossy upgrade behavior for Finale 2003 bend-connection offsets.
+
+F2003-flagopts.mus
+    sha256 44ce5526eadd2824fae09d991ee3d0a0b08a27ccfeabaffbe3c546b73116553c
+F2003-flagopts.etf
+    sha256 c48be7f22080a30880719bc95cc3ba3e15566769d31f4486176e627aa3b65f0a
+-finale27/F2003-flagopts.musx
+    sha256 7d0b8232e251985f54a84befd5d313d8eefa7aac5b0fc7d61f8ebc9ca4ee5dbe
+    Derived from F2003-empty by enabling straight flags and assigning a distinct value to
+    every distance control in the Flag Options dialog. Selector 5 word 2 changes from zero
+    to one; selectors 73 and 74 contain the six curved horizontal and vertical pairs;
+    selector 75 words 2--5 contain the straight horizontal and vertical pairs; and selector
+    76 words 0--1 contain flag spacing and secondary-group adjustment. The ETF repeats all
+    nineteen values and the Finale 27 companion agrees on every edited semantic field.
+
+F2003Win-empty.mus
+    sha256 c130455de1fc724024024ddea35286c753f7cb821092ff644cc433d7723c7eff
+F2003Win-empty.ETF
+    sha256 3e5a3fa3065b87c1530bc375d3d4899f47bfc3a989e878089da4a7615e770655
+-finale27/F2003Win-empty.musx
+    sha256 de85466cb4a22cc73f28a14237b50a5392fa06384550c65f5f06d22da587f76e
+    An untouched new document authored in Finale 2003 for Windows (internal source version
+    8.0.0.2), with its direct ETF export and Finale 27 conversion. The MUS uses little-endian
+    DCL framing; the companion is a semantic reference.
+
+F2003-staffstyle.mus
+    sha256 94e3bf3d849f280bccc2698628ad77e40c91ef4346c8e64878d4a1feef98c09a
+F2003-staffstyle.etf
+    sha256 e9ad427945aa63b081c5b85c549fb49b685badd1d7fdaa0d8ccf3ac2d7af5382
+-finale27/F2003-staffstyle.musx
+    sha256 e792110a9f3dfc6baf1b2ad8f03ee669df2b82f8415707519e238d406cceb663
+    Derived from F2003-baseline by defining one Staff Style without assigning it. The Staff record
+    remains byte-identical and the Finale 27 companion does not write `hasStyles`.
+
+F2003-staffstyle-assigned.mus
+    sha256 4d1ec3aa6516aa8050bcdf22ebf3c61d4c4e2c7fd19a9fbc7c1b8fef4e1f8ad7
+F2003-staffstyle-assigned.etf
+    sha256 2275c35a28061a6453bbacf59ce322a4f8c64d269c5e9b1d88ad56c784ead1f6
+-finale27/F2003-staffstyle-assigned.musx
+    sha256 5cb6221137288cea86b0251f5e2c8bc458626fa0e903570ad2ad24267db08a05
+    Derived by assigning the defined style to staff 1. The assignment is present, but the Staff
+    record remains byte-identical; the Finale 27 companion writes `hasStyles`.

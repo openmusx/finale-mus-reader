@@ -1,0 +1,226 @@
+Finale 2000 (internal version 5.0), uncompressed fixed-row era, big-endian.
+
+Origin: most original test cases were authored for the Mass Copy plug-in and released for
+publication by their author. The upgraded slur fixture derives from the author's
+F300-slur document.
+
+F2000-empty.mus and the fixtures derived from it have a different origin: they were
+authored in Finale 2000 itself, running under SheepShaver, by this repository's author.
+F2000-empty.mus is a new document made with File > New, saved without any edit, and is
+their common parent. It exists because the Mass Copy documents above cannot be moved into
+that virtual machine, so a derived fixture cannot use one of them as its parent; a copy of
+it is kept inside SheepShaver so that further fixtures can be derived from the same file.
+It is structurally the same document as F2000-baseline.mus and differs from it only in the
+bytes a fresh save rewrites.
+
+F2000-F300-slur.mus / .etf / -finale27/F2000-F300-slur.musx
+    sha256 0f22231df0d2c6177b29c15cc477d763d4a0ed4e69da393284c76c16a3b1a7c8 (.mus)
+    sha256 65fc1568654cb415ece1e11a7556e7344ea9c2b889f7255f640f2d2af813ed6b (.etf)
+    sha256 82b2c26d0802faab4c81e1ef8694fb0ae58c70b11c2b996468bc71b401548396 (.musx)
+    Reopens the slur in Finale 2000 and saves it with the same seven-incidence
+    SmartShape and EDU endpoints 142 and 1138.
+
+F2000-multilayer.mus
+    sha256 bfbfdabc42ac2d94bc746ef1d1a993a970052c96250b6292cb2a2ea3e930bb9e
+    A multi-layer document; the baseline fixture for the uncompressed era.
+
+F2000-lyropts-align-just.mus
+    sha256 e10296cf6fed3509c277de624806499d440eece2021ce0fb3ce8a8620e64e1e3
+    From F2000-multilayer, not F2000-baseline: the first syllable's alignment set to Right and
+    the system-start syllable's justification set to Right. Finale 2000 is the first release
+    with a dedicated Lyric Options dialog, whose addition to the four settings Finale 3.x
+    already had is exactly this syllable positioning table.
+    This is the only fixture that uses the legacy alignment value 3 (`right`). It supplies the
+    value twice over, once as an alignment and once as a justification, so a mapping that
+    translated only one of the two fields would fail on it.
+    Against its parent the only options record that moves is selector 87 incidence 1: word 6
+    goes 1 to 3 and word 10 goes 2 to 3, and both positions' flag words gain 0x8000 because
+    setting a position's alignment enables it. The companion reads first as right/left with
+    <on/> and systemStart as center/right with <on/>, while the word extension position stays
+    off -- so one record carries both states of the flag bit.
+    Its ETF is not a corroborating export: it contains no (65534) rows at all, against 294 in
+    F2000-baseline.etf, so it was written with options excluded.
+
+F2000-empty.mus
+    sha256 1b80f1797e36762e76d981e8aa6f1103bb23db82726a7ac20b3743867ab2215a
+    An untouched new Finale 2000 document, kept as the parent of every fixture authored in
+    the virtual machine so that each one's diff against it is exactly the edit under test.
+    It carries the two custom line styles Finale 2000 puts in every new document, cmpers 1
+    and 2, which is what makes an added third one unambiguous.
+
+F2000-group-custbar.mus / .etf / .musx
+    sha256 6f5916fb42c59e72e29578edb0544b6429a1c3e1f0c34d32939bf3f97abfa82f (.mus)
+    sha256 74a8ea0e6a40d7d97d29e80396dd723c8d57598b9f365b965e4cd35685f9d68c (.etf)
+    sha256 fd65c81ecd3450f5506d39bfb7afae1023d9fe727563e2d8fbc0d5b4b34593e2 (.musx)
+    From F2000-empty, with Staff 1 placed in a group whose barline is custom shape 2. The source
+    adds NG(0,1); its fourth incidence begins with 2, and the ETF repeats the complete four-row
+    record. The Finale 27 companion retains customBarShape 2.
+
+F2000-update-layout.mus / .etf / .musx
+    sha256 ce7a8a997ec2b7728166023f702050572688294801fffad883a2cc07bb48abf3 (.mus)
+    sha256 a14e29429d5a0c0cace3dbc3a018f61575eec9769b22fa5fbf344f2e42069fe9 (.etf)
+    sha256 c3393a25b9af6c8db21cacb24c3ec2697f74f6ed62b2c8b849cc732b038f0a0e (.musx)
+    From F2000-empty, with Update Layout invoked before saving. The source and ETF retain
+    StaffSystem top 0 while changing horzPercent from 0 to 33150, or 331.5 percent. The Finale
+    27 companion stores the same horizontal percentage but writes top as -80. This isolates
+    horizontal stretch as layout-derived while showing that Update Layout does not explain the
+    top conversion.
+
+F2000-ssline-offsets.mus
+    sha256 b53b944dd389fd39ec8f5767a055a674478c4a8f08fdf545dee919f14535cdb0
+    From F2000-empty, with four custom line styles added as cmpers 3 through 6. Together they
+    exercise every layout the `ls` record has, and every value is chosen so that no two slots
+    of the same record can be confused.
+    Cmper 3 is a Solid line with all five text anchors defined and every position box carrying
+    a distinct prime: the anchors take 11/13, 17/19, 23/-29, 31/37 and 41/43 as H and V, and
+    the line adjustments take 47 for Start H, 53 for Cont H, 59 for End H and 61 for V. The one
+    negative value exercises sign on a big-endian source. This is the record that established
+    words 19 through 33, which before it were presumed from position alone: the X and Y offsets
+    interleave per anchor rather than being grouped by axis, and the five line adjustments
+    follow in the order musxdom declares them. It also settles what no earlier sample could
+    distinguish, that the single "V" control writes one value into both word 30 and word 32, so
+    a document never has `lineStartY` and `lineEndY` disagreeing.
+    Cmper 4 is Dashed with a 3 EVPU dash and a 7 EVPU gap. Every earlier sample had the two
+    equal, which left the order of words 2 and 3 assumed from musxdom's declaration order; 192
+    against 448 tells them apart.
+    Cmper 5 is a Char line set in Arial, bold and italic, at size 17 with a -83 EMs baseline
+    shift. It established words 2 and 4 as the font id and the Enigma style mask, completing
+    the ordinary legacy font tuple of id, size and mask across words 2 to 4. Its character is
+    also the only evidence that a stored character is a byte in its *font's* encoding rather
+    than a code point: the file holds Mac Roman 199 and the companion reads 171.
+    Cmper 6 is Solid with a Hook start cap of 1984 EFIX and a custom arrowhead end cap naming
+    shape 2, so each cap's shared value slot is exercised as both of the things it can be, and
+    words 10 and 12 are shown to stay zero while 9 and 11 are in use.
+    Against its parent the only records that move are `ls` cmpers 3 through 6, which the parent
+    does not have at all, the five smart shape text blocks cmper 3's anchors reference, and the
+    font definition Arial takes.
+
+F2000-tieopts-changed.mus
+    sha256 5f6bd9a07894902bbc56867af9648d46ccaa8a91d9fb29ad9bfcfacdb023d5ba
+    From F2000-empty, with tie options edited as a discriminator for the hypothesis that Finale's
+    pre-2002 conversion copied tie controls into modern Smart Shape slur-thickness controls. The
+    fixed-global options diff changes only selector 84 incidence 0: thicknessRight moves from 6
+    to -17 and thicknessLeft from 6 to 11. Two detail-record series named #c2 through #c10 and
+    #s2 through #s10 in the ETF also change, so this is not a one-leaf fixture, but no Smart Shape
+    preference record changes.
+    Its Finale 27 companion changes only TieOptions thicknessRight and thicknessLeft in the two
+    relevant option subtrees. SmartShapeOptions is identical to the parent's companion, including
+    slurThicknessCp1Y and slurThicknessCp2Y at 6. The fixture therefore rejects direct copying of
+    these tie thickness values into the Smart Shape controls.
+    ETF sha256 3fb12729aa91f41209c5854cd2b5294cd7285de6289ffc0b83e00c0f36142ef2
+    Finale 27 companion sha256 939b9df06048d19bd57768e89be2a27fc5126032aaef685c925c184d3f4ebd79
+
+F2000-tie-insets.mus
+    sha256 29bfbd492b47c1ef5a43b7987027ff37c919f96865de685bf3958373ef58d838
+    From F2000-empty, with the three ordinary tie contours switched from percentage to fixed
+    insets and their two control-point insets changed from 8/8 to 17/13. The complete record diff
+    changes only selector 84 incidence 3 word 2, which selects the inset mode, and the six
+    corresponding insetFixed positions in selector 86. The tie-end contour remains 8/8, and
+    selector 85's tie-placement offsets remain unchanged.
+    Its Finale 27 companion carries 17 and 13 in cp1.insetFixed and cp2.insetFixed for the short,
+    medium, and long TieOptions control styles. SmartShapeOptions is identical to the parent's
+    companion, including slurThicknessCp1Y and slurThicknessCp2Y at 6. Tie contour insets are
+    therefore not the source of the pre-2002 synthesized Smart Shape thickness controls.
+    ETF sha256 3b4bd8c9ca66a428196da5b884e1f2bc02563d58b55d553f3fdc2698fef1673b
+    Finale 27 companion sha256 3fd43fc83a50411427515d23a6962fbad6bcbf5b644a544fef351697dfe739ee
+
+F2000-slur-thickness.mus
+    sha256 4927a830c3b19ec51d2d6c21c8160b204773da8dd1184940181be5f81d948c1b
+    From F2000-empty, with the Slur Thickness changed from 6 to 17. The complete record diff
+    changes exactly selector 59 incidence 0 word 5 from 6 to 17. No selector 50-53, tie option,
+    tie placement, or tie contour word changes.
+    Its Finale 27 companion changes exactly SmartShapeOptions slurThicknessCp1Y and
+    slurThicknessCp2Y from 6 to 17 in the relevant option subtrees. This establishes that the
+    single pre-Engraver-Slur thickness value supplies both modern vertical control-point values.
+    ETF sha256 e16da42eb66534af279eb55e1323d3617f48b2f63ac57cbcf2fea601af31a6fb
+    Finale 27 companion sha256 e72372e5f663d13780ce9c427d35997de4c3bd1fe8c5580e343f8045e70d5402
+
+F2000-F372-facingpages-parts.mus / .etf / .musx
+    sha256 21f9c1023264ba2aff2fef198d0ac938333e13479b98a77fbbcfdace40bb033b (.mus)
+    sha256 5899a458f2f4ccbf2dbab22aca6f4eef6a68714375a7de8ac53ce856ae81132a (.etf)
+    sha256 d698aa0e9690145166f32579b6fc4a48a4470c1d646bfe3e21a1630bc06a963d (.musx)
+    F372-facingpages-parts opened and saved in Finale 2000. Selector 77, including
+    its facing-pages value 1 at word 17, is preserved exactly. The ETF repeats the
+    payload, and the Finale 27 companion retains facing pages for parts while leaving
+    the score setting off.
+
+F2000-staff-unshownoteitems.mus / .etf / .musx
+    sha256 9de91e2fcd4b09d1c2e606097506637c127f1755eef3eb1c9df636cdabe3f69e (.mus)
+    sha256 8cfbbc99b67cb08a870e352ed7077c0c3e7e48a9d1d485fabcc51be2082dc1b7 (.etf)
+    sha256 1adc056a5d798cbc3760cfe8735873d5245dccb66c6f40464f7020c8276ae721 (.musx)
+    From F2000-baseline, with the single Staff setting “Show Note-attached Items” unchecked.
+    Staff 1 word 2 changes from 0x0700 to 0x0600 and word 4 from 0x0000 to 0x1800; its ETF
+    repeats those words. The Finale 27 companion sets the six corresponding hide properties.
+
+F2000-staff-hideothernotes.mus / .etf / .musx
+    sha256 e8e1daa1762ac12eeac8337663595d1cb2717b5986bf1cad7978a384dce1a06e (.mus)
+    sha256 0559c412c4bcb3989f98b9d46b205b96290e04188878c1a68903d2aa4a963743 (.etf)
+    sha256 91ee5884087c8ff10b221803d5ddcbccf525e6d142d2829520946df0bd1c7d4b (.musx)
+    From F2000-baseline, with “Show Notes in Other Layers” unchecked. Staff 1 word 2 changes
+    from 0x0700 to 0x0500, clearing only 0x0200, and word 4 materializes as 0x1800. Its ETF
+    repeats those words. The Finale 27 companion changes only altHideOtherNotes to true.
+
+F2000-staff-hideotheritems.mus / .etf / .musx
+    sha256 0bb97d1f4709ff8ee372d35e8ce4b7a40666fb2ac912c82089690f682a15f6e5 (.mus)
+    sha256 fb408b14ec2b620f7dff28bc072b09772f599a5c2b74da13723ccc23b9762028 (.etf)
+    sha256 32dcc2489d9e06fd0f5fce5a1f93525f703c2c52e1392a17e259fd81539114c6 (.musx)
+    From F2000-baseline, with “Show Note-attached Items in Other Layers” unchecked. Staff 1
+    word 2 changes from 0x0700 to 0x0300, clearing only 0x0400, and word 4 materializes as
+    0x1800. Its ETF repeats those words. The Finale 27 companion changes altHideOtherArtics,
+    altHideOtherLyrics, altHideOtherSmartShapes, and altHideOtherExpressions to true.
+
+F2000-staff-style.mus / .etf / .musx
+    sha256 b215c9b891a17a444521f74fab03b9b1e91d1b12f6de3693070309fb18ae896f (.mus)
+    sha256 ffd79160610a02b99fbc723d03dea74fde754d649162b5ba683e4b1a25ba759d (.etf)
+    sha256 add03b22a79c26eaabf9f8c52a292e15eb9b0e937dde98cff43c4a8b1ac68a12 (.musx)
+    From F2000-empty, with one Staff Style defined but not assigned. The source and ETF add eight
+    SY rows while all three IS rows remain byte-identical. The Finale 27 companion adds one
+    staffStyle but does not add staffStyleAssign or staffSpec.hasStyles.
+
+F2000-staffstyle-applied.mus / .etf / .musx
+    sha256 de06dd8f994547fac24b7e3353335c39d1f0ea49b767909bcbc1f0cd5692a38d (.mus)
+    sha256 dfb4ac2ee24a0fd8abc825eaf77fc927652186a21a27b725821867a36e9679db (.etf)
+    sha256 c8b34a93ba7574222f430a316a4d68540b9dedebc479c0a108f7d737a93f7210 (.musx)
+    From F2000-staff-style, with style 1 assigned to Staff 1 from measure 1 through measure 2.
+    The source and ETF add two Sy rows while all IS and SY rows remain byte-identical. The Finale
+    27 companion adds staffStyleAssign and staffSpec.hasStyles.
+
+F2000-tablature.mus / .etf / .musx
+    sha256 1d4979c9d5c8d760c6f2c5ab2baba5f0622c3b335e9b1979ccb15c2ea4683b91 (.mus)
+    sha256 bf9789967b03bdf2f68e389ef9adfff079399febe22463c6ba50aef5428fe8f0 (.etf)
+    sha256 bf20857e851f16a078cddcb122d26ccdeb6a60c7d4659da61cba48751547c7cc (.musx)
+    From F2000-empty, with tablature notation enabled on Staff 1. The 18-word Staff layout has no
+    extended flag word, and the Finale 27 companion leaves breakTabLinesAtNotes false. Together
+    with the controlled Finale 2002 fixtures, this disproves treating the true value in shipped
+    tablature templates as fixed legacy behavior.
+
+F2000-rptjump0.mus / .etf / -finale27/F2000-rptjump0.musx
+    sha256 4285c8d875af05f9ea6b89c6c38887733d65bbf9231416ac04f66f3c176763bf (.mus)
+    sha256 bc9cee4b170986766338c69ba975f2cfb454ea99cdcf5c96060b8fed7c7f65d6 (.etf)
+    sha256 875b0c039584909a618444d34b905ba6c8161d9f76ca7f029eb7b68832fb4196 (.musx)
+    Adds a one-pass repeat ending in measure 1 with zero target and absolute
+    action. Its source flag word is 0x0400.
+
+F2000-rptjump0-stop.mus / .etf / -finale27/F2000-rptjump0-stop.musx
+    sha256 d6fe9896f18966e0e9f71cf7d208566371a8ddfb42723d61b49aa948a7fb4df8 (.mus)
+    sha256 9ee57a40716fcfde3605eebac73c9dc31df3cf01ccf7b2e862efb2cbe69ce6cc (.etf)
+    sha256 96d46ac05a24a171f8cc38977b859d8059cc575d63c70384bc8eefff8879fae9 (.musx)
+    From F2000-rptjump0, selects Stop. Only the ending flag word changes,
+    from 0x0400 to 0x0c00; the source target stays zero. The conversion
+    records Stop and writes target -1.
+
+F2000-measnums.mus / .etf / -finale27/F2000-measnums.musx
+    sha256 c27aac1c39bc85662d0f54ccbec8a71cdffb558df5b4b658d43eb5b982254f26 (.mus)
+    sha256 14c453f2b5706da28b3cec4af5427fed95465005150cf5aa831bc5397224dc33 (.etf)
+    sha256 d3c86071dd8139242da7046aae078352126f716767aeec8cdca72eabcf404707 (.musx)
+    Finale 2000 measure-number region before enabling multimeasure-rest ranges.
+    Its one 96-byte region has flag 0x8080 and zero bracket-character slots.
+
+F2000-measnums-mmrest.mus / .etf / -finale27/F2000-measnums-mmrest.musx
+    sha256 82abad211f69ea38652a87fa96f079c517fee3494c33ed04134dc8533a9b0ba7 (.mus)
+    sha256 036cfe84d1fa2b347a8679232c9f4eba273dafb057b7c3a28bf835ec308bc98b (.etf)
+    sha256 396e8522e9b4679f03a8e478bcc0c47d0ae033633fdada7c1191beab4558e980 (.musx)
+    From F2000-measnums, enables multimeasure-rest range display and sets the left and right
+    bracket characters to '[' and ']'. Only the region flag changes to 0x8880 and its
+    bracket-character words change to 0x005b and 0x005d. The companion carries the range
+    setting and both characters in score and part data.

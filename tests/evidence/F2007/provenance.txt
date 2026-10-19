@@ -1,0 +1,16 @@
+Finale 2007 (internal version 12.0), zlib era, big-endian.
+
+Origin: a test case authored for the Beam Over Barline plug-in and released for
+publication by its author.
+
+F2007-lyric-hyphens.mus
+    sha256 86fafceb1ef2ebe2ff26f71800a3877eb16e7e22a595a5693e84726cf827393e
+    The big-endian counterpart to the Finale 2012 fixture. Finale 2007 is the
+    transition release and most of its documents are big-endian. Every numeric
+    field of the class-record encoding
+    follows that byte order, including the 32-bit payload length in the record
+    header. Composing that length from two 16-bit reads in a fixed word order
+    yields an enormous value on such a file and aborts the record walk at the
+    very first record, so the whole document silently yields nothing. This
+    fixture is the regression test for that, and it carries nine font
+    definitions.

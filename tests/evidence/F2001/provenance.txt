@@ -1,0 +1,157 @@
+Finale 2001 for Windows (internal version 6.0.2.2), little-endian PKWARE DCL era.
+
+Origin: controlled documents authored in Finale 2001 for Windows by this repository's
+author. Each ETF was exported by that application. Each `.musx` under `-finale27/` is
+Finale 27's conversion of the matching MUS and is a semantic reference, not a byte-level
+reference.
+
+F2001Win-legacypickup.mus / .etf / -finale27/F2001Win-legacypickup.musx
+    sha256 541d1f91d7b55fe4b2085febca98b60619edbd11e45a0d65bfbe10b1b9d3275a (.mus)
+    sha256 4abe5d0dba934f710272dbfbc221e4d17f52a7b733652faaac58f0bdb226c091 (.etf)
+    sha256 dcf5b687b0f45badfb546a46a02b2e938daa8457942b894428c0046b94da89cc (.musx)
+    A score with a legacy pickup spacer followed by an entry frame.
+
+F2001Win-empty.mus / .ETF / .musx
+    sha256 0f4d05d140d5e2fa7170cae788b9bfb6df80d4422228d24c8fbbe0fc3ec77cb0 (.mus)
+    sha256 293880da4908cc7cc8230f1f4090520205dc7d81de693a1bb72f7ab4ce12012b (.ETF)
+    sha256 83164ff2e08acec9eae42698b4d0289ec9b88cbf3b7bdd9b5aff407452665208 (.musx)
+    The baseline for the controlled edits in this directory.
+
+F2001Win-mixstem-opp.mus / .ETF / .musx
+    sha256 1a4bddaa8e4536ba518c683cad97cee9753988bb58cfa40565b8ac6f9f8e53f3 (.mus)
+    sha256 af78ae576b2b5408a34849cb24a30c12ca1b63c31e948643a0a20c25aa0ff979 (.ETF)
+    sha256 5e2184ccd0dcbd2aaecbb2395501ab2f8f536297be620ae0a4dfa34a09278c76 (.musx)
+    A controlled mixed-stem Tie Options edit selecting the opposite-first direction.
+
+F2001Win-mixstem-under.mus / .ETF / .musx
+    sha256 d3b6a120995be950d2c1a132409c9c1b3146992e15ee11cb291a50e7bae245b9 (.mus)
+    sha256 2fb724a6756f86a663648381a745f2e62f268389529f4f37acfe56d65f406cf7 (.ETF)
+    sha256 a030bc29d20cfe4dc479dfe5c3922290b5c75c7e4510c361e64c043839264af3 (.musx)
+    A controlled mixed-stem Tie Options edit selecting the underside direction.
+
+F2001Win-csharp-artic.mus / .ETF / .musx
+    sha256 98e1cfad474959d305f2146337593c4f5441189f80464d340d55ed350ffa4c63 (.mus)
+    sha256 9632d9fcfec0b79055d3475b88714e8ffe9264fa0b737a3b09e076c7f8955642 (.ETF)
+    sha256 294c0f2a02e34a8d77100031eea5b5ffe079b7346b346ce43bb7624b9c89eefc (.musx)
+    A minimal musical edit carrying a C-sharp and one articulation. Entry and
+    articulation interpretation is reserved for a dedicated recovery cycle.
+
+F2001Win-finalbarline-toggle.mus / .ETF / .musx
+    sha256 e0edd453c8ade6bfcd1db7eca72bc6377303f9218d85b21d7df6923b261724d0 (.mus)
+    sha256 60b8ded381cd5d20a2a6c84109fc26d2368a5c63b41cb13028738c6438fe9d4c (.ETF)
+    sha256 d0981896d8b2668c98c15c8ebe5c8398b87e66bb0c5c636f011a136ea8117ee8 (.musx)
+    From the baseline, with automatic final barlines disabled. Selector 09 word 5
+    changes from 1 to 0, and both companions preserve the disabled value.
+
+F2001Win-meastext.mus / .ETF / .musx
+    sha256 5a69cdb0743a46ec4dfcf7cbb333d4fa29bcff645683d6b797982d12d3617533 (.mus)
+    sha256 dbe93b7b02aa8e57b9d965fde444abb6a57c286e3cd4e7f6c9d333274b7b32eb (.ETF)
+    sha256 9c8b0f9f3b43a336701f7aa214f314c9479883fdc22ba34ef401882abdf0f6f6 (.musx)
+    A measure-attached block containing `Measure-attachéd text: €2.99`. It confirms
+    Windows-1252 text decoding at the DCL lower boundary.
+
+F2001Win-meastext-pos.mus / .etf / .musx
+    sha256 f34ca6f44f64200e4fc99cfaf7a75885140971f5f2dc57b3ec977e8b9b888146 (.mus)
+    sha256 735c7f798f7971c4a7cbf2fc477d4d545152940181b7035b9982f5ff939a852c (.etf)
+    sha256 bfc8b589925059025c11ada5ac376927c4e67e41a5e1ef6b5a0292bba5744eda (.musx)
+    One measure text block at staff 1, measure 1, with a positive horizontal position. Its
+    `mt(1,1)` tuple is `1 784 78 0 0`; the companion stores `xdispEdu` 784.
+
+F2001Win-meastext-neg.mus / .etf / .musx
+    sha256 07da5bbd54151b68f85aa3552600dd976e847680dfb1a6dc85b9bbe5f19768a2 (.mus)
+    sha256 40d7d5c2d6ce89562e904aeccd5e2c27f053bab73f39d94cd17e2802e940785c (.etf)
+    sha256 7b8c66400cf06ad47bd3705b23d141a9429034e3f82c25fed96e2a37d11bfc03 (.musx)
+    The same measure text block with a negative horizontal position. Its `mt(1,1)` tuple is
+    `1 -249 117 0 0`; the companion stores `xdispEvpu` -249.
+
+F2001Win-section-lyric.mus / .ETF / .musx
+    sha256 324284085ba263fe184afd0a2beb2079ba200227d720cbc63b64a43690428f2b (.mus)
+    sha256 31795894401cdf477378b6589af5aab97d7feaafa28b365c0b225a527a09fb5c (.ETF)
+    sha256 fce8ef0a96b030fb2c038baa8ac9e3ea47d100e95719e4e29a5dfea8e8849b79 (.musx)
+    A section lyric containing `sec-tion ly-ric`, confirming the `section` text-pool
+    keyword directly.
+
+F2001Win-tclef-baseline.mus / .ETF / .musx
+    sha256 0a87171df9f2bd6d1d4f05fd8d35f9f256b78f7547fd7237c31a3441e0fe52bb (.mus)
+    sha256 30bbf9bf8c64d7d23f166aa24aa62c016c9f7c8f3e3fe9979e1a7563dd6f9c7a (.ETF)
+    sha256 95fa694160f3ae4d59faa3459d0b05be15d7484d4c8e69bb79c23cc85c80ad51 (.musx)
+    From the baseline, with the treble-clef baseline set to -0.25 inch. Selector 95
+    tuple word 3 stores -4608 Efix, and the Finale 27 companion preserves -4608.
+F2001Win-bookmarks.mus
+    sha256 1f36cbe6c26b50a3b7b46c1f8d027929eb93a0afbce8cf1a28d8ff91b92cc184
+F2001Win-bookmarks.ETF
+    sha256 9f37e8a18a520de60d76870cf1cc4b046d04e9e5b3264e8f45896f21d081dcf9
+F2001Win-bookmarks.musx
+    sha256 cd712eab876f175f18f6a2307b232afa16d7f057504f85cd7cbfb8a7e86fd656
+    Two bookmarks in the DCL era, and the only Windows bookmark fixture. Its page-view bookmark
+    gives the horizontal and vertical positions distinct values, -40 and -200,
+    and its scroll-view bookmark sets the staff comparator with flags `1`,
+    whose companion carries `changeInst`.
+
+    **Its companion is wrong about the text, on purpose.** The names hold
+    `ab bb` and `e5`, which are the guillemet pair and the a-ring in
+    Windows-1252. Finale 27 running on macOS re-read those bytes as Mac Roman
+    and wrote `Scroll ´ª 9, 3` and `PÂge Bookmark`. The reader converts through
+    the platform the source states and recovers `Scroll «» 9, 3` and
+    `Påge Bookmark`, so this fixture is a measurement of the conversion and a
+    standing reminder that a companion is a semantic reference rather than an
+    oracle.
+
+F2001Win-indtime-abrv.mus / .etf / .musx
+    sha256 d5e6c209420f1670e04a6f52664d6fe1ad8a094d6ba5ef638aefdc48c81167c4 (.mus)
+    sha256 062dc4cf55a293a39b97693ad5033080a474c569f9ba98de75770deca70a1cba (.etf)
+    sha256 a1d9f1777f0ad225d2b2371c159903daf79b863dfb6ef305dce3fa38e25fc752 (.musx)
+    Staff 2, measure 1 has an independent 3/4 time signature displayed as an
+    abbreviated 4/4. Its `FL` record stores flags 0x0604 and display words 4 and
+    1024 in the second incidence, and the Finale 27 companion carries
+    `displayAbbrvTime`.
+
+F2001Win-indtime-comp.mus / .etf / .musx
+    sha256 972096a8c6cc6e21503f21d26a78946799de7033fd92fe50fb7d284e574164d0 (.mus)
+    sha256 7a9fc2f93ee3bbcfe6f9bc8f17b85ae7541f23635a65aae40522517b45662a29 (.etf)
+    sha256 97eb63f650adb0bac938d0f41d400d7c5e97e1979d34db97fb376a036cb610de (.musx)
+    Staff 2, measure 1 has an independent 4/4 time signature displayed as a
+    composite. Its `FL` record stores flags 0x0603 and display words 2 and 2,
+    naming composite lists `TU(2)` and `TL(2)`, and the Finale 27 companion
+    carries `displayAltNumTsig` and `displayAltDenTsig`.
+
+F2001Win-midclef.mus / .etf / .musx
+    sha256 5a0037b65e5d31e2985f072c75f8d3cb01b88680663ed8f9d66dc3615026dba7 (.mus)
+    sha256 3a9396965b099c7699d4aabbb3bb97e8ee2d7ab3649280df56726b36a073eb66 (.etf)
+    sha256 1906dfdb630a5af7f5e8a160f7d49c462b52cbf4b3486384e9e296992caf3d08 (.musx)
+    Measure 1 has a treble barline clef, a bass clef at Edu 1645 raised 12 EVPU
+    with "Allow Vertical Drag" set, and a tenor clef at Edu 2912 with "Place Clef
+    After Barline" set. `CE(1)` stores the three items with flags 0, 0x0004, and
+    0x0010; `GF(1,1)` names list 1 with flags 0x0400. The Finale 27 companion
+    carries `unlockVert` on incidence 1 and `afterBarline` on incidence 2.
+
+F2001Win-clef87.mus / .etf / -finale27/F2001Win-clef87.musx
+    sha256 50bca1459ca913e5bc009a47c87c56114c3bf299532f3fe0c2c8c96dbcb4523c (.mus)
+    sha256 5f11fdcbb6c1dbe0ec77253857037a9b9e405639e953f2bba319cfc91fe05c6c (.etf)
+    sha256 72bf9afd0dd1350a95feaab1cc0fe488e5cf59a3c92794474a01e11a3a0e7c6e (.musx)
+    A measure-1 clef set to 87% size. `GF(1,1)` second-row word 1 stores 87, and
+    the Finale 27 companion preserves 87%.
+
+F2001Win-endingtext.mus / .etf / .musx
+    sha256 8c638a7d6517c1cd6d0e8e8176ec4ab0da370c7315f1533923ae835314630a2e (.mus)
+    sha256 f10f75ed530f95fe15fe72a2c26ea3cdef8155251425c75f3ca54ed6b0801398 (.etf)
+    sha256 4714bc4ef173176b740d4e247352a87e70ca00c28ed84f9387fbb0afe2f1e976 (.musx)
+    Measure 1 has a repeat ending whose text is "This is å löng ending", set in
+    the ending font Times New Roman with the Windows ANSI character set. `ET(1)`
+    stores the Windows-1252 bytes, including 0xe5 and 0xf6, null-terminated
+    across two incidences. The Finale 27 companion decodes those two bytes as
+    Mac Roman, writing "This is Â lˆng ending".
+
+F2001Win-16ths.mus / .etf / .musx
+    sha256 b41eea069b8dff003f27c38bb1dc1ba644a14c5dbdd6144586401871a37b64c3 (.mus)
+    sha256 62746734a9716efcbeec571add9112e36048e2ef4a5a6d21f19945da1b6a570e (.etf)
+    sha256 25d596006211a25239bd5616fc2b430c1ba1f92bdc9238ccd701dee216d61e6a (.musx)
+    Baseline sixteenth-note group with no primary-beam alteration detail.
+
+F2001Win-16ths-beamwidth.mus / .etf / .musx
+    sha256 049888ba2776d32da7967b7ba5c9a1bf498a3d52303b5079a10def0a9f5c1aaf (.mus)
+    sha256 69fb3b7af2b5ccdecfe2f1ac387849eb1494ab4b8312d469383822318c909806 (.etf)
+    sha256 77dac08ae3acad4550d0994da94461c307911e83d05412c8b703732fa78ef882 (.musx)
+    Changes the primary downstem beam width at entry 1. The `BL(0,1)` second-row
+    width word is 3 whole EVPUs; the Finale 27 companion writes `beamWidth=192`
+    EFIX units for the same beam.

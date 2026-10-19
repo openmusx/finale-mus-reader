@@ -1,0 +1,299 @@
+Finale 2008 (internal version 13.x), zlib era. The fixtures below include both
+byte orders.
+
+F2008-F2006-lyric-vcs.mus / -finale27/F2008-F2006-lyric-vcs.musx
+    sha256 e5b9311f254b838e5fe0e693d81e727083c79e7ec65f2a3e7c55d6ea892955b2 (.mus)
+    sha256 35c474913046f62432f09957492dfc4b5dbc5ed82ab82f8cf59096976fb53beb (.musx)
+    A Finale 2008 save of the Finale 2006 Verse, Chorus, and Section lyric-shape score.
+
+Origin of the big-endian fixtures: controlled test documents created by Robert
+G. Patterson in Finale 2008 running under Mac OS X 10.4 hosted by QEMU, and
+released by their author under this repository's MIT license. The same save
+attempted under Mac OS X 10.7 in UTM crashed, which is why those specimens are
+PowerPC ones.
+
+The `BE` in the name is the point of it. Finale 2007 and 2008 straddle the Intel
+transition and byte order varies across it; this is the big-endian Finale 2008
+fixture, every other tracked zlib-era fixture later than Finale 2007 being
+little-endian.
+
+F2008-BE-text-inserts.mus
+    sha256 ed8096788fa377bfd504c2f7c04e59661c8d07eed15a16b7e635ea780066252a
+F2008-BE-text-inserts.musx
+    sha256 cb343c5f19907bbcc2d328f155d570e2f4c8a9f1e84fdc809f2449390a524b17
+    The continuation of `tests/evidence/F2006/F2006-text-inserts.mus` into a
+    release that has the inserts Finale 2006 lacked: one text block per insert,
+    plus all seven File Info fields filled in. It answers three things that
+    fixture could not.
+
+    It fixes five more binary command codes. `^partname` arrives with Finale
+    2007's linked parts and `^lyricist`, `^arranger` and `^subtitle` with Finale
+    2008's fuller File Info, and all four are **appended** at 0xa0 to 0xa3 rather
+    than slotted into the alphabetical run where their names would sort, which is
+    how a release adds an insert without renumbering the ones already written
+    into saved documents. That refutes a prediction made from the Finale 2006
+    table and is the reason those predictions were never put into the reader.
+
+    Its two `^time` blocks give the fifth code and a third argument width. They
+    differ in one byte and are labeled "Time" and "Time with seconds", which is
+    exactly musxdom's `^time` argument, and the byte is a **single** digit where
+    every previously observed argument was four or eight. Finale 27 drops this
+    insert on conversion, so the companion cannot corroborate the name; the
+    controlled pair is the evidence, and the reader keeps the insert the
+    conversion discards -- what Finale 27 drops on conversion says what that
+    conversion does, not what the document contains.
+
+    It also shows File Info leaving the header. All seven fields are `^fileInfo`
+    records in the text pool, numbered by musxdom's own `FileInfoText::TextType`
+    and confirmed field for field by the companion, while the header offsets that
+    carry them in Finale 97 are empty. Where between Finale 2006 and Finale 2008
+    the move happened is open, and the reader does not need to know: it fills from
+    the header only what the pool did not supply.
+
+    All seven TextBlock class records carry decimal 2004 at word 12 and refer to
+    block text, confirming that the Finale 2006 text-family discriminator persists
+    in the zlib class-record form.
+
+    Two companion differences are intended. Its first block is the bare text
+    `FULL SCORE` with no style commands at all, and Finale 27 writes
+    `^fontid(1)^size(12)^nfx(0)FULL SCORE`; the reader keeps what the file says
+    rather than synthesizing a font the document did not state. And Finale 27
+    emits no `^time` at all, where the reader preserves it.
+
+F2008-maxnotes.mus / -finale27/F2008-maxnotes.musx
+    sha256 5c91d0db96b68210e1f031385f001ff03f81d0401d40ef46b5f7e1d4895f0853 (.mus)
+    sha256 faf06d4364ac544d47bbc2d425878b424b48ab2d87d8f4fd4e7202b733734e01 (.musx)
+    A controlled Finale 2008 twelve-note chord supplied and released by Robert
+    G. Patterson. It exercises all continuation note slots in the fixed 38-byte
+    Entry row layout and has a Finale 27 companion for comparison.
+
+F2008-empty.mus
+    sha256 d9321c0564199287238185f0952bd282ee4abaed8c65d72a099f7d62f96fea3e
+F2008-empty.musx
+    sha256 a2a890b97ef4c3044fb26717b43d50a4c22c626aad8436b14baf0ead3523532a
+    Numeric-global class `0x0071` has 42 words: outline true at word 0,
+    twelve red values at words 1--12, twelve green values at words 13--24,
+    twelve blue values at words 25--36, and five zero trailer words. Every
+    color and the outline switch agree with the companion.
+
+F2008-16ths.mus / -finale27/F2008-16ths.musx
+    sha256 46ff9a0ad4eedbbb1f54958e4d5a3ca7d518eb0bcea303c564197ae15c535cc2 (.mus)
+    sha256 1c20d7135b359ca612d2410eec97ec5549a165a8d5dc2f18137417c39463488f (.musx)
+    Derived from F2008-empty with two groups of sixteenth notes, the first with downstems and
+    the second with upstems.
+
+F2008-16ths-secdnup.mus / -finale27/F2008-16ths-secdnup.musx
+    sha256 ace62fa41459c0d59ce034ad67dbc4e75a757b790d51ba05cf384936ea311139 (.mus)
+    sha256 1a103d8a543af99b2b3ab153414bcf466020b334bd54d241bd3aa9f3d25b77ee (.musx)
+    Derived from F2008-16ths by modifying the secondary beam in each group.
+
+F2008-parts.mus / -finale27/F2008-parts.musx
+    sha256 7b1084a77f4c5359f05ebedb924acbd0e8a73cc5c7c6abafc3b1118954d0c6f1 (.mus)
+    sha256 503ed74be133eea448ddfd230470f7e46bc5230bc8cba904c344a61fb735bccc (.musx)
+    Derived from F2008-empty by adding two linked parts that share staff 1, with no part voicing.
+
+F2008-parts-voiced.mus / -finale27/F2008-parts-voiced.musx
+    sha256 8fc23ec298ea38e742afc21c7eb7463c98fa44f4ffb862d251ec1530792a3df1 (.mus)
+    sha256 7b615ca2e8ca5579f837cd594f00d4d412af7151a13ce24c69bc1b9535ec76aa (.musx)
+    Derived from F2008-parts by enabling voicing in both linked parts. Part 1 uses the top note
+    in single-layer passages. Part 2 selects the second and fifth notes from the bottom and uses
+    layer 2 for both single-layer and multilayer passages.
+
+F2008-empty-le.mus / -finale27/F2008-empty-le.musx
+    sha256 3472a2e139d309dcafa7ef6d8e091ba81e25e5da340650a78fa4fb26e40497bb (.mus)
+    sha256 fae71f507f4101d8f7b8a7644fd15149e20b965943e99a95b7665fc73d5e2019 (.musx)
+    A controlled little-endian baseline for F2008-namepos-hidden.
+
+F2008-16thpickup.mus / -finale27/F2008-16thpickup.musx
+    sha256 a9b2566fac806e372bbe0a2a5e37ca2561f9812e8e02a9cbb0cfdfbbf78cb809 (.mus)
+    sha256 1c68ba19a098b7d7392500a1f5a82bb9fa9a441b3d755d60d200ed40f1ae6d40 (.musx)
+    Derived from F2008-empty-le by adding a one-sixteenth-note pickup and one entry frame.
+
+F2008-namepos-hidden.mus / -finale27/F2008-namepos-hidden.musx
+    sha256 ce1e7898281228ac1c54a1e8eda3310633b85277d43bd88c97387ff52aaeb65e (.mus)
+    sha256 e6ad095b6f0973b5b2ce5f01029889c333772d6b29fbe49c75764ae6bdb758e1 (.musx)
+    Derived from F2008-empty-le by hiding staff 1's full name and selecting right alignment. The
+    full-name positioning class record carries both settings, and the Finale 27 companion
+    preserves them.
+F2008-notehead-colors.mus
+    sha256 414b2afbf38be630ed8e29aa246549e1d8764fb0d07bbcb18f07e185ff1addfd
+F2008-notehead-colors.musx
+    sha256 493a4ce288511799ea25aeaed3161c84456318cb2bec55a77ed8b6bb8d78b73e
+    A controlled big-endian document supplied and released by Robert G.
+    Patterson. All twelve notehead colors were changed to distinctive RGB
+    values and Show Border Around Colored Noteheads was toggled off. Class
+    `0x0071` retains the same 42-word shape as F2008-empty: word 0 changes from
+    1 to 0 and all 36 planar channel words carry the companion's exact unsigned
+    16-bit values. No ETF exists because Finale 2008 no longer exports ETF.
+F2008-percussion-staff-edit.mus
+    sha256 be8c0d397598ddd0c7ccafbf3a721a06ff1d8ff74132ee1b5e04d7eaee081aaa
+F2008-percussion-staff-edit.musx
+    sha256 57b858bfae2cbd219aebb8ece3f5bf45cb87b2b2b778387b7995e320ea2268f3
+F2008-percussion-staff.mus
+    sha256 22d9db4c88775a5cdb8fa163c376a5548ed0a14bee8972e111e3a741d576c2bb
+F2008-percussion-staff.musx
+    sha256 6567ff1e76ede22787691b70405c03681edf1cd013f23c8a2dcc194c10520f32
+    A controlled big-endian pair made from F2008-empty. Both contain a custom
+    `Percussion Map 1`; the edited document changes input MIDI 60 from staff
+    position 0, closed notehead 207, and open notehead 250 to position 6,
+    closed 208, and open 194, then assigns that row to staff 1. Finale 27
+    companions were saved for both.
+
+    Class-detail `0x040e` retains 128 five-word `DF` records. The MIDI-60
+    payload changes exactly as entered. Class-other `0x0084` payload word 4
+    changes from zero to `0x1000`, selecting MIDI 60. The edited companion
+    upgrades precisely that row; the unassigned companion omits the custom map.
+F2008-timesig-plusparts.mus
+    sha256 23a91fcc4d98768cb94a5903836e43181362a6fc6ce85aa2e40cef9c27616100
+F2008-timesig-plusparts.musx
+    sha256 e7fb46e4bbb4204cdca29686c6ddc6d14567e4d9296ced3df2987c2c125ce8c9
+    A controlled little-endian document supplied and released by Robert G.
+    Patterson, setting the linked-parts abbreviated common, abbreviated cut,
+    and plus symbols to 98, 69, and 42 while the score symbols remain 99, 67,
+    and 43. Numeric selector 18 class 0x0020 stores the parts values as
+    unpacked words 12, 13, and 11 respectively.
+F2008-defss-over.mus
+    sha256 d0d5b2138ca33127cf8b9a5314642a32029d19394eedfa0559c2c1b0cbac71ef
+F2008-defss-over.musx
+    sha256 629b4e975e967c06b617e9b56c638943c742e4c23139775d6d3cb9a7ea198ec3
+F2008-defss-under.mus
+    sha256 eb079da13cd839006c282e54acd90efc26471f9871a2a2462a3df6e24522d4d4
+F2008-defss-under.musx
+    sha256 7776effb28e18466e37a06ae3fd0d226cf192f042e5298936e65660c65b6b2be
+    A controlled Default Smart Shape Direction set. Class `0x0018`, global
+    comparator 65534, incidence 0, word 0 stores `0` for Automatic, `1` for
+    Over, and `-1` for Under; no other word in the class record changes. The
+    Finale 27 companions preserve all three meanings. Values outside this enum
+    are not direction values and retain the reader's seeded default.
+F2008-bookmarks.mus
+    sha256 27b6066b11927cc8f15c506b3f8f1e31639ec5b6ff81add62dc66fc810b888d6
+F2008-bookmarks.musx
+    sha256 4a13fac05dc9906571b8e11f12fdab7c8b2476eebc95bc876394b62c3ef408c0
+    Six bookmarks, built to separate fields that every earlier specimen held
+    equal. This era keeps the whole 36-word bookmark record as class `0x007b`
+    of the zlib pool, name and all, so it is the specimen that shows the record
+    surviving the move off the tagged others pool unchanged.
+
+    Each of the six isolates one thing. `Horz Only` stores a horizontal page
+    position with flags `1` and no vertical; `Vert Only` stores a vertical one
+    with flags `2` and no horizontal, which is what assigns each flag bit to
+    its own word rather than inferring the pair from a bookmark that sets both.
+    `Page Böth` gives the two positions distinct values, 40 and 200, so words
+    31 and 32 separate. `Percent 150` sets word 26 and its companion is the
+    only one carrying `changePercent`. `Percent 75 off` leaves word 26 clear
+    with 75 still in word 25, and its companion keeps `viewPerc` 75, which is
+    what shows the percent is stored as written whether or not it applies.
+
+F2008-staff-nohidenoteitems.mus
+    sha256 9be10a038c4500cd62f444fd75461b4c5b0a98d344c85d98ba894cf48d7112fe
+-finale27/F2008-staff-nohidenoteitems.musx
+    sha256 8850556029f00fdf848bc2bbacfcc6473744ac10bda496847978b31d23c355c5
+    Derived from F2008-empty by unchecking Show Note-attached Items. Staff word 2 changes from
+    `0x6700` to `0x6600`, word 4 materializes `0x1800`, and no other Staff byte changes. The Finale
+    27 companion expands the edit to the six modern hide properties.
+
+F2008-notehead-font.mus
+    sha256 938b7dbd3f8beeae7b451303fb53d181d3860a1a6a363926d69336953eb57d5c
+-finale27/F2008-notehead-font.musx
+    sha256 454770aafbc77907e9e8cc165c5a846a74835c937188e8d95972415ea0236ff6
+    Derived from F2008-empty by selecting American Typewriter, size 17, underline as the independent
+    notehead font. Staff words 3, 4, and 5 become `0x0009`, `0x1104`, and `0x0020`; the Finale 27
+    companion preserves the font, size, effect, and enabled setting.
+
+F2008-percstyle.mus
+    sha256 774e21d8efacc13e71af8bf8a245e1e1d606f9006f9b474435cadcd2268d7dba
+-finale27/F2008-percstyle.musx
+    sha256 4db8ffba9bc4f994f70961f556ee54c7ed352f01fead97322836c4ae295aac8a
+    A controlled little-endian document containing a Staff Style named Percussion Style with
+    percussion notation enabled and Percussion Map 1 selected. Class `0x0085`, comparator 1,
+    stores map ID 1 in word 0. The style is not assigned, and the Finale 27 companion emits one
+    `drumLayoutPmmRef` instead of a `drumStaffStyle`.
+
+F2008-percstyle-assigned.mus
+    sha256 026242e7619b16661a9bb5cad4c9d61f484a6b0c5bb74a71e97b069544b443da
+-finale27/F2008-percstyle-assigned.musx
+    sha256 39727711368c202668777afa2837ddf232f86a91b7b1000f3f2f0ff1e81248dc
+    Derived from F2008-percstyle by assigning Percussion Style to the document's staff. The
+    `0x0085` payload remains unchanged, isolating assignment as the condition that preserves the
+    style through Finale 27 conversion.
+
+F2008-syslock.mus
+    sha256 07e9e791d4134bd87c7b29c29b509e9889df6178e3d286390ab65bfbd2fa3905
+-finale27/F2008-syslock.musx
+    sha256 3d1f13de827f3b7d8f1ca627800217195c54e980ef4c3013388e6301e4af35f1
+    A Finale 2008 document with a system lock beginning at measure 1 and ending before measure 2.
+    Its Finale 27 re-save preserves the lock.
+
+F2008-rptback.mus / -finale27/F2008-rptback.musx
+    sha256 3fd976bb8ac4836da5c1674d659463f48d3a166015ea70335b9e43bab1c0ae61 (.mus)
+    sha256 bb964c514bf4b214d9344315449b6b1f4fec892021f6352440712e323550b198 (.musx)
+    A visible backward repeat at measure 1. Its class-other `0x00cb` flag word is zero,
+    and the Finale 27 companion does not contain a hidden element.
+
+F2008-rptback-hidden.mus / -finale27/F2008-rptback-hidden.musx
+    sha256 c4c0fa485161d5d85f2ceb1d704a9bdd89ca67db5624df1af19e742590796093 (.mus)
+    sha256 eba1122e58a02578573e11f59cffa27b289949fe870dbbdf6d7589d828c12015 (.musx)
+    Derived from F2008-rptback by clearing Show for the backward repeat. Its class-other
+    flag word changes to `0x4000`; the companion contains the hidden element.
+
+F2008-textrpt.mus / -finale27/F2008-textrpt.musx
+    sha256 077847d6565a12c8597f6b0d340f1937ca8cce92035d2e84e7bc7c3c50818e33 (.mus)
+    sha256 27a2e6380325acabb67f592ff9b7fdc99e63f5fc7ae4e63373be958c7dd45cd1 (.musx)
+    A controlled text repeat assignment with staff list 1. Class-other `0x00f3` stores
+    staff list 1 at word 6 and flags `0x0010` at word 5.
+
+F2008-textrpt-hide.mus / -finale27/F2008-textrpt-hide.musx
+    sha256 488d8725e7b524d07e3cc9f8ab511dc39cd7dfeca678cf4e183983f8c3d158f6 (.mus)
+    sha256 bf62588b222a365ed5510c9422694d873371f424576495272923f827bf4adfad (.musx)
+    Derived from F2008-textrpt by hiding the assignment. Its class-other flag word is
+    `0x4010`, adding only `0x4000` to the baseline.
+
+F2008-textrpt-autoupd.mus / -finale27/F2008-textrpt-autoupd.musx
+    sha256 e88614a13f0582e0fc1f3b8e6d6ee7344fe12d7acbba436c46c13a5e16dc8b0f (.mus)
+    sha256 03d08b99ab0e8bc869d04edae93ea49fbf88b9c73590ae74edb9015101aac01f (.musx)
+    Derived from F2008-textrpt by enabling automatic update. Its class-other flag word is
+    `0x0090`, adding only `0x0080` to the baseline.
+
+F2008-parts-jumps.mus / -finale27/F2008-parts-jumps.musx
+    sha256 38e23e7c78cbf373bd6d5b9151593e16ebce4abef06a11395122063c95732667 (.mus)
+    sha256 8579a11ab362247d6e7ef4f91827e1db2d94a69a0a83ee675acdcae0b5fe25d7 (.musx)
+    Three text repeat assignments in one measure. Part 1 changes the first assignment's
+    horizontal position; part 2 hides the second assignment; the third is linked in both parts.
+
+F2008-rptindiv.mus / -finale27/F2008-rptindiv.musx
+    sha256 6d266bb451e7e8120857eea675164d6e5edb392d441fcdc19ad67e74d32953aa (.mus)
+    sha256 e41ef79d3f153d610205bd1469ac2055d863607d8a3ed062dbfc9b60be4f4fe2 (.musx)
+    Contains two ending-line and ending-text placements in each of measures 2
+    and 3, plus two text-repeat placements at definition 1. Each has score and
+    linked-part records. Individual line visibility and offsets differ by part;
+    ending-text and text-repeat offsets also differ by part. The Finale 27
+    conversion retains the part-specific placements and sharing. The backward
+    repeat now has two individual placements at measure 2, including distinct
+    score offsets, and matching linked-part instances. The score hides the
+    second backward-repeat placement; bit 0x0001 appears in its second word
+    and the companion marks that placement hidden. Part 2 hides the first
+    text-repeat placement: bit 0x0001 appears in its placement record's last
+    word, and the companion marks that placement hidden. Part 1 separately
+    turns off the text-repeat assignment's individual placement.
+
+F2008-F372-F263-F100-msnm-enclevr.mus / -finale27/F2008-F372-F263-F100-msnm-enclevr.musx
+    sha256 e5032205a9a16e52a77bbe175b15c83a3be334efa31477e2eb8f53b2436c0a83 (.mus)
+    sha256 2c2923f6b180d23b8103859bbd17e676be82928a52a01f369bdc1ded356339af (.musx)
+    A Finale 2008 re-save of the controlled measure-number enclosure fixture, followed by a
+    Finale 27 companion re-save. The old 96-byte class payload retains the rectangle enclosure,
+    its 18/18 margins and 118 line width, and the enabled start and mid-measure uses. Finale 2008
+    cannot export ETF, so this pair contains only the source document and modern companion.
+
+F2008-4trs.mus / -finale27/F2008-4trs.musx
+    sha256 9a2c59b4a31733dd9e4a5e49db4278e8dc6a2823ea745bda4c0173166c0155bd (.mus)
+    sha256 e564575335c2cd2f653bee2f6477b618956a53fd1c7290d2f961b090548e52d2 (.musx)
+    A little-endian Finale 2008 score with eight entries and one linked part. It is the
+    baseline for a part-specific enharmonic edit to entry 8.
+
+F2008-4trs-enh.mus / -finale27/F2008-4trs-enh.musx
+    sha256 26d3cfd834be2df60acf4ee012a67b565df9c09037d9634237730713952e4a8b (.mus)
+    sha256 bc5b73999f32745b4d050a3c3d3fa6908cfa2782f8cf113b9cab0c2bb95d1451 (.musx)
+    Derived from F2008-4trs by changing note 1 of entry 8 enharmonically in the linked part.
+    The source adds a part-specific class-detail `0x0422` record; the Finale 27 companion
+    contains a linked `noteAlter` with `enharmonic` set. The save also changes part-specific
+    layout data and the companion's `needsRecalc` values.

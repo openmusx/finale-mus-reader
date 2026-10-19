@@ -1,0 +1,152 @@
+Finale 2011 (internal version 16.0), zlib era, little-endian, Mac origin.
+
+F2011-rehearsal-mark-matchplay.mus
+    sha256 414128b8e4f8378c4dea1493a23a9d2bd8267cc33b2ac33920ad941575f1b4b4
+-finale27/F2011-rehearsal-mark-matchplay.musx
+    sha256 35b2cba047d4a53ec570720435843d3e0e1306fb6e8ea814c937061e1689f7e8
+    The match-playback variant of the rehearsal baseline below. Expression comparator 1 changes logical word 5
+    from 0400 to 5401 and auxiliary word 3 from zero to 1024. The companion adds
+    matchPlayback, auxiliary-data use, tempo playback, and the same beat duration.
+    Other expression payload bytes remain unchanged. The fixture verifies the
+    mapping in Finale 2011, not the provisional Finale 2010 introduction date.
+
+F2011-rehearsal-mark.mus
+    sha256 3012dfe7f5deaa4f35420565e6490b0f2cfa536491bfa1b45f21dd9b64788ed3
+-finale27/F2011-rehearsal-mark.musx
+    sha256 f6bf326f1a7ff7225d7d12c68012926cbf3dcb096d2a7a6bbf1fd36de4e50dd5
+F2011-rehearsal-mark-hidemeas.mus
+    sha256 b15ea3ab2ee278d74311954e225728c8f4a99280c38656f217b305e7a4d553bd
+-finale27/F2011-rehearsal-mark-hidemeas.musx
+    sha256 98cab842f3954c35594e7de050262f3e7ca5078ef0bd1c425ab328fd96d71d6d
+    A controlled rehearsal-mark pair. The second expression hides measure
+    numbers; the first does not. Their class
+    0x00f1 comparator 1 payloads differ only in logical word 5, 0400 versus 8400.
+    Only the second Finale 27 companion includes the hideMeasureNum element.
+    Both use actual measure-number sequencing, stored as 6 in logical word 1.
+    This pair verifies Finale 2011 behavior; it does not establish the proposed
+    Finale 2010 introduction.
+
+Origin: controlled test documents created by Robert G. Patterson in Finale 2011,
+released by their author under this repository's MIT license.
+
+F2011-baseline.mus
+    sha256 00c69d4747833fb9d49162e5cad808f3775d8b85c1b714c656821d998b6eabd5
+    A stock Finale 2011 document. Its selector 57 record is twelve bytes with word 4
+    clear, and its companion carries no <lyricUseEdgePunctuation/> -- so a document
+    created new in Finale 2011 ignores syllable edge punctuation by default. A document
+    authored in an earlier release and converted into Finale 2011 instead carries word 4
+    set: conversion preserves the older look by switching ignoring off.
+
+F2011-lyric-punct.mus
+    sha256 0b5b555fdfc92cd2807fad6e62d4143b054a828ace61d1f23f8d82732165f672
+    From F2011-baseline, the punctuation set changed to `#@%&«»` where the last two are
+    the guillemets U+00AB and U+00BB. The direct counterpart of
+    tests/evidence/F2012/F2012-lyric-punct.mus, and the pair is what shows the tail has two
+    layouts rather than one.
+    Its record grows from twelve bytes to twenty-four, the six scalars unchanged, and the
+    tail is `23 40 25 26 c7 c8` -- six bytes in string order, not three 16-bit code units.
+    Finale 2012 writes the same list as one code unit per character. Both containers are
+    little-endian, so reading this byte string through the word path would transpose every
+    pair of characters.
+    The two non-ASCII bytes are what make the code page a measurement rather than an
+    assumption. 0xc7 0xc8 is the guillemet pair in Mac Roman and `ÇÈ` in Windows-1252, and
+    the companion reads the guillemets, so this Mac-origin document is Mac Roman. The reader
+    takes the bank from the document's platform, as it does for a font definition that
+    carries no charset of its own; this is the only fixture that tests that choice
+    for this field.
+
+Automatic lyric numbering: three saves carrying a binary code
+
+    Finale 2011 adds automatic lyric numbering, and its four fields live in words 6 to 9 of
+    selector 58 -- a record that was six words in every earlier era and is twelve from this
+    release on. The record therefore states its own layout and needs no version gate.
+    Three booleans and an enum cannot be told apart by saves that each change one thing and
+    nothing else, because four fields need four distinct signatures. These three saves give
+    each field a unique pattern of which files it moves in, so none can be mistaken for
+    another: the type moves only in the first, Verses in the first and second, Choruses in the
+    first and third, Sections in all three.
+
+F2011-lyropts-autonum-type.mus
+    sha256 c6996ee6764ba83d047146658caf60575916e33fbb5a7861ff0eb46d2d2d51a8
+    From F2011-baseline, automatic numbering set to "Keep with First Syllable in Lyric" and
+    all three of Verses, Choruses and Sections switched on. Words 6-9 become 1, 1, 1, 0, and
+    the companion shows all three switches with <lyricAutoNumType> absent, which is musxdom's
+    `None`. This is the only fixture that moves word 9, so it alone names the type, and it also
+    proves the type passes through untranslated: musxdom's AutoNumberingAlign is in the legacy
+    order, None then Align.
+
+F2011-autonum-vs.mus
+    sha256 dc2a2b87590cce02018ddf83c8f8ad4ca2fd67a94ad713318c86f5f71c32e842
+    From F2011-baseline, Verses and Sections switched on and Choruses left off. Words 6-9
+    become 1, 0, 1, 1.
+
+F2011-autonum-cs.mus
+    sha256 eb742704c65232a2ceb32bc2e04d04f9f5fa849a1461174ee6a69211844eed89
+    From F2011-baseline, Choruses and Sections switched on and Verses left off. Words 6-9
+    become 0, 1, 1, 1. Taken with the previous save this separates all three switches: word 6
+    is the one that moves with Verses alone, word 7 with Choruses alone, and word 8 with both.
+
+    All three saves also add one class-detail record, 0x0455 at cmper 1/1, identical in each.
+    It is not part of LyricOptions -- the switches are entirely in selector 58 -- and appears
+    to be the per-lyric state that numbering being in use creates. It is recorded here because
+    a later class may want it, not because anything here reads it.
+
+
+F2011-text-inserts.mus
+    sha256 d89543077eefeae66a971c3890536d83deca6911a6779add93f3dfc58d586c7e
+F2011-text-inserts.musx
+    sha256 b8ff7ce5238bdff0645b4f3d4ceade6653cee670bc48623331868bfe71e6482d
+    The third and last of the text-insert fixtures, after F2006 and F2008, and the
+    one that closes the binary command table: with it, every command musxdom's
+    `EnigmaString.h` documents has a located code. Finale 2009 introduced marking
+    categories and Finale 2010 automatic rehearsal marks, so Finale 2011 is the
+    earliest available release able to write all four of the commands still
+    outstanding.
+
+    Its three expressions carry the font-category commands and fix 0xa4 as
+    `^fontTxt`, 0xa5 as `^fontMus` and 0xa6 as `^fontNum`, each named by the
+    companion. They are **appended past the inserts** at the top of the table, not
+    placed among the style commands at 0x80 to 0x83 where this reader had predicted
+    them. That is the second prediction drawn from the shape of the code table to be
+    refuted by the first fixture able to test it, after the Finale 2008 one, and the
+    two together are why the remaining six free slots are left empty rather than
+    filled by inference.
+
+    The three stored arguments are 9, 11 and 11 where the companion writes
+    `Times New Roman` and `Engraver Text T`, which settles that a categorized font
+    command states a comparator and not a name, exactly as `^fontid` does. The
+    reader keeps all three spellings and writes each font under the name its own
+    definition carries, falling back to `^fontid` only for a comparator the document
+    does not define -- the category a command names being the one thing `^fontid`
+    cannot carry.
+
+    Its fourth expression fixes 0xa7 as `^rehearsal` and shows directly that the
+    insert takes no argument -- the byte after the code is 0x20, the leading space
+    of the literal " Rehearsal", and 0x20 is not a digit byte.
+
+    Two companion differences remain, both intended. The reader drops the character-set
+    parenthetical Finale 27 writes after the name, since the font definition states the
+    same thing and musxdom reads it only from there. And Finale 27 renames
+    `EngraverTextT`, which is what this document stores, to `Engraver Text T`; the
+    reader reports the name the document carries.
+
+F2011-staffstyle.mus
+    sha256 5103e8575c79030c10609b865eedc9be0734d66ff2c6014c4694120ecde0a7b4
+-finale27/F2011-staffstyle.musx
+    sha256 b222a081b1d1c04572a2a12988d3ab967999aa2749c215aa71c27f5fc0d55b85
+    Derived from F2011-baseline by defining one Staff Style without assigning it. The Staff record
+    remains byte-identical and the Finale 27 companion does not write `hasStyles`.
+
+F2011-staffstyle-assigned.mus
+    sha256 c262459df71082f58ed34a58422f0efb3919fd32bd72ccd7522b2aed082de392
+-finale27/F2011-staffstyle-assigned.musx
+    sha256 f88cad0f8fba373d42c6e4526b52dba70c24187c6ae0a8f9b8c655e9c45166f9
+    Derived by assigning the defined style to staff 1. Staff word 5 changes only by setting
+    `0x1000`; the Finale 27 companion writes both the assignment and `hasStyles`.
+
+F2011-shapexp-desc.mus
+    sha256 a82f006b5efb4d174138dc567f11b606260239b8d58b46a74ce49daf79743ee4
+-finale27/F2011-shapexp-desc.musx
+    sha256 a465424f3968b40e19ef44b8c2754302ae9a685c1cc5c432d380849bd4749850
+    Adds one shape expression definition with a long description containing non-ASCII
+    characters. The Finale 27 companion retains the description.

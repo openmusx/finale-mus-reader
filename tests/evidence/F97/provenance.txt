@@ -1,0 +1,136 @@
+Finale 97 (internal version 3.8), uncompressed fixed-row era, big-endian.
+
+Origin: most test cases were authored for the Settings Scrapbook plug-in and released for
+publication by their author. The upgraded slur fixture derives from the author's
+F300-slur document.
+
+The fixtures authored here were saved under Mac OS 9.0.4 running in SheepShaver,
+which is the host for every Finale before 2004. The exact application build is
+not recorded.
+
+F97-F300-slur.mus / .etf / -finale27/F97-F300-slur.musx
+    sha256 fd588e236b6ada477880d779d2de228bf42e1e9846b7bc85de7dec5d050ce196 (.mus)
+    sha256 5206353a2a26d07b7cfce27187ab52f5db5f0130118c3d9928e96d53e80f83ae (.etf)
+    sha256 3bbcbefe43c88d0b44ef238eabcccb5933310a51c99db9382a26de9d329b44bb (.musx)
+    Reopens the slur in Finale 97 and saves it with the same seven-incidence
+    SmartShape and EDU endpoints 142 and 1138.
+
+F97-fileinfo-short.mus
+    sha256 35b764881cf54f67e2e4dfcd3d1f7071a330fd03e0f7a5afb6314a6b4857eb29
+    A document whose file-info text fits inside the usual header, so its record
+    body begins at the customary offset 0x200.
+
+F97-fileinfo-long.mus
+    sha256 01c845fbcdfc27a4f61033f66dbd16bf3a72a2bde6ff4cc4dda46733389ebf03
+    The same document with deliberately long file-info text. The text overruns
+    0x200 and the record body begins at 0x1167 instead. The header records that
+    offset at 0x60 as a byte-order-sensitive 16-bit value.
+
+The pair is a controlled difference: they vary only in the length of the
+file-info strings, which makes them the evidence that the record body offset is
+a header field rather than the constant 0x200.
+
+Fin97-baseline.mus / .etf and Fin97-clef-baseline.mus / .etf
+    Finale 97, internally Enigma version 3.8.0. The clef-baseline save changes two
+    clefs' baseline adjustments: selector 28 word 4 moves 0 -> 1 and selector 29
+    word 4 moves 0 -> -2, and nothing else in the record set changes.
+    Finale 97 has no "use baseline adjustments" checkbox and adjusts
+    unconditionally, so its companion converts both values at 768 Efix per harmonic
+    level even though word 5 of selector 28 is 30, whose bit 0 is clear. This pair
+    is what shows the switch is version-gated rather than universal.
+
+F97-expword-off.mus
+    sha256 81c257a37daaa0c9ed7fac90affb978bb03fc70748f4bff01dfbf197ba9532cf
+    From Fin97-baseline, "Expand Single Word" turned off and nothing else touched.
+    Selector 82 word 5 moves 1 -> 0, the ETF reads ^82(65534) 100 1 1 0 0 0, and the
+    companion loses <textExpandSingleWord/> while keeping <textLineSpacingPercent>100</>.
+    Words 1 and 5 of that record are 1 in every other known document and moved together in
+    the one earlier fixture that touched either, so this save is what separates them: word 5
+    is the flag, which leaves word 1 as the line-spacing units selector.
+
+F97-slurtieopts-changed.mus / .etf
+    sha256 MUS a978bcd3b9f71b8aa48c97988294349adaed7fb80bf74e071d77003d48d6529a
+    sha256 ETF bf5278cf0550448c0d886ed2f2b57bca1c25673b72f254637a204ebed3fa36f8
+    Created from Fin97-baseline. The short, medium, and long slur contour inset/height
+    pairs were changed to 532/13, 553/43, and 358/73. Selector 52 retains its final
+    zero tuple. Finale 27 converts the extra-long contour to span/inset/height
+    1152/358/73, showing that this format supplies three contours and that upgrade
+    behavior copies the long inset and height while supplying the later span default.
+    Separate tie-control span edits appear only in TieOptions in the companion.
+
+-finale27/F97-slurtieopts-changed.musx
+    sha256 897be7eb865d0143eaff8224e77010b775f7d4a36f4aaf41c125622366e44aba
+    Finale 27 companion used for the semantic conversion observations above.
+
+F97-altnot-offsets.mus
+    sha256 07d4e3306f487932f3722f693a0dd2063b62d6f5b01ee5cec397abd371e8db70
+F97-altnot-offsets.etf
+    sha256 39cbe7b9c6dd60665fc41b69382098ed774e9b829795a4803782a29ba6d1cf07
+-finale27/F97-altnot-offsets.musx
+    sha256 cb9ab40fd4080d7c6cf084b8dbb0e50e997a3b39fa99903133433c71896d0052
+    Created from Fin97-baseline by changing all seven alternate-notation
+    offsets. Selector 22 words 1--3 become -25, -26, -27; selector 43 words
+    3--5 become 7, -13, 17; and selector 46 word 5 becomes 11. The ETF and
+    Finale 27 companion preserve the same seven values directly.
+
+F97-beams-inclrests.mus
+    sha256 618d97263f085b490f967a50f4cad09a95d11c11f412cc9ed1d102b5df3a70b7
+F97-beams-inclrests.etf
+    sha256 07742381b59d309b92abb6e46953617a90ff0f2507ff25c80ba9214d1541f3ed
+-finale27/F97-beams-inclrests.musx
+    sha256 9c39730b3fc72b90b816f38797686d0bc693ef5a7808b76339f00e082576c28a
+    Created from Fin97-baseline by enabling Include Rests in Beam Groups. The
+    only decoded record change is selector 16 word 4 moving from zero to one;
+    the ETF repeats that isolated change. Finale 27 converts the one source
+    switch into both incEdgeRestsInBeamGroups and extendSecBeamsOverRests, and
+    does not enable incRestsInFourGroups.
+
+F97-notehead-size28.mus / .etf
+    sha256 MUS 947508edfc82615020f42661b12cda9cfc85f241a91fbd4bf64be07de2a169b0
+    sha256 ETF 34c56b474df3a930744d34afe2b64b3be3603b322553f5b20aff1f74f87a8b66
+F97-notehead-size26.mus / .etf
+    sha256 MUS 09da253bc2a18d247952baf389e5c95555f2def3d75834bc0ee6f64ecc166fef
+    sha256 ETF 37ff7719aec7fd639e6b0157cfda8c8f4c39400cca470b0da7a30c2222594287
+    Created from Fin97-baseline by enabling an independent 28-point Staff
+    notehead font, then changing that size to 26 points. The first edit changes
+    Staff words 3--5 to font ID 6, size/effects `0x1c00`, and flags `0x0020`;
+    the second changes only size/effects to `0x1a00`. The untouched Staff stores
+    ID and size zero when the independent font is disabled; the document's
+    separate Noteheads option is 26 points.
+
+-finale27/F97-notehead-size28.musx
+    sha256 f2d475ae510243eb6ff687f40c6b776300ee013eea80e6d149c12769a8ca6eaa
+-finale27/F97-notehead-size26.musx
+    sha256 ad70d725d4ef69461ca35ccc3d9054fd1cb4f968ac98e4150d46f737bd2905fc
+    Finale 27 companions for the controlled Staff-font edits above.
+
+F97-def-measrest.mus
+    sha256 8279f870a52987762d620361edaba52aefeeb22a2f4c97c344b26b5110a11070
+F97-def-measrest.etf
+    sha256 bd1f77414593a3e1b9ae4546b317a787ead5af8aa133baccf9f09e4cf23e6401
+-finale27/F97-def-measrest.musx
+    sha256 738cef02ac721fd31071e010da06e8219507f05b3bf99773ab74ffd58369f0f2
+    Created from Fin97-baseline by changing the default measure-rest character
+    from 183 to 206. Selector 9 word 4 makes the same isolated change, and the
+    ETF repeats it. Finale 97 is the first version whose UI exposes this setting.
+    Finale uses the selected character only when it recognizes the glyph as a
+    rest; otherwise it displays the whole-rest glyph.
+
+F97-altnotation.mus / .etf
+    sha256 MUS b926609c2495f2be0bdaf901221b81c8863509e1b6f8125aa4db5b1c6c8b6f9a
+    sha256 ETF 4c35ded2100fac78687658e0b5782253b6797a28e32b8ce72eb34218de2ec0ad
+-finale27/F97-altnotation.musx
+    sha256 ce945a692e9fc57cfc2363d7343a2dd47cd8135ff39ddf48a44ee361a45705eb
+    Eight-measure controlled fixture with normal notation in measures 1 and 8.
+    Measures 2--7 use Slash Beats, Rhythmic, One-Bar Repeat, Two-Bar Repeat for
+    two measures, and Invisible Beats. The six nonzero selectors occupy the low
+    nibble of GF word 4. The MUSX file is its Finale 27 companion.
+
+F97-timecomp.mus / .etf
+    sha256 MUS 1d6c23398224f24c34e116262e8834acbccba47ed32623901b7a13b1893d083d
+    sha256 ETF f22d1950ccca2f74fca564dff41be82440c006699d23d1cdcf3b59cfac393ffb
+-finale27/F97-timecomp.musx
+    sha256 c4fe320c91094ce88470ddcadb8b9d16461d1418729a71fb861b90006ea67fe2
+    From Fin97-baseline, gives measure 1 the composite numerator 3 + 1 + 2 1/2 over an eighth
+    note, and measure 2 a numerator of 1 over the composite denominator quarter + eighth +
+    sixteenth. The MUSX file is its Finale 27 companion.

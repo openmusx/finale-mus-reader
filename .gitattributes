@@ -1,0 +1,2 @@
+# Finale ETF exports are byte-exact controlled evidence.
+tests/evidence/*/*.etf -diff

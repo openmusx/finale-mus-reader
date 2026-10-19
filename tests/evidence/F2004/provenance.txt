@@ -1,0 +1,53 @@
+Version 2004c.r1
+Mac OS X 10.4.11 running in QEMU PowerPC emulator
+
+Origin: controlled test documents created by Robert G. Patterson. The documents and their
+musical content are released by their author under this repository's MIT license.
+
+F2004-no-xlayer-accis.mus
+    sha256 67e35945efcb8e4bb0b3f1852af816712f1c3dd170e829485632e1cef5bf4262
+F2004-no-xlayer-accis.etf
+    sha256 48b5cabf61b3995b8c468cb17a225047d4de906024c406a8fc989127afe93398
+    From F2004-baseline, "Use Cross-Layer Accidental Positioning" switched off. Selector 22
+    word 0 moves from 1 to 0 while words 1 through 5 remain unchanged; the ETF prints the same
+    preference row. The Finale 27 companion likewise leaves the corresponding option off.
+
+F2004-lyropts-nosmart-wext.mus
+    sha256 8dd9c16c98f4baac780cff135192143af1088db2083612919bf837e32dd04804
+    From F2004-baseline, "Use Smart Word Extensions" switched off. Selector 34 word 5 moves 1
+    to 0, the ETF prints ^34(65534) 0 0 0 0 0 0, and the companion loses
+    <useSmartWordExtensions/>.
+    The word exists in every era and means nothing before Finale 2004: it is 0 in every earlier
+    document while every earlier companion switches the option on, and the Finale 2.6.3 fixture
+    stores 12 there, which is no boolean at all. Reading it early would turn smart word
+    extensions off for every Finale 2003-and-earlier document, so it is gated on selector 57
+    exactly as the smart-hyphen switch on selector 35 is.
+
+F2004-lyropts-needuscore.mus
+    sha256 a825f2bbcdcd8b4433a7023b5e2a11470817bf3db93ba17fa83a69a6ad8b8aef
+    From F2004-baseline, "Only Create on Lyrics With Underscores" switched on. Selector 57
+    word 1 moves 0 to 1, the ETF prints ^57(65534) 1 1 38 1 0 0, and the companion gains
+    <wordExtNeedUnderscore/>.
+    The Finale 2004 dialog words this setting the opposite way round and unclearly, and Finale
+    had reworded it to match the modern boolean by Finale 2012. The companion settles the sense
+    rather than the wording: the stored 1 converts to the option being on, so the value needs no
+    inversion.
+    This also fills the last unexplained word of the selector 57 record, which had been noted as
+    always zero and was once a candidate for holding a punctuation-list reference. Only word 5
+    of that record remains unassigned.
+    Both Finale 2004 saves also rewrote the word extension connection table as the dialog
+    closed, giving its elements vertical offsets of 5, which is the same normalization the
+    Finale 2012 and 3.7.2 lyric saves show.
+
+F2004-brakpos-17.mus
+    sha256 4971d753953a0569e2790fd8ddc79380b6cd4d44c3893b5266fea2ea27048e02
+F2004-brakpos-17.etf
+    sha256 14ff41a4e871a0c9715592819db3bf0da7ecc080d313bccbdd09d7e7d261517c
+F2004-brakpos-17.musx
+    sha256 cf622e2347d596884723b8e26f9826bc71639302261f6caae40ee8cb37d29d16
+    From F2004-baseline, changes Default Distance from Group Name to Bracket to 17. Selector
+    14 word 3 moves -12 to -17, the ETF repeats that row exactly, and the Finale 27 companion
+    reads defBracketPos -17. Saving also normalizes three existing brace fixed-point values:
+    centerThickness 2.0000 to 1.9987 and width, innerTipH, and innerBodyH 12.0000 to 12.0009.
+    Those source changes and the companion agree exactly and are not attributed to the edited
+    bracket-position control.

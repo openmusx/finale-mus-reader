@@ -1,0 +1,82 @@
+Finale 98, classic Mac OS.
+    The files identify their source version as 4.0.0.10 and platform as MAC. The baseline
+    and two one-variable edits were created in a working Finale 98 installation.
+
+Origin: controlled test documents created by Robert G. Patterson. The documents and their
+musical content are released by their author under this repository's MIT license.
+
+F98-baseline.mus
+    sha256 b95b0f822266c68569033e08c2221fe0da0564fdada19ce7064870f7e6371389
+F98-baseline.etf
+    sha256 cf5470413551d56673786752857b7f6913eb1fa48286105b5318d6cb68c73ce1
+-finale27/F98-baseline.musx
+    sha256 e6acfee933e7da9fcd823097fe41cab622e7fb97594e5f47fc9e73e655dff232
+    The unedited document. Selector 09 word 5 is one, selector 23 word 5 is zero,
+    and selector 41 word 1 is zero. The Finale 27 companion enables
+    beamFourEighthsInCommonTime and disables incRestsInFourGroups.
+
+F98-rptback.mus / .etf / -finale27/F98-rptback.musx
+    sha256 e4ddeb8bc5d02556e64e9754acfe3920f4582d4791381bdaaab8499236316dbd (.mus)
+    sha256 4677dc4331809211783c2844cc2bab0d3950cc303dd97e0391c349f5f1c71a05 (.etf)
+    sha256 732ef0f6256d6a32efd25909140844ba188fd3f9078082f8ff03989862fa6e15 (.musx)
+    Created from the F98 baseline with a backward repeat on measure 3, set to jump on
+    pass 2 and reset on change. Its first `BR(3)` row has pass 2 and flag `0x08c0`;
+    the Finale 27 companion retains the repeat and pass count but omits both settings.
+
+F98-beams-inclrestsin4.mus
+    sha256 624b472d48acbd35fa7a771fb71204896024e24f3c5b9afa24650511c6959ce8
+F98-beams-inclrestsin4.etf
+    sha256 d24ccbe3af1d56b708c8748453f2b1e1d0b3c7e7bbe75cf65c77136524d5c799
+-finale27/F98-beams-inclrestsin4.musx
+    sha256 96448164be1f1f131d462a61aa01d376459f5f74db196ebbb1b24cea6f6547d5
+    Created from the baseline by enabling Include Rests in Groups of Four. The MUS
+    changes exactly one byte, and the ETF identifies it as selector 23 word 5 moving
+    from zero to one; selector 41 remains unchanged. Finale 27 does not preserve this
+    enabled setting: its companion has the same BeamOptions elements as the baseline.
+    Finale 98 itself also clears the setting when the saved document is closed and
+    reopened, so the written bit is not persistent document behavior.
+
+F98-beams-no4-8thcommon.mus
+    sha256 811a93743bd67a5cb006ba2cd145b589d96be5b21c7e07842aba93760581e5f9
+F98-beams-no4-8thcommon.etf
+    sha256 fe0daae88daf3fb0bcf2e4075da11f5acf67c88579c6fd37a50d11995cba7231
+-finale27/F98-beams-no4-8thcommon.musx
+    sha256 db597a4d3de4e8895807b293508a632b16c66d44ce2f3b8cd9a3a73acc84500c
+    Created from the baseline by disabling Beam Four Eighth Notes Together in Common
+    Time. The MUS changes exactly one byte, and the ETF identifies it as selector 09
+    word 5 moving from one to zero; selector 41 remains unchanged. Finale 27 preserves
+    the disabled setting by omitting beamFourEighthsInCommonTime.
+
+finale27-upgrade.log
+    sha256 fb1ab5581d1133674a5fd2c3fbcce54d665a2b8d85b65b2eb9b43ea1ada61457
+    Log from creating the three Finale 27 semantic companions.
+
+F98-altnotation-full.mus
+    sha256 f9ef8485921dd031436b33d736a00c0ec21121f2ce908b3ca2f787605f97bde3
+F98-altnotation-full.etf
+    sha256 586068826735e5cc9b0bfcc6ccc3b985e8034d29f1931441d1b664a92d791e5c
+-finale27/F98-altnotation-full.musx
+    sha256 f56903e5283099c5b2792a38951a78cbb47f86b1f16a6c03ffe8acede939442b
+    Created from the baseline by applying alternate notation to the entire staff. The
+    Staff record is unchanged; the edit adds paired GF records for all 44 measures.
+    Finale 27 synthesizes a Two Bar Repeats Staff Style assignment over measures 1–44.
+
+F98-altnotation-partial.mus
+    sha256 81f54296d9cd4946f6a2ac874adb9c8717c555d6ff4d5e9b69d5472b1c7aac61
+F98-altnotation-partial.etf
+    sha256 ec822fe4c728b2ae9bfa4bd0a9ae6e0a5360a02aa362806c796702ae09fe3dd5
+-finale27/F98-altnotation-partial.musx
+    sha256 2a5ccbceb02e1291b81801a13490931d092929d8e95f5a9f37c70baf29d67279
+    Created from the baseline by applying alternate notation to measures 1–3. The
+    Staff record is unchanged; the edit adds measure-keyed GF records. Finale 27
+    synthesizes a Slash Notation Staff Style assignment over measures 1–3.
+
+F98-altnotation.mus / .etf
+    sha256 MUS 51653220f3db833644a913f56eb958604044b6e8edcc12f5ceb6e0b3c4be575e
+    sha256 ETF 7e0906c5ea920a4201d746a2effc751d1315c8dce8795dbc460ad41abd392352
+-finale27/F98-altnotation.musx
+    sha256 382cc5a49c0c0d194bbc86d6e2f7a0da7144bf57c1223ebfa8b1dc615aa0dd80
+    Parallel to F97-altnotation: normal notation in measures 1 and 8. Measures
+    2--7 use Slash Beats, Rhythmic, One-Bar Repeat, Two-Bar Repeat for two
+    measures, and Invisible Beats. The six nonzero selectors occupy the low
+    nibble of first-incidence GF word 1. The MUSX file is its Finale 27 companion.

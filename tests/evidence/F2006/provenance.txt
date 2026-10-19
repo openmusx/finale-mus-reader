@@ -1,0 +1,122 @@
+Finale 2006 (internal version 11.x), PKWARE DCL era, big-endian.
+
+F2006-lyric-vcs.mus / .etf / -finale27/F2006-lyric-vcs.musx
+    sha256 77214ce63e97c93161c913a887e44dc193d188d38b28b18fba255fb0c985e1ed (.mus)
+    sha256 0f69deef580e62b38d810b9913cadb92429af2af86b088c57fe4913e9a6f8ddc (.etf)
+    sha256 75399f9922f89e4122eeb869c0e8fbaf97a2f0f5623ebb7902b5d8d0702a32b9 (.musx)
+    A score with Verse, Chorus, and Section lyrics and their SmartShape hyphens
+    and word extensions. The same score is saved again in Finale 2008 and 2012.
+
+Origin: a test case authored for the Page-Attached Copy plug-in and released for
+publication by its author.
+
+F2006-empty.mus
+    sha256 fd88984478594cba22b6e4cd5361ddaf14ef86f97163d138903365b2dbb1986a
+F2006-empty.etf
+    sha256 224657cc0839265e1d5458d29d0f9b65ee5502dc5390c380d2938239b836a519
+F2006-empty.musx
+    sha256 52e2bcd30d47c2f79aa9ec3d4d99e52e8cbe58668e4555da2ffb58d384a68e4b
+
+F2006-staff-nonoteitems.mus / .etf / .musx
+    sha256 ec491857237b238008531bcb810f985e2b4cbc4ee9699708a3c0aa0ffef83ba2 (.mus)
+    sha256 4ba3d1b45cac7c52607bcc1fb51ed3f3f014903f2b3740b298770caa00ab9213 (.etf)
+    sha256 d98f9a09190f47acad6d341ec6abde400dc20c6c764bba2fed1950cfc71dac3c (.musx)
+    From F2006-empty, with the single Staff setting “Show Note-attached Items” unchecked.
+    Ordinary Staff 1 changes word 2 from 0x6700 to 0x6600 and word 4 from 0x0000 to 0x1800;
+    the cmper 32767 Staff remains byte-identical. The ETF repeats the changed words, and the
+    Finale 27 companion sets the same six hide properties as the Finale 2000 fixture.
+F2006-timesig-plus.mus
+    sha256 4157232d1f98661a45ee8da11dfa0a873fee1aac18c361e3e6e96f31d0c8612f
+F2006-timesig-plus.etf
+    sha256 a169e5e76ed1672d9a0b9cac28e47e1a8c8b3db38c3051926f5c44e125804675
+F2006-timesig-plus.musx
+    sha256 ece5fab554086b7eb5eea9f54486954298007897b379c2704036cef36d9e95da
+    A controlled pair changing the score time-signature plus symbol from 43 to
+    44. Finale 2006 stores only selector 42, word 5; ETF and Finale 27 use that
+    one value for both the score and linked-parts fields.
+
+F2006-single-title.mus
+    sha256 0f7ed5bd148a9ad43720dff8f761b4d5c74f1198a493fcb9828a2ae5f70eff65
+    Finale 2006 is the last release to write ETF, which raised the question of
+    whether it also began mixing the later class-identified records in with the
+    fixed 16-byte rows. It does not: its others, details, and third blocks are
+    all whole multiples of the row size and a class-record walk consumes none of
+    them. The only structural difference from Finale 2005 is a fifth, empty
+    0x0013 block, which this file carries.
+
+F2006-text-inserts.mus
+    sha256 aa5dfb3e175bc5b489a20f5155648a09699672d5178b02a33f9daf164b174c96
+F2006-text-inserts.etf
+    sha256 e32699f67d4b3452d7cef897138fa2126dde3fa18d4490c27f42094c052b2061
+F2006-text-inserts.musx
+    sha256 a486787619ee5e1a72468dcab5875dfadbc83b9c1c13793616e00c61d764bf83
+    Twenty-one text blocks and three expressions, each holding one Text Tool
+    insert or style command and nothing else, so that every one is identified by
+    its own block number. Written to decode the binary Enigma command codes,
+    which Finale stores in the MUS from Finale 2006 and which no public source
+    describes.
+
+    Finale 2006 is the only release that can answer this. It is the first to write
+    those codes and the last to export ETF, so the same document exists both
+    encoded and spelled out: the .mus stores `^\x8c\x01\x01\x01\x02` where the
+    .etf writes `^date(1)`. The Finale 27 companion agrees with the ETF on all 24
+    records, giving each pairing two independent witnesses. Together they fix 25
+    command codes and three things about the argument encoding that no other
+    document could settle:
+
+      * it is one value, not a sequence of shorter ones. Block 6 spells a page
+        offset of 275 as `01 01 01 01 01 02 02 04`; read as two arguments the
+        same bytes are 0 and 275, so a zero offset could never have told them
+        apart.
+      * the digit range runs the full 0 to 15. Block 21's `^superscript(15)` is
+        `01 01 01 01 01 01 01 10`, the only place a nibble of 0xf appears
+        anywhere, which is what confirms digits are stored one greater than
+        their value across the whole range rather than only where observed.
+      * an argument is signed. Block 19's `^baseline(-13)` is
+        `10 10 10 10 10 10 10 04`, or 0xfffffff3; read unsigned it is
+        4294967283.
+
+    The document also establishes that Finale 2006's File Info still has exactly
+    four fields, title, composer, copyright and description, so the lyricist,
+    arranger and subtitle that musxdom's FileInfoText models arrived later.
+
+Photo_tiff.tiff
+    CC0 1.0 https://commons.wikimedia.org/wiki/File%3APhoto_tiff.tiff
+    sha256 48a219c47c60a492d69ae714c60cabcfda9dc7fdc851c9dabed54f563fa8e10c
+
+F2006-linked-tiff.mus
+    sha256 f3e9167821b468c40570217843cbf70636a46e5cf65a2ff90d6e53df41fc987d
+F2006-linked-tiff.etf
+    sha256 3e7a58d9bc3e63e3e6f554a58a0b5b6931fec38fcc1d0aa1e1c763ab5d27cf52
+F2006-linked-tiff.musx
+    sha256 5b5fb8b2a22f003f675a51f5b18933c1a29755ef054b95e08f524d5f9b92f437
+    One page-assigned TIFF linked to its external file.
+
+F2006-embedded-tif.mus
+    sha256 5ab602da3fff05cd75c9244dc7b94b0aa45087416711acda732dd3b08fd8a353
+F2006-embedded-tif.etf
+    sha256 d47daa4934538c0c07ceaefc880f35bf52f65daadd86f47ae94cb4265abf0657
+F2006-embedded-tif.musx
+    sha256 e8d02d1ea8e13352841dacdd732c6a0b5e3653336f437deb7e6fd70ecc79b0a9
+    One page-assigned TIFF embedded from a source carrying the .tif extension.
+    Its TX records also distinguish their referenced text pools at word 12:
+    decimal 2004 on all 17 block-text records and 2006 on all 41 expression-text
+    records, agreeing with every companion TextBlock textType.
+
+F2006-embedded-tiff.mus
+    sha256 4a1b5812b77c79dcbe6651ae324bb2e376f2f65fe33520ea8203e6dd04ed02da
+F2006-embedded-tiff.etf
+    sha256 14a41604f4aeeb5854e1ccbabc70a15dc6af0e741af4f01a04132e1cd063694c
+F2006-embedded-tiff.musx
+    sha256 8ee242a392200990607f77b125de62aeda93bf08fb9774c88a905593cb8e9e54
+    One page-assigned TIFF plus one ShapeDef TIFF, both embedded from a source
+    carrying the .tiff extension. Finale 27 names both converted members .tif.
+
+F2006-eps-then-tiff.mus
+    sha256 a71f66b69433c38db3be91c4658398e98ebbed58b4cf0011268d4a960ded3a01
+F2006-eps-then-tiff.etf
+    sha256 995576ca57fb97a58fd01eb45fbad87bfa14aca5e67d836cdece44217488e67b
+F2006-eps-then-tiff.musx
+    sha256 e2aa1508952eb07d89c04697042c80eeb714ba5efa9de48d979d76ad39586dda
+    One measure-assigned embedded EPS followed by one page-assigned embedded TIFF.
+    Finale 27 preserves that insertion order as graphics/1.eps and graphics/2.tif.

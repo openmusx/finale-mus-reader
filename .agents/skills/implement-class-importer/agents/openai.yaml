@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Class Importer"
+  short_description: "Add recovery of one musxdom class"
+  default_prompt: "Use $implement-class-importer to add or extend recovery of a musxdom class from legacy Finale MUS files."

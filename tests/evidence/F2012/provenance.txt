@@ -1,0 +1,437 @@
+Finale 2012 (internal version 17.0), zlib era, little-endian.
+
+F2012-slur-part.mus / -finale27/F2012-slur-part.musx
+    sha256 61aef7cd88180582c436f365472b3e6e7a198b1cf609dfe104eafded87d854ff (.mus)
+    sha256 b996e62fad13c0d4bf9c3e30795295be3d11473e698478093e62f56ff1f88f42 (.musx)
+    Adds a slur with a fully linked part. Only the score has a SmartShape record.
+
+F2012-slur-part-nhmods.mus / -finale27/F2012-slur-part-nhmods.musx
+    sha256 af0cb52740bc6bc76d73f3b10bc6827ee8723239daf72588442353d8d69c5973 (.mus)
+    sha256 324bacfd7565b031113047a6738fad8d008deb21740f27af8e3222162d4f8eb3 (.musx)
+    From F2012-slur-part, adds a notehead alteration with a custom character,
+    font, horizontal offset, and vertical offset.
+
+F2012-fromF27.mus / -finale27/F2012-fromF27.musx
+    sha256 3e272a92ebcc49cbb35b30f9c2c2be444a5f1a02eff6c34da12af36c0b2ee3b5 (.mus)
+    sha256 d57af0e44c8e39a430699925569a7bcc3e57c16034aa6a7ae6358337f4553bd9 (.musx)
+    Authored in Finale 27 and exported as Finale 2012 MUS with one notehead
+    alteration using character 65188 and a custom font.
+
+F2012-acci-fromF27.mus / -finale27/F2012-acci-fromF27.musx
+    sha256 b8f6ed060f6aed358b0db67fa7458f9e2277832d30e76ac6e970478208c5e6d9 (.mus)
+    sha256 0f5efcf8af56d89c20b6e3b2682af27a42a8541e5a9d2db3e6de03bdc83a860e (.musx)
+    Authored in Finale 27 and exported as Finale 2012 MUS with one accidental
+    alteration using character 64524 and a custom font.
+
+F2012-slur-diffents.mus / -finale27/F2012-slur-diffents.musx
+    sha256 e0c359dd9ee93d6a8a7ff74ed0f008df8bd43a2b8d6ff87908fabbe3cf20a1ae (.mus)
+    sha256 84742e25352f6a3411d9d8a2f3fb7a31ebc373ccb4da490df98c832394f7c7aa (.musx)
+    Moves both endpoints of the linked slur to different entries within measure 1.
+
+F2012-slur-part-edited.mus / -finale27/F2012-slur-part-edited.musx
+    sha256 a73de7c71cfbe5c932deec1c7160380cebdc0655065ec7cd6c9e6b27690e576d (.mus)
+    sha256 4c25b65ecdb89bb39cf84aa7878657bbee193ea023dc8827b1eaecdb8810b953 (.musx)
+    Flips that slur down in part 1. The part adds a partially shared SmartShape
+    record with shape type 0 while the score retains type 15.
+
+-finale27/F2012-slur-part-edited-2.musx
+    sha256 1192ac155ff2b107c5ed423322b397b793b130886295bdb988809ae3398f5f52
+    Re-saves the preceding MUSX in Finale 27 after changing the part slur.
+
+F2012-F2006-lyric-vcs.mus / -finale27/F2012-F2006-lyric-vcs.musx
+    sha256 2c9da1bbd6287e618ff893f3238be5a3a988d95f06335773465ac44482273f30 (.mus)
+    sha256 e1a6d8ffd7a11e11c63b458abd969d7dab9b8f0533d56b221415cdd55e978938 (.musx)
+    A Finale 2012 save of the Finale 2006 Verse, Chorus, and Section lyric-shape score.
+
+Origin: a test case authored for the Note Spacing plug-in and released for
+publication by its author.
+
+The fixtures authored here were saved under Mac OS X 10.7.5 running in UTM, which
+is the host for every Finale after 2006. The exact application build is not
+recorded.
+
+This file is a back-save. Finale 2014 through Finale 27 can write a musx document
+out as a Finale 2012 MUS file, and that is what happened here, which is why the
+name in the original collection refers to Finale 2014 while the banner reads
+"Finale(R) 2012 File Converter". The two header tuples record the two roles: the
+creator tuple keeps the authoring application, internal 18.0 for Finale 2014, and
+the last-saver tuple records the format actually written, internal 17.0 for
+Finale 2012. Reading the last-saver tuple therefore yields the version that
+governs the file's layout, which is what the reader gates on.
+
+F2012-mirrorfromFin14.mus / -finale27/F2012-mirrorfromFin14.musx
+    sha256 b9ac5bd7d99a0c5dd512886d30f5cce58929ed26a68c715daa0eed96c718e138 (.mus)
+    sha256 2f5bad23aa70684fc3787e675e336eae44c0a2d7dcf8cd0422b93ae7710f77f4 (.musx)
+    A Finale 2014 source saved to Finale 2012 format with mirrored score content and entry frames.
+
+F2012-upstem-flags.mus
+    sha256 f95d2ea21b99022e41025012a57de6afef2f97184e85df62e15cc61e58fb7df6
+    The tracked fixture for the 2007-2012 record encoding, which shares the
+    logical model of class, comparator, and incidence with every earlier era but
+    none of the physical one: records are class-identified and length-governed
+    rather than fixed 16-byte rows. It carries sixteen font definitions and is
+    the regression test for that separate decoding pathway.
+
+F2012-textrpt.mus / -finale27/F2012-textrpt.musx
+    sha256 4dbd0f2bf46ace9fc641aef5946ff9d42eb947d8a0c2f656dd54013c74638675 (.mus)
+    sha256 070f3a9b4897e9379e876b21e3a1b6598e03e0743663a94857cea7e87da7b0f9 (.musx)
+    A text repeat with an enclosure and non-ASCII text, accompanied by its
+    Finale 27 conversion.
+
+F2012-flagopts.mus
+    sha256 11dcc68037d9e842165d61c60a3736d67c46a29cb14b5a0cad21df029dba7cf7
+-finale27/F2012-flagopts.musx
+    sha256 68bd084896215b540af4af642051fcfba20638bdc2a1a43682400fdb0b10ae5a
+    A controlled edit that enables straight flags and gives all eighteen exposed
+    distances distinct non-default values. Numeric-global classes 0x0057 through
+    0x005a carry the same logical slots as fixed-row selectors 73 through 76, while
+    class 0x000f word 2 carries the switch. The independently parsed Finale 27
+    companion agrees on all nineteen edited values. Finale 2012 cannot export ETF,
+    so the source record and modern semantic companion are the two witnesses.
+
+GifSample.gif — Public domain, released by author Cuddlyable3. https://commons.wikimedia.org/wiki/File:GifSample.gif
+
+Example-retouch-1.jpg — Public domain; derived from a public-domain Library of Congress photograph. https://commons.wikimedia.org/wiki/File:Example-retouch-1.jpg
+
+not_encrypted.pdf — MIT License, Copyright (c) 2015 Artur Trzop; from ArturT/Test-PDF-Files. https://github.com/ArturT/Test-PDF-Files/blob/master/not_encrypted.pdf
+    The full license text is in not_encrypted.pdf.LICENSE.
+
+F2012-graphics-types.mus
+    sha256 80f8c631de435726c75d12481d816492bcf33f3bf63db346e2a2b00b07e729da
+    Six embedded occurrences from four source files: GIF assigned to measure 2
+    and used in the shape; JPEG assigned to page 1 and used in the shape; TIFF
+    used in the shape; and PDF assigned to measure 10. Repeated uses store
+    independent payload items rather than sharing one graphic comparator.
+
+-finale27/F2012-graphics-types.musx
+    sha256 4cdeb7803c3cadc336897f3d6d63d11294564b18a84e573614a41edd036c64e1
+    Finale 27 preserves all six occurrences as graphics/1.gif through
+    graphics/6.pdf. Members 1 and 4 are byte-identical GIFs; members 2 and 3
+    are byte-identical JPEGs. The TIFF and PDF each occur once.
+
+Source payload hashes:
+    Example-retouch-1.jpg sha256 cf9a1f599a00495cc2e9a8798bac7465426a42eeff568c33c118cc4367561639
+    GifSample.gif sha256 722b2cde42fb87c26c5ca3a6ecca10339c73e593523816a89640f94a39fb5de3
+    Photo_tiff.tiff sha256 48a219c47c60a492d69ae714c60cabcfda9dc7fdc851c9dabed54f563fa8e10c
+    not_encrypted.pdf sha256 18dc07d4deecdba337912f360ac5ec4253e7610e4ab6478b570f0c0b015e5ecb
+
+F2012-baseline.mus
+    sha256 aa95324d39ef94f1340133d637b52206eeddaf1c7442fb0ac1a81c3e444639f3
+    The unedited control for the Finale 2012 text saves below.
+
+F2012-pagetext.mus / -finale27/F2012-pagetext.musx
+    sha256 76b17e6a8591f8d32a8c6edbc46e6ba3d0e5f45403af6abe563b97dadb0b56b4 (.mus)
+    sha256 f3de0a64728d4fc4fff43d65fd9b07e0db542e26fe9a36e30606d7dea32be9f9 (.musx)
+    From F2012-baseline, adds left- and right-justified page text assignments.
+
+F2012-pagetext-part.mus / -finale27/F2012-pagetext-part.musx
+    sha256 fc07a802b9407d85a8216b74c6a379408950044ede09cd70960a849d085e7254 (.mus)
+    sha256 519808872bf15e6511f7c5cf1f9b1b602d7851368bbaa44ebaf2dd38ad7c7e91 (.musx)
+    From F2012-pagetext, creates one linked part without editing the page text assignments.
+
+F2012-pagetext-part-unlinked.mus / -finale27/F2012-pagetext-part-unlinked.musx
+    sha256 0cf7ae6b06d846ffeb2824cc58f7b0282db50a01c3560b6e51e44c0fe0e357c1 (.mus)
+    sha256 5f14e96afcd4b6b375de76bf1fa71da6788a6ddfaa65da24b2e162a51900c535 (.musx)
+    From F2012-pagetext-part, unlinks the right-justified assignment's position
+    and the left-justified assignment's visibility in the part.
+
+F2012-meastext-part.mus / -finale27/F2012-meastext-part.musx
+    sha256 73bb0ef55dcfab1023c33f082ae95269c7e19590e50e79310c995b3c11157677 (.mus)
+    sha256 d058f5febcabb1c127e4eb9bb3241845ceb9f1685ba2387bf21ef85778b593a5 (.musx)
+    Two staves, each extracted as a linked part, with one measure text at measure 1 of
+    each staff: staff 1 right of the first beat and staff 2 left of it. Only score
+    0x0420 records are stored.
+
+F2012-meastext-part-moved.mus / -finale27/F2012-meastext-part-moved.musx
+    sha256 6a780df25171ce8dad3a77846c9255a759cc4323de6d17b88de2a581b3f2e7a8 (.mus)
+    sha256 872ae38dc0bb489cc5e3c021071b739d771e5b88433a2903bceb9b3e040340eb (.musx)
+    From F2012-meastext-part, moves the staff-1 text vertically in part 1. A part-1
+    0x0420 record is added whose continuation selects both displacement words.
+
+F2012-meastext-part-moved-score-hidden.mus / -finale27/F2012-meastext-part-moved-score-hidden.musx
+    sha256 c4315504accff189c16d2b20d21aa73a16ede797a97b7638c3e78619779e2366 (.mus)
+    sha256 c32bdd22171d3cdb457163f2bd993feac551a33516c42b2377e13223aacf3a2f (.musx)
+    From F2012-meastext-part-moved, makes the staff-1 text screen-only in the score.
+    The part-1 record is unchanged; the companion part inherits the hidden flag.
+
+F2012-meastext-part-hidden.mus / -finale27/F2012-meastext-part-hidden.musx
+    sha256 cf0713a69affef85b3c0c90a6371b4e0792d1507f4edd740c71b900f17beb774 (.mus)
+    sha256 fd346049b3e92f66e78ed0fcc528b0991a748deeacf5442e025bd8fb151d36d8 (.musx)
+    From F2012-meastext-part-moved-score-hidden, makes the staff-2 text screen-only
+    in part 2. A part-2 0x0420 record is added whose continuation selects only the
+    hidden flag.
+
+F2012-meastext-part-score-moved.mus / -finale27/F2012-meastext-part-score-moved.musx
+    sha256 226eea5bd2780d7310f783523b9f545c5e6385be1e0d962d86955e297e5ac078 (.mus)
+    sha256 0aa18faa634baa276bf2d08b4489feee7840cfc590fb6b196ce6c275e3aba93e (.musx)
+    From F2012-meastext-part-hidden, moves the staff-2 text horizontally in the score.
+    The part-2 record still stores the earlier position; the companion part takes the
+    score position.
+
+F2012-meastext-part-staff2red.mus / -finale27/F2012-meastext-part-staff2red.musx
+    sha256 2483a89d3e7f8ee335dd54aff35e1d4b2c4dcf31ba86bdcd938e4653c2eee3bb (.mus)
+    sha256 435404e7fb3bf0cfea484cf0c6148ef73d79e592fb2096743111deff5433e5e1 (.musx)
+    From F2012-meastext-part-score-moved, reduces staff 2 to 57% on its system. The
+    measure text records are unchanged, and the companion keeps their vertical
+    displacements.
+
+F2012-piano.mus
+    sha256 490270f73e3f31b28ffabb87d52f36896264065e24e6634a05445bce327a6560
+-finale27/F2012-piano.musx
+    sha256 f7ba88aa769b39dea7b9b9ce8102b26f944e89b8aa8347818b6ecf306386cb12
+    From F2012-baseline, changed the single-staff instrument to piano. The source
+    contains two staves in one multi-staff instrument and its staff-group reference;
+    the Finale 27 companion preserves both objects.
+
+F2012-hidestafflines.mus
+    sha256 fc124ac5f2bd9094acf3b720bce80a90e6eaff61132f7d413176f17eb8551c75
+-finale27/F2012-hidestafflines.musx
+    sha256 123e62bcc8e2a365e695e60e3162f3832532aa14d34820fdd5cf24626c74cc15
+    From F2012-baseline, enabled hiding of the first staff's lines. Staff word 11 changes from
+    0 to 4. Opening the Staff dialog also normalizes the first staff's font-size word from 0 to
+    0x1800 and creates unrelated records; those changes are not used as evidence. The Finale 27
+    companion corroborates the setting with `<hideStaffLines/>` on staff 1.
+
+F2012-staff-autonum.mus
+    sha256 7366a917e9cce0bacb2c9e2c582a27f5b853ab69ad597b14c222bbaea1ebd814
+-finale27/F2012-staff-autonum.musx
+    sha256 98f2d22d3c151175913201d57854bb5f3730a0dd5a8cb3a95634870776ff2594
+    From F2012-baseline, enabled automatic staff-name numbering with the ordinal-prefix style.
+    Staff word 37 is the only raw word that changes, from 0 to 0x8002. The Finale 27 companion
+    corroborates both the enabled state and style.
+
+F2012-staffopts-scalars.mus
+    sha256 8a522b61ca3db452529be8c20c741d4917b62a35e183e415e169e0688acf990d
+-finale27/F2012-staffopts-scalars.musx
+    sha256 562cf229081d5bf62736ff8ca5501899776073d19fcaee8bfaf77e3519043a60
+    From F2012-baseline, all three Staff Options scalars changed: staff separation from -320 to
+    -289 EVPUs, separation increment from 72 to 71 EVPUs, and automatic adjustment disabled.
+    Class 0x006f changes only words 12--14, from -320, 72, 1 to -289, 71, 0. The independently
+    parsed Finale 27 companion reports -289 and 71 and omits the false boolean element.
+
+F2012-insert-flat-tracking.mus
+    sha256 09f662ca4ef7c61c34e2810b6c8c4a63cc8f5b25f9dc77256ed024136df49aa5
+    The same edit as F2005-insert-flat-tracking, in the 20-byte element layout: tracking
+    before 1000, tracking after 250, baseline shift -25. A little-endian file stores 1000 as
+    00 00 e8 03, which is the same two-words-high-word-first rule the big-endian era uses
+    rather than a plain long.
+
+F2012-textopts-scalars.mus
+    sha256 5fbf82896510f7f60cb99149aefee34518c691d481a045a5ac5d5607ff376ce7
+    The fourteen scalars again in the zlib epoch and in little-endian order, reached through
+    the numericGlobalClass rule. Its line spacing is absolute, so its companion carries
+    <textLineSpacingEvpu>.
+
+F2012-dblsharp-insert-outside-BMP.mus
+    sha256 e44f2e985b0213baf494eb4bfb5c0456e6536432182257a21df5d3e011c755a0
+    From F2012-baseline, the double-sharp insert's character set to U+26469 in LiSong Pro.
+    The element stores 69 64 02 00 at byte 16 and 19 at byte 10; the companion reads
+    <symChar>156777</symChar> with fontID 19. A character above the basic multilingual plane
+    is the only value that can fix the byte order of that era's widened character: low word
+    first gives 156777, while the high-word-first order the two trackings use in the same
+    element would give 0x64690002, which is not a codepoint. One element therefore holds two
+    different 32-bit conventions.
+
+F2012-lyric-punct.mus
+    sha256 fb44a24bd7f81b86c6b84f6c6fe25e7505e9c730d08f953b3871b1cb580bf912
+    From F2012-baseline, the Lyric Options punctuation set changed to `#@%&` with "Ignore
+    Syllable Edge Punctuation" left on. Four characters sharing nothing with the stock set
+    `,.?!;:'"“”‘’`, so finding them proves where the field begins rather
+    than matching a default.
+    This is the only Finale 2012 fixture that carries the list at all. Finale writes it as a
+    variable-length tail on selector 57, class 0x0047, and **only when the list is not the
+    stock one**: the record is twelve bytes in the other five Finale 2012 fixtures, and
+    twenty-four here -- the six
+    scalars unchanged, then the four characters as 16-bit code units and a zero. An absent
+    tail therefore means the stock list, which musxdom's integrityCheck already supplies.
+    Two things changed that the edit did not ask for, both Finale normalizing as the dialog
+    closed. The word extension connection table gained vertical offsets of 5 on five of its
+    nine styles and 1 on a sixth, which makes this a welcome second specimen for a mapping
+    that otherwise rests on one Finale 2006 fixture. The font definition table also renumbered
+    Lucida Grande and Symbol from comparators 11 and 13 to 15 and 16.
+
+F2012-lyropts-noign-punct.mus
+    sha256 4c44975bd5900b466d02eaa493934e1cc4409ea9850d0b5b803666c1862e132c
+    From F2012-baseline, "Ignore Syllable Edge Punctuation" cleared and nothing else asked
+    for. The controlled one-variable proof of selector 57 word 4: byte 8 of class 0x0047 moves
+    from 0 to 1, no other word of that record moves, and the companion gains
+    <lyricUseEdgePunctuation/>. Every other tracked Finale 2012 fixture leaves the setting on,
+    so this is the one fixture that exercises the word set rather than clear.
+    It also shows the tail and the switch are independent. Ignoring is off here and the list is
+    the stock one, so the record stays twelve bytes: Finale writes a punctuation tail only when
+    the list itself differs from the stock set, not whenever the switch is touched.
+    As with F2012-lyric-punct, Finale normalized two things the edit did not ask for as the
+    dialog closed -- the word extension connection table gained the same vertical offsets, and
+    Lucida Grande and Symbol renumbered from comparators 11 and 13 to 15 and 16.
+
+F2012-bookmarks.mus
+    sha256 f99c887dff9cdaa1b7f1c778160463f86e5018ea5a7629a45294af31fdda6f42
+F2012-bookmarks.musx
+    sha256 cf225d5222cdaffe3081732fab0ac59a9d7f4cc1de7d6de2b8ac71cbf7db7888
+    `tests/evidence/F372/F372-bookmarks.mus` upgraded in Finale 2012 and saved, so
+    the two documents are the same two bookmarks on either side of the boundary.
+
+    It settles two things about the modern form. **Bookmark text is an ordinary
+    text-pool record** from this release, keyword `bookmark`, `^end`-terminated like
+    every other record of the era and carrying no style commands of its own. And
+    **the text is UTF-8**, shown rather than inferred: `c3 bc` is the u-umlaut of
+    `Page über` and `c2 ab c2 bb` is the guillemet pair of `Scroll «» Bookmark`,
+    where the same characters are one byte each in every earlier era.
+
+    The comparators are not stable across the upgrade. The same two bookmarks are 1
+    and 2 in the Finale 3.7.2 companion and 2 and 3 here.
+
+    A caution about the specimen. The upgrade prepended mojibake to the bookmark
+    text, which was removed by hand before this save; the file is therefore an
+    edited artifact rather than a raw conversion. Whether the corruption came from
+    the character encoding or from Enigma tags the upgrade did or did not expect is
+    not established, and this document does not answer it.
+
+F2012-ssline-offsets.mus
+    sha256 55ea2ec26ef98f70986a8e0c50b8449fb5e2b199b387187ae24eb13a5106e2d8
+    F2000-ssline-offsets back-saved to Finale 2012, so that one document states the same six
+    custom line styles in both the fixed-row layout and the Unicode-era class layout. Finale
+    adds a seventh of its own, the synthesized default it puts in every upgraded document.
+    It is the fixture that corrected how the Finale 2012 character widening shifts the record.
+    The widened character belongs to the Char parameter block, so only that block's own later
+    fields move with it: cmper 5's font id, size, mask and baseline shift each sit one word
+    later than in the fixed-row source, while cmper 4's dash lengths sit exactly where the
+    earlier layouts put them. Everything after the parameter block moves for all three line
+    styles, which cmpers 3 and 6 show. Read through a rule that shifted every slot alike, this
+    document reports a dashed line whose gap is zero.
+    Its Char line also shows that the era stores a code point rather than a byte: the character
+    the fixed-row source holds as Mac Roman 199 is 171 here, which is what the fixed-row
+    reader arrives at by decoding.
+
+F2012-rptopts-stafflist.mus
+    sha256 62d4c8cb442960d361e07f9501eb4275d75efe55b4dec6993a9eccc6b86416a2
+    From F2012-baseline, Repeat Options changed from Top Staff Only to Staff List 1.
+    The RepeatOptions numeric-global class is unchanged. The save adds the repeat
+    staff-list name and its score and parts membership records at cmper 1.
+
+-finale27/F2012-rptopts-stafflist.musx
+    sha256 634e24ba832808754144f5832a21e387c78cc3e8f33ed7543cb90a8aa59fdee1
+    Finale 27 preserves the repeat staff-list family but changes Repeat Options to
+    Top Staff Only. This is converter drift and not the semantic value of the source.
+
+F2012-rptopts-3lists-sel2.mus
+    sha256 42c6d5caf1e3b6ff36fbb56047b32923e0188ac8921c19b5ccdeae7e2b3bdd1d
+    From the repeat-options baseline, created three repeat staff lists and selected
+    staff list 2 in Repeat Options. The save adds only the three lists' name and
+    membership families; no RepeatOptions or other record distinguishes list 2 as
+    selected.
+
+-finale27/F2012-rptopts-3lists-sel2.musx
+    sha256 c68b8565453d3fc6df01ce84ce12016634a7f49cca79c241b0f809c909fb33b2
+    Finale 27 preserves all three repeat staff-list families and identifies the
+    class 0x00e5 cmper 2 record as repeatStaffListScoreOverride. It again writes
+    Top Staff Only and no showOnStaffListNumber.
+
+F2012-F2005-rpts-forparts.mus
+    sha256 aaff1568ec2bb9ef3a1a042953bc59ecbf60ea52d852703f59b801f8a3268b4e
+-finale27/F2012-F2005-rpts-forparts.musx
+    sha256 6b700da38f6b838e34640b65ee526d469a6394d44eeceb6aeed64dcc08445f4b
+    F2005-rpts-forparts opened and saved in Finale 2012. The enabled Show Repeats for
+    Parts setting moves from selector 16 comparator 65534 word 5 to class 0x001e with the
+    same comparator and word, where it remains 1. The Finale 27 companion preserves it.
+
+F2012-F372-activelayer-only.mus
+    sha256 6d806dd76063eac0b074c90d82f33d85da3e9b3de99cd0f0daca03ed42f0e0d5
+-finale27/F2012-F372-activelayer-only.musx
+    sha256 4bbeee94e3079f7499cbc4f58aba03025696ddda01aae2de5d233642034771f4
+    F372-activelayer-only opened and saved in Finale 2012. The enabled Show Active
+    Layer Only setting moves from FI comparator 10 word 4 to class 0x008d with the
+    same comparator and word, where it remains 1. The Finale 27 companion writes
+    `<showCurrentLayerOnly/>`. Other upgrade changes are not used as mapping evidence.
+
+F2012-F372-noteopts.mus
+    sha256 f361e13d1cc39a3ea0eca3cb9f1a4a32a5b83d49a164cc2053860bab0f359d73
+    F372-noteopts opened and saved in Finale 2012. The enabled Shape Notes setting moves
+    from CS comparator 1 word 5 bit 7 to class 0x000f word 1, which contains 1. The five
+    Rest Positioning values
+    survive unchanged: class 0x003a words 0--2 contain 3, -5, 7, and class 0x0037
+    words 3--4 contain -23, -47. This staged source links the controlled fixed-row
+    locations to their Unicode-era class-record replacements.
+
+F2012-noteartexp.mus
+    sha256 4ffcb6b07d802e7cc2f1d0a8313e484a074bb0e099665ead8c23c3387a22c830
+-finale27/F2012-noteartexp.musx
+    sha256 844b927b851ec77c3860e9ecdbeabe0bb9226c2f0cb88d7f157a4961e5c2c05a
+    Controlled baseline containing one note expression in the score. The zlib others stream
+    contains class 0x00b1 cmper 1 only for part 0; the companion has no part-specific
+    note-expression element.
+
+F2012-noteartexp-unlnk.mus
+    sha256 34ac67494523e58c1939ab390910095cacb971c889b00309a216d5fead421690
+-finale27/F2012-noteartexp-unlnk.musx
+    sha256 31627bf26b1d8c4b0d09d489b0bb0ca9d63dd795ae13d0fe3bb97edf000bae2e
+    From the baseline, used Unlink Expression Object in part 1 without moving or otherwise
+    editing the expression. Finale adds a part-1 class 0x00b1 cmper 1 record. Its 24-byte primary
+    payload equals the score snapshot. Its same-sized continuation repeats the length, contains
+    stable framing/constant words, and leaves the edit-specific mask group clear. The companion
+    represents the part element as shared.
+
+F2012-noteartexp-unlnk-move.mus
+    sha256 4a7e05d0278fdb3a1d280c7b37060aa27094fbca85b21316b272cdf18fce46e4
+-finale27/F2012-noteartexp-unlnk-move.musx
+    sha256 0553e198c13b82c5cdbf36c7afd86ed20ff23cdd16cd199a1a08650cf0bfda1d
+    From the unlinked fixture, moved the expression 24 EVPU horizontally in part 1. The part
+    record's primary horizontal offset and one continuation mask group change; the companion
+    remains shared. Together the pair shows that unlink creates the partial snapshot with an
+    initially clear mask and a later edit marks the affected group.
+
+F2012-jwtempo.mus
+    sha256 db756a62f270e0d39c98adab3686ad26be20b1103beea330c422916c61a2289b
+-finale27/F2012-jwtempo.musx
+    sha256 2f465e66755945039caec17e8c3c5a00c7113e9d36a690ff4f791eeb4bbc3d0f
+    Adds a sequence of absolute Tempo Tool changes with the JW Tempo plugin: sixteen
+    positioned changes in measure 1 and one at the start of measure 2. The Finale 27
+    re-save retains the sequence.
+
+F2012-splitpoints.mus
+    sha256 de3ebcdadb731495a8232440829b230d1ddc977e69aa85df052f136728fa161f
+-finale27/F2012-splitpoints.musx
+    sha256 273df176a5efe47d352f92d9e0abf726da041e1173487dcd236ed102e0bb1ba3
+    From the Finale 2012 baseline, adds one split point in measure 1. The Finale 27
+    re-save retains the position.
+
+F2012-splitpoints-parts.mus
+    sha256 c81242415a284488e0c425c933aecb5238618a95c3f61040453e8bb871345ace
+-finale27/F2012-splitpoints-parts.musx
+    sha256 f51567984de93d2281d8cce2fe3bebff2c72748fa591364d558d9f7d87babfe6
+    From the Finale 2012 split-point fixture, adds a linked part and changes the
+    split position in measure 1. The split point remains visible in the part, and
+    the Finale 27 re-save retains its position.
+
+F2012-timecomp.mus
+    sha256 01bb3cbf391b5a4777bdc259ee9f432e811c1d67b8f7ab82274bf245e2457561
+-finale27/F2012-timecomp.musx
+    sha256 29c9a98feb7166cb5b1125d9e424950bdc3b792d8f93ebf17a508c133c2b7e3c
+    Measure 1 has a composite time signature of two groups: 3 + 1 + 2 1/2 over eighth +
+    sixteenth, then 4 + 2 over quarter + sixteenth. Numerator and denominator are both
+    composite. The Finale 27 re-save retains both lists.
+
+F2012-rptback.mus
+    sha256 07f51d9638b34eadfa4018d8ebf37e92e26c127957540acd49d8c6a4f1b01167
+-finale27/F2012-rptback.musx
+    sha256 567aafe4f0097e44a5781d26b6f86c569cf4f524bc4ff402135545f6100279f1
+    From the Finale 2012 baseline, adds a backward repeat in measure 1 with three
+    passes, target measure 1, and reset on the selected pass. The Finale 27
+    conversion accompanies the source.
+
+F2012-rptstart.mus
+    sha256 b15a31fe4a8ecba5ebd0e84824d0e9560904c36aace23752806845e43e2e67cf
+-finale27/F2012-rptstart.musx
+    sha256 2fea1f8b15beebe3d28aeeb80a41afdf0d9a9b700461d8d55929b7b2bdd78d41
+    From the Finale 2012 baseline, adds a repeat ending to measure 1 with relative
+    target 3, three selected passes, individual placement, top-staff display, and
+    jump while ignoring repeats. The Finale 27 conversion accompanies the source.
+
+F2012-rptstart-hidden.mus
+    sha256 7f6282423be1860df3b15acfb5e735307db244e2b82877053ed78a080e5783f0
+-finale27/F2012-rptstart-hidden.musx
+    sha256 e302936a67d1b2381b1818da3eb3384ebfaf04030186289355c7636a29ae3ffb
+    From the repeat-ending fixture, clears individual placement and adds part 1,
+    where the ending is hidden. The score ending flag is 0x2422 and the part flag
+    is 0x2426. The Finale 27 conversion writes hidden on the part's
+    repeatEndingStart only; the score ending and pass list remain visible.

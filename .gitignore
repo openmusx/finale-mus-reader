@@ -1,0 +1,48 @@
+# CMake build trees and generated files
+/build/
+/build-*/
+/cmake-build-*/
+/out/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+Testing/
+compile_commands.json
+
+# Compiled artifacts
+*.a
+*.dylib
+*.dll
+*.exe
+*.lib
+*.o
+*.obj
+*.so
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.asv
+*.[bB][aA][kK]
+*.xcuserstate
+xcuserdata/
+
+# Python analysis tools
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local operating-system files
+.DS_Store
+Thumbs.db
+
+# Local output
+/tmp/
+*.log

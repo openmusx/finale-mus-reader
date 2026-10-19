@@ -1,0 +1,1130 @@
+Finale 1.0.0 for Macintosh, Coda-banner era, big-endian.
+
+Origin: controlled test documents created by Robert G. Patterson in Finale
+1.0.0 running under Mac OS 9 hosted by SheepShaver. The documents and their
+musical content are released by their author under this repository's MIT
+license.
+
+Every changed file below was derived from the same newly created baseline, and
+each alters one named control or a small named set of them. Pairwise comparison
+among the changed files localizes the intended changes to the named physical
+tuples; the baseline has a smaller save allocation and is therefore a semantic
+rather than byte-for-byte control for those files.
+
+F100-note.mus / .etf / -finale27/F100-note.musx
+    sha256 305ee46cb1dec03c268d61def0424aca7c59d1af9d761f087edfacb5fd55bb6f (.mus)
+    sha256 e2dc5acc30b482ebe0d768c3f31af9b2fc3be4030499542923822979dbc68a3a (.etf)
+    sha256 aad4b7f81c80388859352853d337010d8c71b270c91c2044a2d6c665a01d6961 (.musx)
+    Baseline note before notehead resizing or accidental movement.
+
+F100-note-redux.mus / .etf / -finale27/F100-note-redux.musx
+    sha256 a7d3c2f2c6a4c8066654a3b7a786d35a0acd1cc15656b86782be81925e45850a (.mus)
+    sha256 22e4750c0348d2355cf7f8fd7e255c981b101461485831d472e5ea68fab7e9d9 (.etf)
+    sha256 7974f6c547a00572de0542005e243590baebfa17eab56bc681653478da23f3b5 (.musx)
+    From F100-note, resizes one notehead to 79%.
+
+F100-note-redux-accimv.mus / .etf / -finale27/F100-note-redux-accimv.musx
+    sha256 62b1e3f2f320391d0825e631298a1db60d168f1731407ddf4ab61299dfdc9179 (.mus)
+    sha256 144d7a387dfbeb4425ca2131105426ff9f54f7b067a492288abeef0422213962 (.etf)
+    sha256 61a9e6d305ec40ec2b304aa1f4d41094d1caa62f17b9ec2a6c39a6176f492260 (.musx)
+    From F100-note-redux, moves the same note's accidental horizontally by -52 EVPUs.
+
+F100-chord-notealt.mus / .etf / -finale27/F100-chord-notealt.musx
+    sha256 c24871a536955a911e5423af8088179f6743d2231117ecf4aa978b339d2c716c (.mus)
+    sha256 1bc2962edcaf1561cf47b349e16bf50c350a1ea68f6153b3207e142d3deb0690 (.etf)
+    sha256 9124c89d5c56a4b11e1a2069061822dc8322dba64c566ac8f7f853bcb2a6c35c (.musx)
+    Three-note chord in Entry 1. The Entry's Note IDs are 1, 2, and 3, while the corresponding
+    combined `CN` first words are the Notes' TCD values 49, 121, and 160. The notehead sizes
+    are 63%, 51%, and 83%.
+
+F100-beam.mus / .etf / -finale27/F100-beam.musx
+    sha256 63a742ee083df4d519cafbd21a466e4c78f9fdc35aa51dfbd60fc3e24269849a (.mus)
+    sha256 524803a182d48d46178f0e682feb128094f4438335ec7be3e1edc25ea4bf369c (.etf)
+    sha256 15f5b75d4cbf5722a81325597ad439a87a03e34b7f4a211b3a7da10afb0feb8f (.musx)
+    Baseline beamed group without a beam extension.
+
+F100-beam-custstem.mus / .etf / -finale27/F100-beam-custstem.musx
+    sha256 02a8ffe7f472b4ee154074850467783acb311ad3b84a076638bf8e57cf03a19c (.mus)
+    sha256 6b676ec8740095c926c20a422da5494541c55426c0b7da40979c580702a92194 (.etf)
+    sha256 f8b86a26219a23bfcdfb8dff456a1821562a91c675003d98d6d48248baa32f97 (.musx)
+    A beamed group with a custom upstem shape on entry 2. The ETF has a `SU(0,2)`
+    detail; the Finale 27 conversion retains the custom upstem shape.
+
+F100-beam-67pct.mus / .etf / -finale27/F100-beam-67pct.musx
+    sha256 da4ceab1bb654efd59c14112339f3aa9b75f66e594b424ed5b2e4d5365020e08 (.mus)
+    sha256 a8b45e7daaac5e1bb7c0d089fc7a7804784f44a80c16061cb4a0c197573871e0 (.etf)
+    sha256 c072ae2980a96262d5ca8d8a01f536c8d974f9d08b02bf1c391dad1e5c1caa6d (.musx)
+    Derived from F100-beam by setting entry 1 to 67% size. The ETF contains
+    `AS(0,1) 0 67 0 0 0`, and the Finale 27 companion preserves 67%.
+
+F100-beam-ext8th.mus / .etf / -finale27/F100-beam-ext8th.musx
+    sha256 b0ab9d57597161e2922d492fda9384d113421d99fc2df51fff608450b104aa2e (.mus)
+    sha256 1deabcd719e519e4c22f3c0565da8d5876030f5119333dcf45a724a1e0fac1c8 (.etf)
+    sha256 1499c02eb3c70dee46d33f33a1c766448a0d13acf84fe67056cc630c077599f1 (.musx)
+    Extends the eighth beam to the right by 664 EVPUs.
+
+F100-beam-extsel.mus / .etf / -finale27/F100-beam-extsel.musx
+    sha256 f471710cf9137279e05a3fbbeb28871e52834c20b429942af98771c8d58592c3 (.mus)
+    sha256 f72eff72b8162d17f3aad29ad7542c562d093cfbf4876be3c6d0b55ef04d8c20 (.etf)
+    sha256 07a4d008b2a24888ea751b31e28b6720b423cbfa84dc68987e92c71e40f38d77 (.musx)
+    Extends selected eighth and thirty-second beams, with a -60 EVPU left offset and 664 EVPU right offset.
+
+F100-mirror.mus / .etf / -finale27/F100-mirror.musx
+    sha256 bc3f8b3adbc3613807914059c3c1371993fe346c561ddf4335357646fd527ae4 (.mus)
+    sha256 1accc8ee33a20716690d221e80c29e23ab4b5161ad27f1c71ec96a2eee00b48a (.etf)
+    sha256 79a96cc0d7d3bb6e08bc05021d0e2fe6c3111937ca9afaa116849bb6e91da196 (.musx)
+    A three-measure score with Mirror Frame enabled at staff 1, measure 3 and
+    additional mirror controls enabled. GF(1,3) word 4 has bit 0x0040 set;
+    GF(1,1) has it clear. The companion stores mirrorFrame only at measure 3.
+
+F100-8th-pickup.mus / .etf / -finale27/F100-8th-pickup.musx
+    sha256 6a5a1d207655cd5a309d00ed52c4e209cb6c0a84294cbaf5df79aec37a5b0b14 (.mus)
+    sha256 0292d21a04b14ab996805316c5c1a3b97b09180e1a56a8972af95b17a4c76633 (.etf)
+    sha256 cff9374dfa6ce4585c37d3bde76cb1077355e03cfd69315ac3ac053ddb7041ea (.musx)
+    A one-measure score with an eighth-note pickup and one entry, producing a spacer frame.
+
+F100-baseline.mus
+    sha256 9b6605da705949155d2690bc51680576b87872272406077fb59160fb599f00b9
+    4,143 bytes. Unmodified new-document defaults. Selector 44 is absent and
+    selector 41 contains six zero words. The Finale 27 companion carries rest drops
+    `0, 0, 0, -24, -48`, establishing fixed behavior rather than stored values.
+
+F100-pagetitle.mus / .etf / -finale27/F100-pagetitle.musx
+    sha256 898c3f9e0789b77b7ae8878dddd3a7ae9f148dfe2d35c1a70e142333192cfb30 (.mus)
+    sha256 3edbddf777d000947f23892dda4a68a0c0f9c9542d3ff0cc3a07ee008faa79b8 (.etf)
+    sha256 079dc41bc43285d8a8057b84685612d6468b2035855205145c1f7fa8fb950031 (.musx)
+    Adds one page-attached title text block to the Finale 1.0 baseline.
+
+F100-pagetitle-ydisp.mus / .etf / -finale27/F100-pagetitle-ydisp.musx
+    sha256 02196ffb34f70a46f99118d2df943a7894be591f8c8db3ba7a57126d47b202c7 (.mus)
+    sha256 027da113a46c4ce7408dacd95ea3c1bb12886aa03aa98b645af71cf83dd69550 (.etf)
+    sha256 ddb51b5c7ed8e4b2c0fb27965860c87b796dddb737b52189e44429f81848b524 (.musx)
+    Derived from F100-pagetitle by moving the page title vertically. The `HS`
+    row's vertical word increases from 556 to 596 while its other five words stay fixed.
+
+F100-header.mus / .etf / -finale27/F100-header.musx
+    sha256 86ca36a7f29159e6b2158f4644ddec038944117347097b201df05133507674f3 (.mus)
+    sha256 96005419916729fa10ca9c0cb60cb719a47c063701c628a91ca46903edbdbbf6 (.etf)
+    sha256 de3c55cb603ae28190be26acd6e05c0dcf6cd60159963a05080b04482f566c1f (.musx)
+    Adds an odd-page, right-justified header to the baseline. Its `HS` row has
+    zero horizontal and vertical displacement.
+
+F100-header-meastext.mus / .etf / -finale27/F100-header-meastext.musx
+    sha256 9eb4cd15e13183e547462571568760b6ea073dee6b9294c5925d1e746a0942e9 (.mus)
+    sha256 f8b049e3bc860366988e0bd0b190b65af9bf112c4163b77c70fcfc5528eb5dd3 (.etf)
+    sha256 439834129d1b6e62f6f820730d9c26247aae61a3ffb14d1877833f60dfd8cfd5 (.musx)
+    Derived from F100-header by adding "Measure Text" to measure 1. The header's
+    `HS` and `HT` rows remain unchanged.
+
+F100-header-x7-y11.mus / .etf / -finale27/F100-header-x7-y11.musx
+    sha256 1a8c9a62eb1930083e05a132835538c70707df3dce7c42df4da5be4e51043f13 (.mus)
+    sha256 fdac918f462aa063c090e57d2a19920c3634c1dff5ed932df07812969efa18e9 (.etf)
+    sha256 755a440245dbaad07e3b5790606e778b101540c5e91ae43b9d0d2fc10915c13e (.musx)
+    Derived from F100-header by setting the UI horizontal and vertical offsets
+    to 7 and 11. The `HS` row changes only those first two words.
+
+F100-footer.mus / .etf / -finale27/F100-footer.musx
+    sha256 a2802d932ffeae2b6b2211a92bb335dde9641e1321e8166aadc47f18f0907ea8 (.mus)
+    sha256 28e95ea8ca2061a265d66bca754d763bd81cede5cc47c7949c5a02d41d70723c (.etf)
+    sha256 339c02f6d3800204bf5f64590992eecea0379354c70cb65875fa53260fe8c4e6 (.musx)
+    Adds an even-page, left-justified footer to the baseline. Its `HS` row has
+    zero horizontal and vertical displacement.
+
+F100-footer-x7-y11.mus / .etf / -finale27/F100-footer-x7-y11.musx
+    sha256 fda717f20d6acdbd167e7d8f543e6394e929d3cbc86eeb0a905f873e670e42c2 (.mus)
+    sha256 89c82a6a7cdfbc414b927b8d734f4a9daff0a87c2f51047a15af4f944a1bba54 (.etf)
+    sha256 657c1e8815741666bdaf27ae8896fe8f3b671e0e08697d53901af200 (.musx)
+    Derived from F100-footer by setting the UI horizontal and vertical offsets
+    to 7 and 11. The `HS` row changes only those first two words.
+
+F100-measnums.mus / .etf / -finale27/F100-measnums.musx
+    sha256 cef1c6c0ae2cf6d78d93eb59fec2948c27540aa34f5f0537d66e4932e59d49a3 (.mus)
+    sha256 df23e7c865c334036a771d5003a01d3526b929966ca932a45e30d38288165c39 (.etf)
+    sha256 524197d5495b940436941f34c922d337805dcc1d91cc8f39de69206fce376094 (.musx)
+    Changes the Coda measure-number font, placement, and starting character.
+    The Finale 27 conversion also supplies enclosure defaults.
+
+F100-measnums-prefix.mus / .etf / -finale27/F100-measnums-prefix.musx
+    sha256 85b211e171a94db8f3d12ba10ff259b29201d97edb82543d367dfee132a63838 (.mus)
+    sha256 73eb5579b69a4e0cb1a64991e5587d82226bdb001327e91df6a65e67b179fc34 (.etf)
+    sha256 19d6cc6538c7e668dfe1834434bca8bb606494ff2cd9f1548c78ea8571f343a5 (.musx)
+    Derived from F100-measnums by setting the two-character measure-number prefix to "12".
+    The final style word changes from zero to 0x3132; the region row is unchanged.
+
+F100-measnums-ellipse.mus / .etf / -finale27/F100-measnums-ellipse.musx
+    sha256 32db41067f55d50032d6055f0768dcfcd4aa83f8f1bc88fa43c75ee074d36c8f (.mus)
+    sha256 b3e2101fcd6cfd900f2217c05b00e375de9242f847f5efde8ed8fe8635bcfe27 (.etf)
+    sha256 c4ec24843a6facdab0e68ade8467bce9e29abeacb3072817627f2d572c059a21 (.musx)
+    Changes only the measure-number enclosure shape to ellipse.
+
+F100-measnums-triangle.mus / .etf / -finale27/F100-measnums-triangle.musx
+    sha256 49210ad4a9139b6abaf0a95e017a3ac11801c078cd1d32670a10195e705e2d3e (.mus)
+    sha256 17e29a52ac5a3a4bc3b5dcbd898e83d8a17b9e7745b25cbbcb1edf76843be9c6 (.etf)
+    sha256 22f07d28120d8c7eb979811a45daeab3b17e5242a77ac2a52c75083855242e19 (.musx)
+    Changes only the measure-number enclosure shape to triangle.
+
+F100-measnums-diamond.mus / .etf / -finale27/F100-measnums-diamond.musx
+    sha256 2e96485236c890593d463aa8a4081e840b30b787a27d7c9923fdfa1735c0beb2 (.mus)
+    sha256 8e64c632d84dfb7d933fb29ea11d39db04fd143077360fbadb523a73ca8ba17f (.etf)
+    sha256 a02f95971b88b9a4534728aa43b4f20b4f1a05b116cb6004be49d5dd178c25cb (.musx)
+    Changes only the measure-number enclosure shape to diamond.
+
+F100-measnums-pentagon.mus / .etf / -finale27/F100-measnums-pentagon.musx
+    sha256 f35336337e9b3399d43c2be4106bf282e4b218e8f43901de9030846fc5be6574 (.mus)
+    sha256 5497bd0b8293ba579ebc1900689be59160d583ed669c4ea1ddf931af6c4be346 (.etf)
+    sha256 264fbb360f64f9c8544ba60fcd507a97e9f70ac42d45c6fa4bfb489c12b110dc (.musx)
+    Changes only the measure-number enclosure shape to pentagon.
+
+F100-measnums-hexagon.mus / .etf / -finale27/F100-measnums-hexagon.musx
+    sha256 17421b6e1ddcc7547ed1b3a8e2503cea203231daf3e7b24fbb4e1451d7e9a839 (.mus)
+    sha256 b14d8114b343ef56758e21a3020f06f93afd3777b08139a07dd7d6ac233d3a24 (.etf)
+    sha256 9e5284175c30ac1c7462c70fd61e153c19e0a3a23b80d5ffa098c59464cffe09 (.musx)
+    Changes only the measure-number enclosure shape to hexagon.
+
+F100-measnums-septagon.mus / .etf / -finale27/F100-measnums-septagon.musx
+    sha256 ad6505ad26c8c782f4578610228dc99de3fcefeed9d329bdcab0576b320ada90 (.mus)
+    sha256 43f28d69ea83fff55b5c9598d067af8aa2f66d61b2aff764691191972f646540 (.etf)
+    sha256 4953a8b859e0cb47faf756dbf74ccc862a3bbc801d1d164fe900abd227f2a575 (.musx)
+    Changes only the measure-number enclosure shape to septagon.
+
+F100-shapexp.mus / .etf / -finale27/F100-shapexp.musx
+    sha256 df95d64f439723654c05f34939e2510ca77b3eec792c7c7ebbe896bf0129868c (.mus)
+    sha256 472309d465a2398f2b195bb5e2d2ed7fc0c28c782e3552b172fb01029919df4c (.etf)
+    sha256 27c5581acd34e56a4df84b509516c532b3e1c94f0e201a82b5e482934606158a (.musx)
+    A shape expression definition and a measure assignment, with Lock Shape clear.
+
+F100-shapexp-lockshape.mus / .etf / -finale27/F100-shapexp-lockshape.musx
+    sha256 77f514d9d410d95993f045c26e92d04abf02a3cfdbdb126a30ddc6d4d2bf8d62 (.mus)
+    sha256 ea6d0edee8081c78b24b14f86f6b6426fc1e1a1c1d31cabe69ca52bfa28027a0 (.etf)
+    sha256 d39b47406bc698bd4e942ec876ee49ee8283ae21680f7b39891af34ee795fe34 (.musx)
+    Resaved after enabling Lock Shape. The first DO row changes only in flag bit 0x0100.
+    Both Finale 27 companions retain the assignment and shape but omit the expression definition;
+    their decoded score XML is identical.
+
+F100-textrpt.mus / .etf / -finale27/F100-textrpt.musx
+    sha256 73e2c6e62f3479e3605f261a1a325be421f720216f553d25208b45f327f7fb3e (.mus)
+    sha256 759a92ade29bef4aee8f07505a269e04af4477bc736e2660cb730f87d9ca608e (.etf)
+    sha256 d2358d78637aec6a7e0c38ac63bb71a246d9db1274bf3f32dcbc6cc069a85085 (.musx)
+    A text repeat with a rectangular enclosure and a measure-number placeholder.
+    Includes its contemporary ETF and Finale 27 conversion.
+
+F100-global-lyric-baseline.mus / .etf / -finale27/F100-global-lyric-baseline.musx
+    sha256 05711965535413d49e1977e1fa3494a45b4f83978d9bb25c6dfd9fcaa1bc3b11 (.mus)
+    sha256 bc3f563f38b6098a5c903df11e1fb907a3358e5215b6fae1ce6462e0dc43a6ca (.etf)
+    sha256 a144735782a7fef901f240e905bb6d4cd9a6254ad4f159fb1c2b87c0acd9b019 (.musx)
+    Derived from F100-baseline by setting the first global verse baseline to -120 EVPUs without
+    creating verse text. The Finale 27 companion exports the baseline as lyric number 1.
+
+F100-baseline-recalc.mus / .etf / -finale27/F100-baseline-recalc.musx
+    sha256 0a96195954bd024ba331496b17ae61f2930eb6863a974aabb4b1762119f7570f (.mus)
+    sha256 00d790b075dda917f0dfa5577c49e921794d2c1472a2df9905f699eb16ed7503 (.etf)
+    sha256 f21c4a146e2e3a83ca1da2e5bebfbcbe1877df82319c5d5d29e16749e37ad1f1 (.musx)
+    Derived from F100-baseline by invoking Update Layout to materialize Page 1 without changing
+    its default dimensions, margins, or scaling.
+
+F100-page-margin-percent.mus / .etf / -finale27/F100-page-margin-percent.musx
+    sha256 58cee27a1f9dc83344955d50e276449a8e5685e333ed5d236e7294eba54cfce8 (.mus)
+    sha256 defebfd08612735b384aa58b0da5f950d4814808e09ae7bc280ba77de1df8084 (.etf)
+    sha256 d2cb42f9b9cf5ced3bb51bd20af45ea612931513fbb90d2f6260f30777071532 (.musx)
+    Derived from F100-baseline-recalc by setting Page 1's top, left, bottom, and right margins to
+    -145, 146, 148, and -147 EVPUs and its page scaling to 91 percent.
+
+F100-page-91hold.mus / .etf / -finale27/F100-page-91hold.musx
+    sha256 eeb2323fbb24bb095987720343f46fbac69fe6a2963c5016d121925c414151fe (.mus)
+    sha256 1cf87252c3e70403dbecc7a39a118b50f1caa105d5e2c998e855ffd5a99db0e0 (.etf)
+    sha256 f5b6788d11ce0b9bc5be40a76e0d777bc1cbb532f4078def89a4794bba2e3d08 (.musx)
+    Derived from F100-page-margin-percent by changing only Hold Margins. The `PP(1)` final word
+    changes from zero to `0x4000`; the companion adds `scaleContentOnly`.
+
+F100-4systems.mus / .etf / -finale27/F100-4systems.musx
+    sha256 df6bcfe8a7865384b184caf96bdd8eef4884fcb73381c2a9c7f28cf2f4edcc3e (.mus)
+    sha256 222149b1e45c3a8d60676a4b557cefc433f260f1ae45c47e683ce3217084b681 (.etf)
+    sha256 0eaa3d633737b848c13893d9c24fc60c41ac9b2b51806abb4e7498698c0b6b1f (.musx)
+    Derived from F100-baseline as a four-system layout. The compact `SS` rows begin at measures
+    1, 3, 6, and 9, all have flag word `0x0080`, and the document has no `LP` record.
+
+F100-4systems-sys2to73.mus / .etf / -finale27/F100-4systems-sys2to73.musx
+    sha256 f64324591968682c28549b6c8dcc36fe01f9457dd6991c9aa1139b2f37646114 (.mus)
+    sha256 bce443eb6b9fc4640c0f2f72a6db42f27d4f729323a4ccfb00b7eed6c43fdf60 (.etf)
+    sha256 9c1c32aed21bd47e9c5ede346e90214d7628aba6dad1ffd2f893fa89881ca425 (.musx)
+    Derived from F100-4systems by changing the top staff of system 2 to 73 percent. System 2's
+    `SS` flag word changes from `0x0080` to `0x0480`, and `LP(2,1)` is
+    `[73,73,0,0,0]`; no other system row changes. The ETF independently confirms both rows.
+
+F100-update-layout.mus / .etf / .musx
+    sha256 20eea94bd827ce067929a6b9e9c73823399b63fc45e70cd66e4f8675e50a43ac (.mus)
+    sha256 5c199663482f1ba62bc5e0f5ffce154b54cd41c2af2441818438df3a0c97cb19 (.etf)
+    sha256 eb3e4cecbc098566c6cfd856b20a50eef81be54ba7f25a348bdaa6b417392cac (.musx)
+    Derived from F100-baseline by adding 100 bars and invoking Update Layout. Its 34 `SS`
+    records establish the ordinary repeated Coda system layout and the derivation of each
+    exclusive end measure from the next system start, with the last ending one past the document.
+
+F100-chg-sys.mus / .etf / .musx
+    sha256 cc765b175cd50bfa2fbd6d68564ecd805fb1cdbced08f1e533cda54c3ddd1cfe (.mus)
+    sha256 274f0d5679cd0724c82921046dcaffa3d072cb01250cc7dbf6eb0cb6ba219b16 (.etf)
+    sha256 44d91c827e7542085702d9e650a940e6a68ad18cf7cb96f8677ae386d12183f3 (.musx)
+    Derived from F100-update-layout by assigning distinct top, left, right, and bottom margin
+    values to systems 1 and 5. The edited `SS` words are `[-257, 389, -247, -299]` and
+    `[-481, 517, -499, -521]`; the companion shows the first word contributing to system 1 top
+    and becoming system 5 distanceToPrev, while the remaining words map directly.
+
+F100-instlist.mus
+    sha256 e860efdeb383eedd7cb8195592d604bfbf1a5a6efc0ddbd4e74b558945cfd070
+    5,167 bytes. Creates one unnamed staff list. Selector `DC(1)` stores score
+    membership `[1]`, and `dc(1)` stores parts membership `[1, 2]`. The Finale 27
+    companion preserves both as repeat staff-list components and supplies the name
+    `Staff List 1`.
+
+F100-instlist.etf
+    sha256 9be56090e48722dffbf076e392e7cbe56fa04babd0d59364ad158658a0106295
+    The matching Finale 1.0.0 ETF export, whose `^DC(1)` and `^dc(1)` rows
+    independently confirm the stored memberships.
+
+F100-keysiglib.mus
+    sha256 400798fffc5f0ed84161efae5326a65c13bdbcefed06868d4a8773b25575dde1
+    6,191 bytes. Made by opening the controlled Finale 1.0.0 baseline and loading
+    the supplied key-signature library. Custom key cmper 2 references accidental
+    symbol list 1. Its 63 physical `KS` rows represent 46 unique comparator
+    pairs; 17 pairs have a second, identical incidence.
+
+F100-keysiglib.etf
+    sha256 5a559d61f84d9f9a07e4bd78bade017d7aecef5a647111df4ac535d978ce5ac7
+    The matching Finale 1.0.0 ETF export, independently carrying the same `KS`
+    comparator pairs and payload words.
+
+-finale27/F100-keysiglib.musx
+    sha256 7b1d2598d3d79c18962e9a105c2a371c8cdc0ab5ed1edf4ca2bc7564ce653ced
+    The unedited Finale 27 companion. It preserves 40 comparator pairs, omits
+    the six one-character elemental slots, and rewrites 26 surviving strings.
+
+-finale27/F100-keysiglib-maybefixed.musx
+    sha256 26e45528cb6bf2b75c07f7211873be5731124e4044be8efe663d30bcbce16e21
+    16,289 bytes. Derived from the companion above by changing the Petrucci
+    preference from the converted legacy size 71 to 24 points, then opening and
+    saving the accidental-symbol list through a Lua key-signature editor. The
+    Lua API found all source slots, but the resulting EnigmaXML retains exactly
+    the original companion's 40 `keySymList` elements and strings. It also adds
+    custom key cmper 3 and normalizes unrelated options, so it is retained as an
+    upgrade-behavior experiment rather than as the source's semantic companion.
+
+-finale27/F100-instlist.musx
+    sha256 92309b65adf972c768310026778ee5988649ad3f41c59e70008eb547d4b90bf8
+    The unedited Finale 27 companion described by `../finale27-provenance.txt`.
+
+F100-music-font.mus
+    sha256 931417967ea03e945f532e4157fb6ed210aa3989e6848d9b3c17ad10b67edadc
+    4,655 bytes. Changes the music default to Symbol at 60 points. The raw
+    source tuple is `02(65534)` words 0-2: `(12, 60, 0)`. Its Finale 27 companion
+    writes all five rest drops as zero, unlike the other 39 distinct tracked Finale
+    1.0.0 companions. Because the source still lacks selector 44 and has a zero
+    selector 41, this is upgrade-time font-default substitution rather than a stored
+    rest-position edit.
+
+F100-text-font.mus
+    sha256 b393e9b2d8ef844f64967ae208ac50e452dc1672e87b8b569ff8c3cbea3e015c
+    4,655 bytes. Changes the text-block default to New York at 17 points,
+    bold and italic. The raw source tuple is `26(65534)` words 0-2:
+    `(2, 17, 3)`.
+
+F100-lyric-verse.mus
+    sha256 012c07efcaadf2d17f31a9b4ce6ffe632c2edd34bc894d698a46f37c47994618
+    4,655 bytes. Changes the lyric-verse default to Geneva at 13 points with
+    raw effects mask `0x001c`. The raw source tuple is `26(65534)` words 3-5:
+    `(3, 13, 28)`.
+
+F100-clef-baseline.mus
+    sha256 56cbf72c98e535732319fdb4bcfa73ebabd48eea6933df924ec5a9a4b79da641
+    4,655 bytes. Changes the Clef Designer baseline adjustment on two clefs and
+    checks the box governing whether the adjustments are used. Selector `28(65534)`
+    word 4 moves -2 -> -4 and `29(65534)` word 4 moves -4 -> 2; no other record word
+    in the file changes, so the checkbox leaves no trace in the others or details
+    pools. The values are harmonic levels. Finale 27 discards them: the companion
+    emits no `<baseAdjust>` at all.
+
+F100-clef-baseline.etf
+    sha256 661099e0063db6946e750bfb36407924bb7eaa4d28e6dddf19207b0a89772393
+    A Finale 1.0.0 ETF export of the same document, carrying the era's own
+    `ENIGMA Structures Copyright 1987 by Coda.` banner. This establishes that
+    Finale 1.0.0 has an ETF export command, and its `^28(65534)` and `^29(65534)`
+    rows independently confirm the edited words.
+
+F100-stemopts-changed.mus
+    sha256 3800ba1964aaa754f1aa2223b79450885e4078a428b2c996fe3de6842db03330
+    4,655 bytes. Lengthens the normal and shortened stems by one staff position
+    each and switches off "Display Reverse Stemming". Selector `20(65534)` word 4
+    moves 7 -> 8 and word 5 moves 5 -> 6, and `41(65534)` word 1 moves 0 -> 1.
+    Its companion moves the two lengths to 96 and 72 and gains
+    `<noReverseStems/>`, which is what makes the pre-Finale-3.5 lengths a
+    measured staff-position count rather than an inference, and what shows this
+    era keeps the reverse-stemming flag in bit 0 where later ones use bit 2.
+    `21(65534)` word 0 also moves 4 -> 5: the Finale 1.0.0 dialog offers "Offset"
+    beside the two lengths, and that word is the augmentation-dot upstem-flag
+    adjustment from Finale 3.0 on. Finale 27 discards it when converting a Coda
+    document, so the companion cannot say whether it means the same thing here.
+    It is not `revStemAdj`, which is word 2 of the same selector and does not
+    move. Two further rows differ, `54(65534)` and `55(65534)`.
+
+F100-stemopts-changed.etf
+    sha256 99376da589685aa327caae85e1c55541360e47463e8f2670d228998fc2d1dae2
+    A Finale 1.0.0 ETF export of the same document, whose `^20(65534)` and
+    `^41(65534)` rows independently confirm the edited words.
+
+F100-revstem-25.mus
+    sha256 19ced7ea65905d118a665f63ccc30061546a3b8fed41545bdf8c2cb39a13adee
+    4,143 bytes. Sets the reverse stem adjustment to 25. Selector `21(65534)`
+    word 2 moves 18 -> 25 and the companion carries `<revStemAdj>300</revStemAdj>`,
+    which is twelve times the stored number and the same factor the two stem
+    lengths establish. That makes every pre-Finale-3.5 length a measured
+    staff-position count.
+    This save has the baseline's smaller save allocation, so unlike the other
+    controlled files it also differs in font, text and layout rows that no edit
+    touched. Those are allocation noise; the ETF confirms the intended word
+    independently.
+
+F100-revstem-25.etf
+    sha256 80afb94d3f9e8e265bba3301b8a27e60b603f3fe4ee7f56dadda9efe5b58c19a
+    The matching Finale 1.0.0 ETF export, whose `^21(65534) 4 8 25 6 4 4` row
+    carries the edited word.
+
+F100-stemconn-enabled.mus
+    sha256 c2fd3b21b523fdffbf03fc8e3c44c6bdae2b1f0dff0376da1efd500fb1bd83d1
+    5,167 bytes. Enables stem connections. Selector `31(65534)` word 5 moves
+    0 -> 1 and no other record word in the file changes, which is what pins
+    `useStemConnections` to that word.
+    The companion gains `<useStemConnections/>` where the baseline has none.
+
+F100-stemconn-enabled.etf
+    sha256 5fa19785fa827015ebefcf49bda2b27a4ec19382711cfcf662b5b5f669282ad6
+    The matching Finale 1.0.0 ETF export. Its `^31(65534) 2 -6 63 -2 -6 1` row
+    confirms the edited word from a direction independent of the MUS decoding.
+
+F100-stemconn-disabled.mus
+    sha256 cba0bb58a68e770dfd93f4a101fd3a57c6c374c933eb97afc58fa8907121df27
+    4,655 bytes. Chose "Disable" on a document that was already disabled, the
+    Finale 1.0.0 dialog giving no indication of the current state. No option
+    record differs from the baseline, so this is a no-op save. Kept because it is
+    the regression test for finding no difference where there is none.
+
+F100-stemconn-disabled.etf
+    sha256 cccb1ff44cfd5c740b6eec58378cc072dd2f0b4f28e95086d8b59d4c08cdf35c
+    The matching Finale 1.0.0 ETF export, whose `^31(65534)` row is identical to
+    the baseline's and whose trailing 0 contrasts with the enabled save's 1.
+
+Finale 27 companions are in `-finale27/`. They were generated without manual
+document edits in the same automated Finale 27.4 run described by
+`../finale27-provenance.txt`.
+
+F100-dateform-tab.mus
+    sha256 9991a6d271b21dc000c63628458f813379c928d3b149e7c868a6b18c000cb226
+    From F100-baseline, the date format set to Long and the tab stop to 7 spaces.
+    Selector 05 word 5 moves 0 -> 1 and selector 13 word 0 moves 4 -> 7; the companion
+    reads <dateFormat>long</dateFormat> and <tabSpaces>7</tabSpaces>. With its Finale 2.6.3
+    counterpart this is the evidence that the two oldest text options occupy the same words
+    in the earliest era as in the latest, so neither needs a version gate. The era's UI
+    exposes no other document-wide text setting, and no Coda-banner document carries the
+    accidental-insert block at all.
+
+F100-wext-push-6-lift-5.mus
+    sha256 3e1a8a8dcc2f99552ba717adbb4e0eeb0d82e31c47b05d5755e11ef3001ab535
+    From F100-baseline, the Lyric Options word extension "Push" set to 6 and "Lift" to 5.
+    Those two are the whole of what this era's dialog exposes for lyrics, and they are the only
+    lyric values a Coda-banner document stores: selector 29 word 5 moves 4 to 5 and selector 30
+    word 5 moves 4 to 6, no other word in the file moves, and the companion reads
+    <wordExtVertOffset>5</> and <wordExtHorzOffset>6</>. The accompanying ETF prints
+    ^29(65534) -4 0 66 -4 -4 5 and ^30(65534) -2 -2 66 -2 -5 6, so the mapping is confirmed on
+    three independent representations.
+    Before this fixture the Coda-banner epoch recovered nothing at all for LyricOptions, and
+    the class-level offsets were derived from selector 55, which does not exist before Finale
+    2004. It also retires an open correlation: pre-2004 documents whose companions show a
+    vertical offset of 1 rather than 4 simply store 1 in selector 29, which had looked like it
+    tracked the word-extension positioning bit and never did.
+    The companion also moves the starting connection's offsets to 6 and 5, which is Finale 27
+    filling a connection table this era does not store from the dialog's own values.
+
+Text recovery: four documents that opened the era's own text framing
+
+    This era stores text two ways and neither is the text pool of the later ones.
+    Block text is in the `HT` and `HS` others families, one pair of records per
+    block: `HT` holds the characters in four consecutive incidences and `HS` holds
+    the style, keyed so that `HS` incidence n describes the nth `HT` record of the
+    same comparator. Lyric text is in the region behind the last record pool, as
+    two length-prefixed chunks whose second carries spelled-out `^verse(n)`,
+    `^chorus(n)` and `^section(n)` records.
+
+F100-short-text.mus
+    sha256 fa1639ec37c9f0b715eb87bfc77fe2906a22628e683fa5e12205fc1db73dceb7
+F100-short-text.mus.etf
+    sha256 cc0e7f3867fe0196f73d37cf378a1464ba0c589544757cc4b98cd4842ce46c9e
+F100-short-text.musx
+    sha256 135b07f4c34d81a11ec2dd86fa45f323607ed459f2fbbcb1dc3e85727b71327b
+F100-long-text-w-insert.mus
+    sha256 2545d6cdacf1615255773068fd6d800d85344db82e253e44898029e08989e616
+F100-long-text-w-insert.mus.etf
+    sha256 fe1dc3ffe0377d83939b4622c70e17643d3ad18c9bf854d3fef802f0710215aa
+F100-long-text-w-insert.musx
+    sha256 f76ac24fa3099847cbaa49d01504fbda24db76504d5d4e144ad40afb0921903a
+    One controlled pair, and the reason the framing could be read at all. Both hold
+    one block text; the second lengthens it from `short` to
+    `longer with <page insert> page insert`. Only two records move between them,
+    `HT` and `HS`, which is what says the block is those two and nothing else.
+
+    The `HT` record is a fixed four incidences either way, so the shorter save
+    leaves the previous one's bytes after the terminator. Reading to the first NUL
+    rather than to the end of the record is what that shows to be necessary.
+
+    `HS` word 4 moves from 0 to 2, which is exactly the `^page(2)` the companion
+    writes, and that is what identifies the word as the insert's argument.
+
+    This pair also confirms the Coda TextBlock synthesis. There is no `TX` record
+    in either MUS or ETF. The ordered `HS`/`HT` pair produces TextBlock 1 pointing
+    to BlockText 1; `HS` word 5 low bits select left justification, and the Finale
+    27 companion agrees on the complete resulting layout.
+
+F100-text-other-inserts.mus
+    sha256 331e8a3d353b8edd48b57b31e5367204c07276b016a6fb94c2864627b0351cb7
+F100-text-other-inserts.etf
+    sha256 3d66105e82fc7850552eb029e5e0e3362d79d0f1ae6b559a81d525275860da9d
+F100-text-other-inserts.musx
+    sha256 f4ed5c6520264fd8fc968330658630d2638fb6bc363eaf8d48f841adba24aa4b
+    The insert character means more than one thing, and this is what shows it. Two
+    blocks carry the same `#` where one converts to `^date(0)` and the other to a
+    time insert, so the character is a placeholder and the style record says which
+    insert it stands for. `HS` word 5 differs between the two blocks and in the
+    page-insert fixtures above, giving the three values the era's three inserts
+    need; word 4 is the argument in every case.
+
+    Finale 27 discards the time insert when it converts, so its companion names
+    only the first of the two. The command is carried forward regardless, on the
+    same footing as the Finale 2008 `^time` blocks.
+
+F100-lyric-text.mus
+    sha256 b2dd2ecb8713d44ad2a0584a05091039d70e49ff47ba248d70f4255c7fdd978c
+F100-lyric-text.mus.etf
+    sha256 04148528d473783a88cc7a3154a736b7f34766289b310287fb949e6d53df2d29
+F100-lyric-text.musx
+    sha256 26c0b72bec4578d645fa2a2afe71cb55ae2d927eafdfb51b9d214505beb23fb4
+    The only fixture of the era with lyrics, and the one that shows the
+    text region is used after all. Its `^lyric` chunk carries a verse, a chorus and
+    a section, each in a different font and two of them with an effect run, where
+    the `^text` chunk beside it is empty even in the block-text fixtures above.
+
+    Its effect runs are written spaced apart -- `^efx(plain) ^efx(bold)` -- which a
+    reader that closed a run at the first non-command byte would split into one
+    `^nfx` per half. Both are one statement of one style, and the spaces are
+    literal text belonging before the single command. This is the only document
+    that states the case.
+
+F100-dont-leftbarline.mus
+    sha256 6adf5023e4d10705b1040ee09e11eb42f9d64a1358e83c96a57d899e8fa19dd5
+F100-dont-leftbarline.etf
+    sha256 9a9ba5280279a51325fc67989a55945dc5a717c2c8f5a4a5035d60ec45f34f68
+F100-dont-leftbarline.musx
+    sha256 5e54b8c01b41334fded96c594a5295bd2525802780c152817f1dd540a3b23a40
+    Controlled from F100-baseline by clearing the Coda-era dialog's one left-barline
+    checkbox. Only selector 36 word 3 changes, from one to zero. Finale 27 converts the
+    baseline with both modern left-barline fields enabled and this edit with both disabled,
+    establishing that the one stored switch supplies both fields before the split layout.
+
+F100-dont-barline.mus
+    sha256 44cef98577ce8036fb0c131b2c27363a7ccaf7ef868265342b854bc63e3ad2f1
+F100-dont-barline.etf
+    sha256 1cd68b86717653dcf1f57746973ae1b8fcb2732a42e7800e579286cb9bfe7347
+F100-dont-barline.musx
+    sha256 7aecf77cf1463054f22afca40bc07cf9e916acccb5c34ec2ce20af744864202e
+    Controlled from F100-baseline by clearing only the general draw-barlines checkbox.
+    Selector 36 word 4 changes from one to zero while the left-barline word 3 remains one.
+    The ETF repeats that tuple, and Finale 27 disables drawBarlines while leaving both modern
+    left-barline fields enabled, establishing the two Coda controls as independent.
+
+F100-brackets.mus
+    sha256 2fe6d119a5b81d0f0b64c412ee3e352c25aacb3929cec28df025d81ca8113624
+F100-brackets.etf
+    sha256 91ef1b55e516a47cb7d92e3966e0f6976f8a519f53942e37380ccb632083635a
+F100-brackets.musx
+    sha256 701ba147f7fec55bfcf6e4d46f8169e5d7157cb1b970d869565f99098be4b5b3
+    Controlled from F100-baseline by changing Beam Depth to 1.61803, Piano Brace 1 to
+    3.14159, and Piano Brace 2 to 2.71828. Only three 32-bit IEEE-754 values move: selector 52
+    word 4 stores Beam Depth, while selector 55 words 2 and 4 store Piano Brace 1 and Piano
+    Brace 2. The ETF repeats those words exactly.
+    Finale 27 leaves every PianoBraceBracketOptions field at the baseline conversion's value.
+    The later F263-brace-psvs discriminator identifies Piano Brace 1 and 2 as modern innerTipH
+    and innerBodyH at four times the stored float. Finale 27 therefore loses the two deliberately
+    changed values in this Finale 1 conversion rather than disproving their source semantics.
+
+F100-flag-options.mus / .etf / .musx
+    sha256 20893da92e5fc5a70acd1133e37ecef6839ae7041e2c61f961830b2c2ecb5952 (.mus)
+    sha256 0d2d7aba4b72100cbd0b95a4a9e42628b984d9e0973ba3d59cd734df97139a64 (.etf)
+    sha256 935bcd0f12cc488afa10ddd1d1dee2ba5b691e47165602fb94452bc443d53cf3 (.musx)
+    Controlled from F100-baseline through the release's Flag Options dialog. Only selector
+    10 word 3 and selector 36 word 5 move, from 7 to 11 and from 0 to 1. The first change
+    is the Flag Offset edit, while the second control remains unidentified. The Finale 27
+    companion changes all three modern upward horizontal adjustments from 1696 to zero, but
+    this pair does not identify which source change caused that conversion. The reader leaves
+    those fields at its pinned defaults. The creation notes initially called the second change a
+    straight-flags switch, but Finale 1.0.0 has no such control; selector 36 word 5 is
+    therefore not FlagOptions evidence and its meaning remains open. The era ETF
+    independently repeats both changed words.
+
+F100-flagchars.mus / .etf / .musx
+    sha256 8d9e999b22992e85fc53f4cb02cb8dc0222c52a5d9cfff02fad7a661e664a607 (.mus)
+    sha256 28b5b1eb398d77850fc4e969ce4b23c8ed7069d4a41e4831f85e6ba3c45230f1 (.etf)
+    sha256 61651b0ada48b90144d9bbf9c9d9e1f5b4865ea609c6dff494d6c0f97776ab16 (.musx)
+    Controlled from F100-baseline by changing all four flag characters exposed in the
+    Finale 1.0.0 UI. Selector 7 word 5 moves 106 -> 115, selector 8 word 0 moves 74 -> 87,
+    and selector 10 words 1 and 2 move 251 -> 184 and 240 -> 186. The ETF repeats exactly
+    those four changes. They map to flagUp, flagDown, flag2Up, and flag2Down, respectively,
+    and Finale 27 preserves all four values. The complete UI supplies no separate flag16Up
+    or flag16Down setting; those fields remain at the pinned Finale 27 values and any
+    companion disagreement is a different default.
+
+F100-flagoff-neg3.mus / .etf / .musx
+    sha256 3046b7ff8a35ab03d51ff90667f9d867cf4af82abdd8eede149a53e701bf1668 (.mus)
+    sha256 fa2a739bda2bd1eaf4ed5fd33135c0ca39e4b7b85b0704b82b4020c7e44181fe (.etf)
+    sha256 97cf8a82a62987baf35fd53cec1b0f78caa22cdd0258b401b203348e7300a51e (.musx)
+    Controlled from F100-baseline by changing only Flag Offset from 7 to -3. Selector 10
+    word 3 is the only decoded source change, and the ETF repeats -3. Finale 27 retains
+    `upHAdj`, `upHAdj2`, and `upHAdj16` at 1696, proving that selector 10 word 3 alone does
+    not account for the three fields changing to zero in F100-flag-options.
+
+F100-grace-pct.mus / .etf / .musx
+    sha256 5fe0ea8c7d56b6b583abfe950b32bf2fe149933c3f38403699dfe8ddb787d43d (.mus)
+    sha256 c8642e7b62ba7b2451c152b2ea415dac105fac6ec112de8333be5b39e285cfd8 (.etf)
+    sha256 9f8f6ddea5164584e4384ab9a1fdbdb4835bceec73a94fa182acaaceebd80048 (.musx)
+    Controlled from F100-baseline by changing only Grace Note Size from 50 to 49 percent.
+    Selector 23 word 0 is the only decoded source-record change, and the ETF repeats 49.
+    The Finale 27 companion changes only `gracePerc`, from 50 to 49; its
+    `graceSlashWidth` remains 224, so the pair supplies no new location for that field.
+
+F100-deflne-625.mus / .etf / .musx
+    sha256 d8cc072c7270ae4fb83bd513808719984048039b0bac6195129e2a7a6e8d2cfa (.mus)
+    sha256 c7c87bc1ada7bc6357726a6130026945f070b55f03239fd33462ce29dd25824a (.etf)
+    sha256 bbac0745c2aa03f0259949d6d4f9abe43ef348bb0cf507a106c981f028be1cc3 (.musx)
+    Controlled from F100-baseline by changing only Def Lin Width from 0.5 to 0.625
+    points. Selector 54 word 0 is the only decoded source-record change, from the
+    single-precision value 0.5 to 0.625, and the ETF repeats 0.625. The Finale 27
+    companion retains `graceSlashWidth` at 224, but the staged F100-stemdef-lines migration
+    shows that Finale 2.6.3 copies this value into the later grace-slash-width field. The
+    direct companion therefore records conversion loss rather than a lack of equivalence.
+
+F100-keyopts-vals.mus / .etf / .musx
+    sha256 902a0c6f0eba3cf2d0f5929f19a3373712e7403ab4fc7583bf2cff5659831fbc (.mus)
+    sha256 19950177bdda3ab924beafa5557c20ecaa7c67fbb1dc62b9bf6ddc34ee64589a (.etf)
+    sha256 82560e60e50ec4c4c679428807ef03ecca11878dc85e411eb85cf4bc1b80bf61 (.musx)
+    Exercises the three editable Coda key-signature distances. The era ETF records selector
+    18 words 0..2 as 23, -7, and 11, and the Finale 27 companion preserves all three values.
+    Selector 21 word 4 and the companion's acciAdd both remain 4.
+
+F100-cleftime-separs.mus / .etf / .musx
+    sha256 397a165919cafdfec068c5a06cfea872d8fd8b92188873970709b105ebdaf1da (.mus)
+    sha256 ba932f419eab4411603c365b97c7eea3df4d3b234dbe5dd4657feb42d2c0552f (.etf)
+    sha256 efe7da17cfcae6b7d94c72f323dc4cad347479dd05880fcce2cb1dc4be9f2270 (.musx)
+    Exercises Coda clef and time-signature distances. Relative to F100-keyopts-vals,
+    selector 18 words 3..5 change to 23, 11, and 1 and selector 19 words 0..1 change to
+    19 and 7; the Finale 27 companion preserves those values in TimeSignatureOptions and
+    ClefOptions. Selector 39 word 2 remains 100 in both source ETFs, so this fixture rejects
+    that word as the location of any edited key, time, or clef separation.
+
+F100-lines.mus / .etf / .musx
+    sha256 fd53d6ef257ab61af51f428a73409c325df4dc1e2e0f6298075eee1a5adbd94f (.mus)
+    sha256 86484815c580b51d26295b35c5bbb298c331e7a0a415182f2f0cd6cefe038ac1 (.etf)
+    sha256 489d1d9b854463f5aad3186c6a78d119f9134db1a239259112662121d8218bfe (.musx)
+    Changes the PostScript underline depth and width among other line settings. Selector 52
+    words 0..1 change from the single-precision value -0.25 to -0.37, and words 2..3
+    change from 0.0416 to 0.0713. The ETF independently repeats both values. Finale 27
+    retains its converted baseline values -1.5 and 0.5, so the source values are recovered
+    despite that conversion loss.
+
+F100-stemdef-lines.mus / .etf / .musx
+    sha256 8fcf0e9362d6b2e9c4cc76824158158e0071f973679d12280ead908154381409 (.mus)
+    sha256 e7d2d4ee142e7190d62d4308ade8dfc52a915a149ea595d2a9e17d05059acb80 (.etf)
+    sha256 a3bed924389f7b3625b5e89f501ed3d2f396c67a255ff0f2dac4e4b80c8e4327 (.musx)
+    Sets Def Line Width to 3.14159, Stem Line Width to 2.71828, and Stem Lift to
+    1.618. Selector 54 floats 0 and 2 and selector 55 float 0 contain those values,
+    and the ETF repeats their exact single-precision words. The direct Finale 27
+    companion normalizes the related modern fields to 224, 224, and 256; the staged
+    Finale 2.6.3 fixture records their semantic migration.
+
+F100-stemoffset-23.mus / .etf / .musx
+    sha256 aca518fb53f96053ee0a92810dfba82fb666bcccd241fc806d74e230512d4b8e (.mus)
+    sha256 ad1218001d85bb1c82dd7a5cb2b9a95e01b12d9e563fada39cf86547a06270eb (.etf)
+    sha256 a009c54acd828df86fddd1c0417c186d75e533d0096492b6042591601452e6ac (.musx)
+    Changes only the obsolete Stem Offset control from 4 to 23. Selector 21 word 0
+    changes to 23 and the ETF repeats it, while the direct Finale 27 companion leaves
+    modern XML `stemLift` at 256.
+
+F100-pickup-512.mus / .etf / .musx
+    sha256 31c33732e6076a7f9774fd7016230cc94ceba5e483bcf82d404d4bf4f227733f (.mus)
+    sha256 0827d5e14493ba09dea73086acbc722869c46855309debe55ec059d26fe15367 (.etf)
+    sha256 06833036e750d251709e2f39bf9736c4368fda3141875820f238f2b730d6afe0 (.musx)
+    Controlled from F100-baseline by setting the pickup duration to 512 EDU. Selector 17
+    comparator 65534 word 5 is the only decoded source change, from 0 to 512, and the ETF
+    repeats the same value. The Finale 27 companion preserves the pickup duration.
+
+F100-pageformat.mus / .etf / .musx
+    sha256 525d666eac03a12f72b1463b9ed8cddd0c797f0c4d50570808aae3bcb6e5906e (.mus)
+    sha256 0c21acc10b7fb376a6c6829e7b907083b22fdb2faf0ca8fc7b5fdc8d2023cf6d (.etf)
+    sha256 f755c025f9f8c7fc53146621cc24b6f9914cc810b42aed078aa8aecf70435c19 (.musx)
+    Exercises the single page-format set exposed by Finale 1.0.0. The source and ETF
+    identify page dimensions 3167 by 2449, page scaling 91, staff height 96 EVPUs,
+    left/right page margins (-141, 142, 143, -145), and system geometry (-80, 9,
+    -201, -11, 7). Finale 27 converts the staff height to 1536 sixteenths of an EVPU,
+    derives the first-system top margin as -73, and writes the same complete format to
+    both the score and parts objects because the source UI has no separate parts set.
+
+F100-tieopts.mus / .etf / .musx
+    sha256 17b4c6f2b54df18feea66dd80cd7c0a73c468b86fd2e9961de2eebb26e467813 (.mus)
+    sha256 0cdc8070edd9e9cf376775ae6c3678bf98593a34e9eeb3eaba2a75e01c380773 (.etf)
+    sha256 3421783296a1278f188f4eb176d5680912b42e224dd89ba7926fb6d271c32d6e (.musx)
+    Changes every control visible in Finale 1.0.0's tie-options dialog to a distinct unusual
+    value. The ETF independently repeats changes in selectors 17, 22, 35, 50, and 51. Selector
+    51 words 1 and 3 become -9 and -11, and Finale 27 writes their negations as
+    `thicknessLeft = 9` and `thicknessRight = 11`. Selector 50 words 0 and 2 become 1 and 3;
+    Finale 27 copies them to
+    the inner and outer-stem start/end horizontal tie connections. Together with the Finale 2.6
+    curve discriminators, selector 51 words 0 and 2 establish the left/right height adjustments.
+    The remaining changed words undergo derived vertical-placement or inset conversions and do
+    not yet establish direct musxdom mappings. Selector 41 remains unchanged and supplies no
+    early `frontTieSepar` location; the importer supplies zero as Coda legacy behavior.
+
+F100-tieheight-inset.mus / .etf / .musx
+    sha256 b19fc12ea11b404d2a4d071a54fe4a3e1f32701c2a65b6015cf0c07e11e7c2a7 (.mus)
+    sha256 22449fcae381e6678cf65646e9378f82aaab9fc435e083cb149b3980b12c11bf (.etf)
+    sha256 9889a7e7fcb511c8f40d446ca0078bf2c0d7ea1d2553cf3c033f67c4ead72845 (.musx)
+    From F100-baseline, changes only Tie Height from 18 to 9 and Inset from 8 to 7.
+    Selector 22 words 4 and 5 carry 9 and 7; selector 17 word 4 changes from 6 to 3 as a
+    derived one-third height. Finale 27 expands height 9 to both control points of the medium,
+    long, and tie-end contours and integer half-height 4 to the short contour. It writes fixed
+    inset 8 throughout, so the legacy inset's modern transform is not established by the
+    companion.
+
+F100-tendxdisp-13.mus / .etf / .musx
+    sha256 8c2e6352471538cbbb70fa128f72d1f286520d168a4993ab974ed6058994e511 (.mus)
+    sha256 81854708cf5e8d329727bdec9510e2cf81854b6b8e66dd421adcfff26b04d6a4 (.etf)
+    sha256 b5fbc2d4bad5d031b882d910d290b76f25365c3c2c93d538b1632550a84204ab (.musx)
+    From F100-baseline, changes only Tend XDisp from 0 to 13. Selector 51 word 4 is
+    the sole decoded source change and the ETF repeats it. Finale 27 discards the edit:
+    its complete TieOptions object is identical to the baseline's.
+
+F100-tendydisp-17.mus / .etf / .musx
+    sha256 801a3b409e914c557b8f2fb81d88b315b596e9c157c91677f9cef5c229d214bc (.mus)
+    sha256 c565e7f12322b5b75365764586a79f6e494c65da36d84635e6520fa86e7325d0 (.etf)
+    sha256 26368c43d1ed925c3fcab9629c1d1b2d12071813da286806d7aeebee889a45da (.musx)
+    From F100-baseline, changes only Tend YDisp from 0 to 17. Selector 35 word 5 is
+    the sole decoded source change and the ETF repeats it. Finale 27 discards the edit:
+    its complete TieOptions object is identical to the baseline's.
+
+F100-chordsuffs.mus / .etf / .musx
+    sha256 800f4949a5b6a7ee39159a639f6494d285d7de7caee53c95b70fc547dab96fa0 (.mus)
+    sha256 712ea8791ee6ffad93355e9124e19dd2260f22c7bcc985042ef4d096657e2ea0 (.etf)
+    sha256 7f9610b1fb7eb4a88421d6b74dedcd5d0ebcb38e2e76949a03782f0c6a711353 (.musx)
+    Creates two chord suffix definitions in Finale 1.0.0. Selector IV stores two
+    incidences for suffix 1 and one incidence for suffix 2 using the same six-word
+    layout as later fixed-row releases. Its packed font word 0x0c02 selects font id 2
+    at 12 points, and suffix 2 combines the numeric and flat-prefix flags as 0x0880.
+    Selector IK stores suffix 1 playback as 3, 7, 10, 0, 0, 0. The ETF repeats each
+    IV and IK word, and the Finale 27 companion preserves four suffix elements and all
+    six playback values.
+
+F100-staffprops.mus / .etf / .musx
+    sha256 b3d997e77effc5f3ba9b4643902ce0da7843006ab6e7f9f5c263bb895097656d (.mus)
+    sha256 f6ae7e3cf112da2300fdd4876ad3331197bd9710d0ed66acfa8da9ef8b60654b (.etf)
+    sha256 645cd6dd71c06b1fc99c8564f4e4de9a3dfd306dad13eb987741ce255210fa49 (.musx)
+    Exercises the Staff controls available in Finale 1.0.0. `IS(1)` changes from
+    `0 0 4 1024 0 0` to `2 0 4 1024 323 2050`; the ETF repeats that row. The first
+    word selects clef 2, and word 4 packs key-signature transposition interval 5 with
+    adjustment 3. The full name is stored separately as two 12-byte `IN(1)` rows,
+    containing `Blown Horn` followed by a NUL-padded row. This release exposes neither
+    custom staff lines nor an abbreviated staff name.
+
+F100-noteshapes-enable.mus / F100-noteshapes -enable.etf / F100-noteshapes-enable.musx
+    sha256 3532fa8ed0c09c1734f76a71d6310034597f6189bb6c19141aee807108368043 (.mus)
+    sha256 aa4f4fee323fca3065b0aa4b23dbed63b171eb2d449eaecee8e588c6f4e2270c (.etf)
+    sha256 f7ca3c25a482cd62dc1043746a794155250eedd6ef7afee8a53988e6e6892d7e (.musx)
+    Enables the document-wide Use Shape Notes option. Relative to F100-baseline, `CS(1)`
+    word 5 changes from zero to `0x0080`, eight `HI` detail rows are added, and the Finale 27
+    companion writes `doShapeNotes`.
+
+F100-noteshapes-float.mus / .etf / .musx
+    sha256 20f33e95873d30454a2fae2256d1cf71c5b8a8e645ed47437ba83577057f6cc9 (.mus)
+    sha256 9cbd25e42e471de9b96386b97a925be939bc410ceeccca7198695627ef9cace0 (.etf)
+    sha256 0a278b98377279108ad268b76a84f04f1b5e1fca6a9257c012739a696875ff18 (.musx)
+    Enables the separate global gate for per-Staff note shapes. Relative to F100-baseline,
+    `CS(1)` word 5 changes from zero to `0x1000`; no `HI` rows are added, and the Finale 27
+    companion leaves `doShapeNotes` false.
+
+staffopts/F100-baseline-floats.mus / .etf / .musx
+    sha256 819c63e8f193e72e4179fa0467dee887c49f553d4d629472a060320108198591 (.mus)
+    sha256 1ec9102779f5d53f4a3a04de79d8576d4bf1914f9422d5ec8b364be5b331474a (.etf)
+    sha256 045f4533dfa24d09ef4548a702b31d8422663ac8c028db0f2c2d77a7b24716b6 (.musx)
+    Enables the four document-wide gates needed to edit the corresponding independent Staff
+    controls. `CS(1)` word 5 is `0xf080`, and the document contains the eight global `HI` rows.
+    The remaining `staffopts/F100-float*` fixtures use this file as their baseline.
+
+staffopts/F100-floatfont.mus / .etf / .musx
+    sha256 ded0e145797c79e8a65e32e217ae8cf4afcad4c0d30b95ec8de94da4cde545ef (.mus)
+    sha256 88caca938bf457cae81f6dc2d09ae53b2fd31cdbe2bad3f4fe5fb4448d08cfd1 (.etf)
+    sha256 879a0b3b1165e91b90d29f5189c2165219e508ade8a3c593ee8b23dd58b37e64 (.musx)
+    Enables the Staff's independent note font and selects Charcoal at 15 points. It adds
+    `IA(1)` with words 3--5 equal to `5, 0x0f00, 0x0020`; the companion writes the same font
+    tuple and `useNoteFont`.
+
+staffopts/F100-floatkey.mus / .etf / .musx
+    sha256 dcc8e260f0aa1f0e33d4c213a7a1975c913fffea1d6dd585309c9467cda36619 (.mus)
+    sha256 c1261c78f374b566b0c62eedb8baddee31d5aa45f86f8095b2f74d9f7b2868ef (.etf)
+    sha256 bd5408a31b1bd9e9244e99b3cfbf4354febae3e7f1be5b2dd15f780c0b9364e9 (.musx)
+    Enables the Staff's independent key signature. `IS(1)` word 5 changes from zero to
+    `0x8000`, and the companion writes `floatKeys`.
+
+staffopts/F100-floatnoteshapes.mus / .etf / .musx
+    sha256 bb35b5f588ecb18dbb26e583a258761db677a6d0e283f01704298294202a189b (.mus)
+    sha256 2bd0ffd46a8173ad1f175c85bed368ce4363344e22890c151ccd8b4876329afa (.etf)
+    sha256 7213a55e52f947311736c9f91a6cf93be2d177b0932a5f701754edb3c9a74114 (.musx)
+    Enables independent note shapes for Staff 1. It adds `IA(1)` with word 5 equal to
+    `0x0080` and eight `HI(1,*)` detail rows; the companion writes `useNoteShapes` and the
+    corresponding Staff-local shape definitions.
+
+staffopts/F100-floattime.mus / .etf / .musx
+    sha256 3303ae2484d9f389356a0d9a4902023da1c45a5c5c08cc1502fef3b891fcce6e (.mus)
+    sha256 11a6274e57191188b12a8be4950ab25d7444679c4df1a1a200ac36f7a08e6e35 (.etf)
+    sha256 4cd7dc491e6a165b52f552cbefa4705a1fcf24a29f763bf873c3e2b6fd58bf20 (.musx)
+    Enables the Staff's independent time signature. `IS(1)` word 5 changes from zero to
+    `0x4000`, and the companion writes `floatTime`.
+
+staffopts/F100-break-barlines.mus / .etf / .musx
+    sha256 f3d0815791485e432fa7f16d6c5489b9c0c6a374014b27c6c34fb63bbce25213 (.mus)
+    sha256 bedaa5910ff391381ded0550a4a8f373d079c532df3a5907cfeeaed4bbd55d08 (.etf)
+    sha256 4c429916a8fbe9ca001e3fb81485e8907bf4e8fbbafb3f9c79837b3b649a580c (.musx)
+    Enables the Staff's barline break. `IS(1)` word 5 changes from zero to `0x2000`, and the
+    companion writes `blineBreak`.
+
+staffopts/F100-break-repeatbars.mus / .etf / .musx
+    sha256 322339496aeab4d75c8d76eacc77c37d24021bc111f94cee15a8aa536c13f04b (.mus)
+    sha256 5688e2598f4431e19c8791915f06881f842b37ef9824cd8d4355f908dd666a85 (.etf)
+    sha256 e24813c4388889d6840b3e23f949d5eecf4586ef7e616115f7c037f1bcc408f5 (.musx)
+    Enables the Staff's repeat-barline break. `IS(1)` word 5 changes from zero to `0x1000`, and
+    the companion writes `rbarBreak`.
+
+staffopts/F100-hide-clefs.mus / .etf / .musx
+    sha256 564c65799ca6c703d739434aae17e9fd10c8c5e357cf24821ec7beb105f679ca (.mus)
+    sha256 63785d28303065e15d517cc9923454eaa77f3e6ae90eed64fb53ae646185b4c8 (.etf)
+    sha256 fe2373ca481e817b89d7d8967ccb5aca76237df8d03370ec9c2b1d6614e99323 (.musx)
+    Hides clefs on the Staff. `IS(1)` word 5 changes from zero to `0x0008`, and the companion
+    writes `hideClefs`.
+
+staffopts/F100-hide-endingsrpts.mus / .etf / .musx
+    sha256 ce670778be8f45455f2c6892f7e7b86c9ec893168d09972a969291cd83b206d4 (.mus)
+    sha256 99e136df43c23275e7bf96ba51bbac57c5ce6725ce071466bd9bf52aca6c7e04 (.etf)
+    sha256 d13939b275b3b958cb9e8c17b66b534fcc1b832a3ef747a2faf10beca370fc45 (.musx)
+    Hides endings and repeats on the Staff. `IS(1)` word 5 changes from zero to `0x0200`, and
+    the companion writes `hideRepeats`.
+
+staffopts/F100-hide-measnums.mus / .etf / .musx
+    sha256 cf574ca8693ef1cc30f2b973d4fd8427ee2494d47bb43eaed01970985820b628 (.mus)
+    sha256 2abf80180fcf51a666d230b0e3106fc7bb8ca078d507fa1dbc91e5e9f6696b01 (.etf)
+    sha256 29c6c9ed3e9c68400c8204efed59c9a61c6247b54d1d1e6efe259c8870cf64c0 (.musx)
+    Hides measure numbers on the Staff. `IS(1)` word 5 changes from zero to `0x0400`, and the
+    companion writes `hideMeasNums`.
+
+staffopts/F100-hide-name.mus / .etf / .musx
+    sha256 8fe74ce7a47f397fe5ec7cffede52cf13b3095f3d58589f0da331d2d308a15f2 (.mus)
+    sha256 ad0d3fae00e5580f0b309e8a584388a014ddb540c5c61766f0d94af4997955a9 (.etf)
+    sha256 969be1c7dfa8191640dbef1577e3a51943aa443f4f24ebe18e0591d02222cbac (.musx)
+    Hides the Staff name. `IS(1)` word 5 changes from zero to `0x0100`, and the companion writes
+    `hideNameInScore`.
+
+staffopts/F100-hide-scoreexps.mus / .etf / .musx
+    sha256 30c5eefdbb671bda55cc1392a54e2d9630aceb720afd14001038821ab4319ca4 (.mus)
+    sha256 27880e3d1ed67d9319aff56cb54799492d113f262782651fa5fda38693c00aa2 (.etf)
+    sha256 2ed431312f3b7555b518d22b54fb18986beeaf8137e541550526c5cc7754891c (.musx)
+    Disables score-expression display on the Staff. `IS(1)` word 5 changes from zero to `0x0800`;
+    the companion has no persisted musxdom Staff field for this control.
+
+staffopts/F100-hide-timesigs.mus / .etf / .musx
+    sha256 e8d88e3c5b132e297e7f300436c5d6a9a0ef544c9404ec58338791b8f7d75775 (.mus)
+    sha256 2688668f855a1630ba18d6799d2935ce451a488795ca6fa50073c0746a51aa11 (.etf)
+    sha256 54d4deb60883c21be4ec5fe0a5dc8bdf41282164a92a9de07f22b7d4150fae9b (.musx)
+    Hides time signatures on the Staff. `IS(1)` word 5 changes from zero to `0x0010`, and the
+    companion writes `hideTimeSigs` and `hideTimeSigsInParts`.
+
+staffopts/F100-negate-keys.mus / .etf / .musx
+    sha256 e60572d51734ed625e53ff87937a7a3e2030eac4524cd6c152a03e66f044e9e7 (.mus)
+    sha256 c46bb55871cc6efea654c37b81af95928d6873c8499083a48e015ba4f83ee32b (.etf)
+    sha256 87f23fdd622076cbb7a0d58e1422155df29374324a548528a8e9d43cff808c04 (.musx)
+    Disables key-signature participation on the Staff. `IS(1)` word 5 changes from zero to
+    `0x0020`; the companion expands the control to both `hideKeySigs` and `noKey`.
+
+staffopts/F100-transp-settoclef7.mus / .etf / .musx
+    sha256 4437eb1a44721dc386e7604ad3f95fa96cb7df37d227875f928a4f96aaa73bfc (.mus)
+    sha256 88282b172c69fe9e673be84f0932240988c3d247297a15ce9260cc280b29f5ae (.etf)
+    sha256 35b9449f08c3221a201e3b5f4600459fd1af5457725f3344b380bea95bc248c9 (.musx)
+    From F100-baseline, selects Set to Clef 7 for Staff transposition. `IS(1)` word 4 changes
+    from zero to `0xf000`, and the ETF repeats that value. The companion sets `setToClef`, writes
+    `transposedClef` 7, keeps key-signature interval and adjustment zero, and does not set the
+    later `noSimplifyKey` or chromatic controls.
+
+F100-syslock.mus / .etf / .musx
+    sha256 cd01e0bc02978e64d6d3c4d95807cecb4e618420591704e097f3733ee391f0f5 (.mus)
+    sha256 1f0adb52d170267f197d179c9929a0846f6a648e7eed1a67b3c97c53d7d802ae (.etf)
+    sha256 6d4e7fd837766eac484ef2e9235eba797ac7e69e9931549145528b889fe4d5a9 (.musx)
+    From F100-baseline, adds a second measure and locks the two-measure system. The Finale 27
+    re-save preserves the lock.
+
+F100-tempo.mus / .etf / .musx
+    sha256 5b8c641945f97925a0e2cf3ab000963ee4adffc0783e8c92accbdc16257f54af (.mus)
+    sha256 7613d1ff64497198bb8113a12b734be96fd7860d6a2fc319cd13135309a67a98 (.etf)
+    sha256 f1ec758fdb3869cad9dea4d322b2a07b15e4b44816c52445142198464c520947 (.musx)
+    From the Finale 1.0 baseline, adds one relative Tempo Tool change in measure 1 at EDU
+    position 2048. The saved event has ratio 123 and unit 123; the Finale 27 re-save retains it.
+
+F100-splitpoints.mus / .etf / .musx
+    sha256 c06424ccf3e540dd6bf156bc323a2ccdd4c93174d6c65c1cf981fb1ebab0e479 (.mus)
+    sha256 807b5856d65e52da319ca088d357cf2b72f4a53ab7fa18e273405015dfdc1adc (.etf)
+    sha256 95deffb44592109b17025e252c9d105b3823c74f9eb77a220242ace4b4750e3b (.musx)
+    From the Finale 1.0 baseline, adds two split points in measure 1. The Finale 27
+    re-save retains both positions.
+
+F100-timecomp-frac.mus / .etf / .musx
+    sha256 073dcd590c992f41c85a3b21fd642045d61221761b66d008cca3cb6d1f7eb7dd (.mus)
+    sha256 78e84967c405408bb79da3a789469fb7ca9b84a823b47d2664fb716755801dfa (.etf)
+    sha256 638d1e35a31316bb1c144a950a4191307f011d3bfa1880e082af73ed98505e79 (.musx)
+    From the Finale 1.0 baseline, gives measure 1 the composite numerator 3 + 1 + 2 1/2 over
+    an eighth note, and measure 2 a numerator of 1 over the composite denominator quarter +
+    eighth + sixteenth.
+
+F100-midclef1.mus / .etf / .musx
+    sha256 ab04a8041a104a8ad80fc2eea8d5b1b38a847de9d89b5a56b45687e0e6b08590 (.mus)
+    sha256 67c9d08d11d0f1bf71eee144e43ae64dcb83ead418f1d97f42bb1677360c2391 (.etf)
+    sha256 97298f75b038464377c81dfc2ccada8ce2910bcb81892db56454cf2d0befa943 (.musx)
+    One staff, one measure of four quarter notes, with a bass clef inserted
+    between the first and second notes. The `CE(1)` item stores clef 3 at horizontal position 110 EVPU and
+    vertical adjustment -28; `GF(1,1)` names list 1. The Finale 27 companion
+    places the treble barline clef at incidence 0 and the bass clef at incidence 1,
+    `xEduPos` 537.
+
+F100-midclef2.mus / .etf / .musx
+    sha256 d785b073ef922ab7943af6eab231a849b09baa5100ca5f65a4125b7335b8d061 (.mus)
+    sha256 497a2a6e0cb04854e259ddbb1ac2ffe712feb9e748a00d3c8d2248a76b3ce0e2 (.etf)
+    sha256 f605d5d857ceb4284b450cd74406c892be21480ffa6a8e4a5aed8f0ef7490a67 (.musx)
+    One staff, one measure of four quarter notes, with a bass clef inserted
+    between the third and fourth notes. The `CE(1)` item stores clef 3 at horizontal position 278 EVPU and
+    vertical adjustment -104; `GF(1,1)` names list 1. The Finale 27 companion
+    places the treble barline clef at incidence 0 and the bass clef at incidence 1,
+    `xEduPos` 1758.
+
+F100-rptback.mus / .etf / -finale27/F100-rptback.musx
+    sha256 e1fabfbbdc3eadbe0daafb6566c7e062d92926a78d00d9e5e3ba36842c9928f7 (.mus)
+    sha256 273b95433ac3a89ae9a24f41cdd39fef29dda0aef0500381443d8c946839f155 (.etf)
+    sha256 88f1595b892591242187833c90969367c346e52f590dd60346d5c827e7a42ccf (.musx)
+    From the Finale 1.0 baseline, adds a backward repeat in measure 1 that plays twice
+    and targets measure 1, with jump on the second pass and reset on change selected.
+    The ETF and Finale 27 conversion accompany the source.
+
+F100-rptback2.mus / .etf / -finale27/F100-rptback2.musx
+    sha256 9eee99d502864d3605ec4d06e2171a383d8ec89fcbcbb52358f99b1682f83e9f (.mus)
+    sha256 13e73026e6d2d4331b2dcd2897a53246293c8ea708c7b0b0337fdc439c7b213f (.etf)
+    sha256 995b04c220abefe0d61b9345614b6725daf7e366379f714fc21462b39e8b387b (.musx)
+    The second Finale 1.0 backward-repeat variant selects individual placement and repeat
+    until the second pass, without reset on change. It stores flag word 0x0181. Its Finale 27
+    conversion preserves individual placement.
+
+F100-rptstart.mus / .etf / -finale27/F100-rptstart.musx
+    sha256 26ed6650aa6da8bcdb6528ddae4c3387f74497098cbaccb71eb5c97cb1094b8e (.mus)
+    sha256 726eb005759b6db499dcf125d5f43dab24acea681955511e1e1688785af8512c (.etf)
+    sha256 07128ae20a7b37c21554ede0ab8a28f1e211357c0cf4ac01abba829642e4fec6 (.musx)
+    From the Finale 1.0 baseline, adds a repeat ending to measure 1 with a relative
+    target of 2, three selected passes, and text offsets. The ETF and Finale 27
+    conversion accompany the source.
+
+F100-rptstart-jump0.mus / .etf / -finale27/F100-rptstart-jump0.musx
+    sha256 4334473fcd4f53a6bc3974620ecc8a58bdecc6cd52ff2a4d5846c51befa86dce (.mus)
+    sha256 2746a332d2b4969a7a7408214778b89f654e0852c5597f8c564abc21e6302d09 (.etf)
+    sha256 e530a2172734080ab1ab4ce605d52d2d366dd5f507f68f32f2bbdc9762f37e03 (.musx)
+    From F100-rptstart, changes only the ending target from 2 to 0. The source
+    retains its repeat flag and the conversion retains a relative action.
+
+F100-rptstart-moved.mus / .etf / -finale27/F100-rptstart-moved.musx
+    sha256 58fd990b9606c2136f2fbc8e26a47fef9ee47c28c226124e94b1160428cbb9ff (.mus)
+    sha256 e932bc040896a6c172a97e6a72b879e47f766d63d753315a19d384cf507d83d1 (.etf)
+    sha256 ecc651c2b3a9b470b4af852850589454f0b61e8002b49f0ca19ea5273114f30f (.musx)
+    From F100-rptstart, changes the repeat text and bracket offsets. The compact
+    record holds horizontal and vertical text offsets 31 and 4, left offsets
+    -10 and 52, and right offsets -1 and -36 in three packed words.
+
+F100-rptindiv.mus / .etf / -finale27/F100-rptindiv.musx
+    sha256 67fd5de22f5bd3d8c0d327bee2d228535fdb5e72893894089190953cffbffb9d (.mus)
+    sha256 a522147287639270a700ac421c7e0e84864ff514c6aae88770a962a780895109 (.etf)
+    sha256 c2ca00573f5a4860b39e2fe8f9d09d7817c4b3e28e947c72a55afdc8110147c9 (.musx)
+    Finale 1.0 individual positioning for backward repeat, ending line, ending text,
+    and text repeat instances on two staves. The ETF and Finale 27 conversion
+    accompany the source.
+
+F100-artic.mus / .etf / -finale27/F100-artic.musx
+    sha256 85aea5b0d3b46b29d53921e76e9090acf5089ef80ba029ac3d769daf7af36e0f (.mus)
+    sha256 35c5c2a01094f38d12178d6328190c99274b7cfe88b6da01e4b5c8e06185cfff (.etf)
+    sha256 8e371be6351a78fa2c056cf9f082aabe1786f58dfbf6bd07c10c8f56b7038993 (.musx)
+    Finale 1.0 articulation definition with no playback effect. The single IX row
+    has zero in both playback value words and in its flag word.
+
+F100-artic-playback.mus / .etf / -finale27/F100-artic-playback.musx
+    sha256 85325ce04121dd1a7abfff3db969c1a24c571d38e758a051006a7203a812ab9a (.mus)
+    sha256 21ca1e2e26882b60d2a6b55b0c71f4da830826cf6e3cdf7112fd20242beeb7df (.etf)
+    sha256 b5dd87a0e71679075c0dd735595164de03c86d76b4f1bb98334be4ff112923b5 (.musx)
+    From F100-artic, enables velocity playback with bottom value 3 and top value 5.
+    The IX row stores the values in words 2 and 3 and sets 0x0400 in word 5.
+
+F100-artic-playtime.mus / .etf / -finale27/F100-artic-playtime.musx
+    sha256 58593b00bd1bf54b06967a4be710b49248e99cfb93e327c2478660f76c1598f7 (.mus)
+    sha256 64670d63f667f0440a8f2195a21ee614d112dd2a49ed9c57412b83b0ff66ef34 (.etf)
+    sha256 504d6ea93204bdc6181a6afeec8b0f8fef2b9963d73cb29c83147b5886493ad9 (.musx)
+    From F100-artic-playback, changes one playback checkbox to time based playback.
+    The IX value words remain 3 and 5; the flag word changes from 0x0400 to 0x0c00.
+    The Finale 27 conversion places them in bottom and top attack timing deltas.
+
+F100-artic-playtime-altdur.mus / .etf / -finale27/F100-artic-playtime-altdur.musx
+    sha256 6d1e90d99335c88e99d628c30e50b5ea095e43b4ebcd396b7aadad99e1c14de7 (.mus)
+    sha256 d6c73a55b3378696415c441492585f1ab5812e3f957a7c3abdadaa8dc75b54d4 (.etf)
+    sha256 b3a281acf7b52837adb97a2505d8221917f4b947902b67c60c9a0ad1ee861d0f (.musx)
+    From F100-artic-playtime, selects Alter Duration. The IX value words remain
+    3 and 5; the flag word changes from 0x0c00 to 0x0e00. The Finale 27
+    conversion places them in bottom and top duration deltas.
+
+F100-artic-playtime-altfrac.mus / .etf / -finale27/F100-artic-playtime-altfrac.musx
+    sha256 29f758a414f5a55b39226cd612ba0fb5c7f33c8f7d5ca62674a412224cf2a7cb (.mus)
+    sha256 2d5c41721a663ba2aa24337fc7f62df3ef05a3696280871b179f0fc7237ed45c (.etf)
+    sha256 2c9638b695d48a270b3b0e777eb8a0cd56866fc9bde090ea19b174ee916c73b7 (.musx)
+    From F100-artic-playtime-altdur, checks Use fraction and enters 3/7 in the
+    first playback field. IX word 2 changes to 0x0307, word 3 stays 5, and the
+    flag word gains 0x0100. The conversion reports 43% duration for both notes.
+
+F100-artic-clone.mus / .etf / -finale27/F100-artic-clone.musx
+    sha256 d5ce3086a92cd3b0b25d8e559b7cbbee8625adea83681763957f8f06b793a25c (.mus)
+    sha256 2c65001d69c28c0bd7af7a3daefeffb944924add35df9c8d7ec18b6c78c7bce7 (.etf)
+    sha256 7e17ba536ee6dccc8a789f427ff72dc929c0aa3356466e03c7473ed3f2797638 (.musx)
+    From F100-artic, checks Clone Mark. IX word 5 changes from zero to 0x0040.
+    The conversion reports copyMode both.
+
+F100-artic-clonehorz.mus / .etf / -finale27/F100-artic-clonehorz.musx
+    sha256 887cfc6e02d8d09911710696c97124ad0fe530dd73d1dfb607004b58279f2c31 (.mus)
+    sha256 d6165eac32fb9c60cb8cfcb06173fa9a0db80dcc5baeab947fd689f1de859fe8 (.etf)
+    sha256 96dc9b84245aa7035f32150e53b54144bb670115b5bf20a68c83a97e55c09bf0 (.musx)
+    From F100-artic-clone, checks Clone Horizontal. IX word 5 adds 0x0020.
+    The conversion reports copyMode horizontal.
+
+F100-artic-topnote.mus / .etf / -finale27/F100-artic-topnote.musx
+    sha256 311a1683bcd119a29a7ea7cefbbf8635d4da4293e862582af64984c3792b565c (.mus)
+    sha256 487a696c2ce265cee7d9a7e10a311cd2b2a4d82e00de0908b8c68414ff9c3de4 (.etf)
+    sha256 a7bc63e9a922815af9a1edc9bc0af9257e2ac0ff80d5bbf6255aa42f8480ca91 (.musx)
+    From F100-artic, checks Use Top Note. IX word 5 changes from zero to 0x0080.
+    The conversion reports useTopNote.
+
+F100-artic-playneg.mus / .etf / -finale27/F100-artic-playneg.musx
+    sha256 367e68c31d6c6c5b71ffe9149a13474837be8bfb196198c2900e4e4c21bd1909 (.mus)
+    sha256 a03142c49f87df1519a66bf73d955475696a3f3eaa4d573f3a9eb9f3670fb94c (.etf)
+    sha256 a9bf7745b85b078321b0455c3538d990885edd26e2386b8a8d3f860329eb8568 (.musx)
+    Saves a negative velocity fraction of -3/5, with second playback value 7.
+    IX word 2 is 0x7d05 and word 5 is 0x0100. The conversion reports 2500%
+    for both notes, treating numerator byte 125 as unsigned.
+
+F100-artic-playinf.mus / .etf / -finale27/F100-artic-playinf.musx
+    sha256 1e04bab87ba30a9ceea5a7265de44147d121b77c4ab8de427c35c5eeb9dd13aa (.mus)
+    sha256 6881758f56cae31b990d614f783f634f970736ef70c69db26542b7d86ef52fd9 (.etf)
+    sha256 1d56c5ee2d71d0a0ece7c49dbae2279ab8d85f5a92ffc48f88265a4337e514d9 (.musx)
+    From F100-artic-playneg, changes the fraction denominator from 5 to zero.
+    IX word 2 becomes 0x7d00; the fraction flag stays set. The conversion emits
+    raw velocity deltas: bottom 32000 and top 7.
+
+F100-nommrests.mus / .etf / -finale27/F100-nommrests.musx
+    sha256 e3d72649ec4180d4791b005fa3cc7d89aa4859b4c1b3c8387559a063e1bf3594 (.mus)
+    sha256 4ab3d43212d6f97940e2926f1faac591a59eaa09ae1393b0067fcad4669531f7 (.etf)
+    sha256 0fb1e5e7ad28c62490f7627730411dcfb1fdb7d0df8d29436c88c6c65d5b3792 (.musx)
+    From F100-baseline, adds notes and measures so that the score contains runs of
+    empty measures. Multimeasure rests are not enabled, and no XI record is stored.
+
+F100-mmrests.mus / .etf / -finale27/F100-mmrests.musx
+    sha256 ff8a6ef4d97591dced8e215b8f4310c7025723dc2a29944093d6d0ae577b791e (.mus)
+    sha256 15878a749c6f4ca8857556098145566360bc96dd2baf394257c8d85a8465c9bb (.etf)
+    sha256 3d0c60cecfe4085af2c305f451e40c1d81643a78cf22d55df762b3e60e15b857 (.musx)
+    From F100-nommrests, enables multimeasure rests through special part extraction,
+    which Finale 1.0 applies to the whole document. The save stores three one-row
+    XI records, for measures 1-3, 5-7 and 9-11, and its multimeasure-rest number font
+    is New York 27 italic. Special part extraction also changes other records.
+
+F100-meastext2.mus / .etf / -finale27/F100-meastext2.musx
+    sha256 1fd1a569eca5fed64d47fbc8100f0679800655344d7072adc0172a2de1902d44 (.mus)
+    sha256 ec81093bae50f698632a645518eec04cf601b23cf998bf4bc0a8632d576f8271 (.etf)
+    sha256 126adc232b849444eee808ffe3ff1e1ca60ba2e48206209dc75692d3f09722d8 (.musx)
+    One measure text block at staff 1, measure 1, on a full-size staff. Its `MT(1,1)` tuple
+    is `1 40 -440 0 0`; the companion stores `xdispEdu` 29 and `ydisp` -440.
+
+F100-meastext2-staffred.mus / .etf / -finale27/F100-meastext2-staffred.musx
+    sha256 99e719917817cd3e8d2751cf0594611ce85bcf64c7db8eb2462fb59a1da9322e (.mus)
+    sha256 7c9298ce4325148e7b7418145bf0d54d55e2b0cb511c2d8d74986a21a7ca610c (.etf)
+    sha256 e79202cf8e71858e820456fb75fb317bb0078fc7029ce9abef8983c2c3a84f38 (.musx)
+    From F100-meastext2, with staff 1 reduced to 57% on its system. The `MT(1,1)` tuple is
+    unchanged; the companion stores `ydisp` -772.
+
+F100-C4.mus / .etf / -finale27/F100-C4.musx
+    sha256 e49907dd096a366daaa828c48f645572646fa3f818351f1ac568504024803086 (.mus)
+    sha256 62ec8929f3130c77fab5f0a7381586b8bf8088e179f5f48a2960ca1cf86882bb (.etf)
+    sha256 dee84170575272cae37ad7e0fec4267e1ac6a9b8257abf041b49eaf2f5228d43 (.musx)
+    Finale 1.0 C4 note with accidental display unset. The Finale 27 companion leaves
+    showAcci and freezeAcci unset on the first note.
+
+F100-C4-showacci.mus / .etf / -finale27/F100-C4-showacci.musx
+    sha256 26884b829afd5ae68500743d192077f0675fc7ede02a5d6110d4a234bff62617 (.mus)
+    sha256 be1b34d96e1f909051e91a3372c302f1b45b216fa81437c74684269390e96037 (.etf)
+    sha256 f50ac9a2884de584adcda7dc1530840fd82f3929568e9720a461bbbc53cc3e0d (.musx)
+    From F100-C4, shows an accidental on the C4 note. The Finale 27 companion
+    sets showAcci and freezeAcci on the first note.
+
+F100-alters.mus / .etf / -finale27/F100-alters.musx
+    sha256 058cf226edb34348f05e7a20ffdd018fa54b76b98406bf6ab4018279e8ce823d (.mus)
+    sha256 b6f7bdb067d192e778bda87d31d0d1511b84b61e2ea34445ff5d54c830afc142 (.etf)
+    sha256 5c78fe6e48a0f9a2c08104121d7ee072f3ae697714c3feb77c5365441468d6c8 (.musx)
+    Entry 2 has a Note TCD of 0x009d. The document has no CS(1) record.
+
+F100-alters-tcd5.mus / .etf / -finale27/F100-alters-tcd5.musx
+    sha256 ecd4485ba15da8b4882b7773811501b3dd985444c9d2f1ab6f3a7575abfb7a40 (.mus)
+    sha256 4b3364d224dec3fc24732c3cf6e15c2904dc5e719b0993f2d66e85056f5b4d49 (.etf)
+    sha256 65a4b995ac45ba8e2db69a852e9452c3cbb5f930cc54cb3fdfce33cdad5c1f65 (.musx)
+    From F100-alters, sets the TCD Watershed value to 5. CS(1) has final word 5;
+    Entry 2 retains the same Note TCD.
+
+F100-alters-tcd1.mus / .etf / -finale27/F100-alters-tcd1.musx
+    sha256 197ee21eb4605fcdd4e8eed3eb1646f3f71c8689e24e4efa1330792a6599f71f (.mus)
+    sha256 6f1933ee9db9d6a3ff71030f6bf73ddfc5df2e26834ae63ee90e484ec0ed0ab8 (.etf)
+    sha256 180d3b18838cf9bed9d5e5ec0b9598801155cea14a278c6b693befd709817bda (.musx)
+    From F100-alters, sets the TCD Watershed value to 1. CS(1) has final word 1;
+    Entry 2 retains the same Note TCD.
+
+F100-alters-tcd4.mus / .etf / -finale27/F100-alters-tcd4.musx
+    sha256 1edbcc636c36d3807ecffd48b5f42732dd7d38d9f5dc0d43149799525478c2ee (.mus)
+    sha256 54129e0078c34391681500786e2cff374faf8e5006c92dac605b6059f8e4ca11 (.etf)
+    sha256 aace35db759517f74d9d3d6f2bbcaa781f65ac3d63a0f5880676b0d52ab91cb7 (.musx)
+    From F100-alters, sets the TCD Watershed value to 4. CS(1) has final word 4;
+    Entry 2 retains the same Note TCD.
+
+F100-alters-tcd4-min1.mus / .etf / -finale27/F100-alters-tcd4-min1.musx
+    sha256 9682de1d4770335ae9dc4d358407fc5174c11f73b26d6cae5d99288f4d022007 (.mus)
+    sha256 f65e16748109fba36fdc41e3b24b89adbcb379b8dbf8d2852bb36c6adfb90786 (.etf)
+    sha256 0123767ae4ec3c9b28b728412ba966a834e78f8faf5a8bf0bcbddadd02254eb3 (.musx)
+    From F100-alters-tcd4, changes Entry 1's Note displacement from 0 to -1
+    while retaining alteration +4 and TCD Watershed 4.
+
+F100-beam-32brkonly.mus / .etf / -finale27/F100-beam-32brkonly.musx
+    sha256 fac46127c33a87bc654dcd7f216a8681a793c30ce1416a5dc1bb9228ecf79f78 (.mus)
+    sha256 339f2818f5da6d0adfcdb42ba0389ff9c1b27071ef3c43616675ce86158380f3 (.etf)
+    sha256 2d1d7b38529c90cd444673c5b75ae1f1b398be098f73636a67757d754f59f9f9 (.musx)
+    Breaks only the thirty-second beam at entry 6.
+
+F100-beam-32brkthru.mus / .etf / -finale27/F100-beam-32brkthru.musx
+    sha256 d569dde6c477977aef003f8858d3c2b65cf6a05c453415821b151eff0d13bf12 (.mus)
+    sha256 7f9a4c405e58c6902a7e27a89693105f4ad90133e9d81474f2b84cf625d916b8 (.etf)
+    sha256 23e61a52722d8726ae019f5b304412ec29a912b3e8fc4a24f9aee66359a72184 (.musx)
+    Breaks the thirty-second beam through the shortest beam at entry 6.
+
+F100-beam-16-64brkonly.mus / .etf / -finale27/F100-beam-16-64brkonly.musx
+    sha256 af85200ccb7d5f98b085c7fdb8839b594e59a5fad91a01612b142c2d8b102532 (.mus)
+    sha256 d905f83cba7d6263949957a3e410aa24fe97c5b895f875bc3c7f5fde73328e25 (.etf)
+    sha256 e661f17d0ff4e4e1d5d48ee3944343a768e9f363bea0f276364dab6f52247ab3 (.musx)
+    Breaks only the sixteenth and sixty-fourth beams at entries 1 and 5.

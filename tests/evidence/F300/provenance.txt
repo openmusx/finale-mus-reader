@@ -1,0 +1,85 @@
+Finale 3.0 for Macintosh, uncompressed era, big-endian.
+    The host and exact application build are not recorded.
+
+Origin: controlled test documents created by Robert G. Patterson in Finale 3.0. The
+documents and their musical content are released by their author under this
+repository's MIT license.
+
+F300-baseline.mus / .etf / -finale27/F300-baseline.musx
+    sha256 c04afa1fa3fc07e5c048e8bf7d68aed995741b91a09ca06978950c869033e0e8 (.mus)
+    sha256 791ebaa217dd353d925bcba941976c3c12df77ce70bab94440af14f63001c02d (.etf)
+    sha256 32e0c3beaa1d29224f9ffa8ed8e1bff2a519f138a1d61f27bad15e602e3df903 (.musx)
+    The unedited new document.
+
+F300-slur.mus / .etf / -finale27/F300-slur.musx
+    sha256 47ec09566f680d142fb5bdee86792e930760d70b2c6da0a85a03eb3dc00a4549 (.mus)
+    sha256 a2808e7bbfef2d9ab8330a269f23e35c4f1643abed26d90d3e5fcc6e1a49226c (.etf)
+    sha256 8a8b3a6fe9c186d494a5462b330226a0583e22fa44690104f7a8e3041cb41324 (.musx)
+    Adds a slur to F300-baseline. Finale 27 converts it to a SmartShape with
+    endpoints in measure 1 at EDU positions 142 and 1138.
+
+F300-slur-movel.mus / .etf / -finale27/F300-slur-movel.musx
+    sha256 7f4807885fc1ecee22e60cb38efd1e22eb36853db486d84134f1654311a3839e (.mus)
+    sha256 c7fad794a186dea9d0c2bf09e06dbcfaf060fed63c7871c719a383bd728d36e5 (.etf)
+    sha256 26debe3cf7f556b2b21e6b8d9664d433302c89fee43c5b92bca2471b0be22549 (.musx)
+    From F300-slur, moves the left slur endpoint downward.
+
+F300-slur-mover.mus / .etf / -finale27/F300-slur-mover.musx
+    sha256 6212ae723919cdc3c1679e74360bebc7d9cdf4732d7c6b90e459bf1334e4b59d (.mus)
+    sha256 6f02173949ba99deba080c60abc271c56e3e4eaaa11f8a762bfb073753ec57bd (.etf)
+    sha256 74ac381289acd7241e24e2e19c1c507f5357b1a3d62baf13a25e7a6513e2ae03 (.musx)
+    From F300-slur, moves the right slur endpoint rightward and downward.
+
+F300-slur-movecps.mus / .etf / -finale27/F300-slur-movecps.musx
+    sha256 a733ccb7d38251c276714200377ef84e47f7614081e134de38c0b6a525b82b18 (.mus)
+    sha256 f2b1293f3684130cce406343fa98e0c01dc29ef521f68cf8b2611ea89dbe50db (.etf)
+    sha256 afa293c2d0dc881021786b402138ce359ec68ceb5b19472956280bbc95249419 (.musx)
+    From F300-slur, changes the slur's control-point handles without moving its endpoints.
+
+F300-nommrest.mus / .etf / -finale27/F300-nommrest.musx
+    sha256 10515dbf2a8b5c0bef7393a1d6ef814ca7f361c1154d844a68ed1996b34ab62e (.mus)
+    sha256 a74b4da7bfebe20d8b733f3c29a2feb786f2cece80e590cd782f9a0a305ecacf (.etf)
+    sha256 8e8c874fa4b1bf26b14c6d267ddae796d1c8a2ec2d32228d8fbe13bf8dacf710 (.musx)
+    From F300-baseline, adds runs of empty measures without creating multimeasure
+    rests. No XI record is stored.
+
+F300-mmrest.mus / .etf / -finale27/F300-mmrest.musx
+    sha256 c30357ec9852c2c2bd1d2601f03862b4c66f99dc6310d9f20db81e6e68808093 (.mus)
+    sha256 a7c77c8cdba30d5a187cfa2888d6f63f1ed48a16917c22d2050c881c93779b8e (.etf)
+    sha256 9131d8c0602d0c3cacd918e34708db25d26969ac4a78e5850a660c1e4e0cef51 (.musx)
+    From F300-nommrest, creates multimeasure rests for measures 1-3, 5-7 and 9-11
+    and changes the rest number font to Geneva 11 bold. The rests are one-row XI
+    records 361 n 7 1 0 0. The font is tuple 12 of selector 24, (2, 11, 1);
+    selector 25 words 1-3 stay zero. The save also changes other records.
+
+F300-meatext-pos.mus / .etf / -finale27/F300-meatext-pos.musx
+    sha256 1df1abed62326acadb31a8383e7ba090e4aaa213ba26330d10c48586a1138a23 (.mus)
+    sha256 b7b0e14e6e4fe208148be35399e9c6afd43172bbad607c8bcf11f28e8854af57 (.etf)
+    sha256 8482ccfb2c6e1a75b8796b92d86f623d243cbf02d2ba8d5fa1b30321a62e7463 (.musx)
+    One measure text block at staff 1, measure 1, positioned right of the measure start.
+    Its `mt(1,1)` tuple is `1 88 -116 0 0`; no `TX` row is stored, and `PT(1)` names
+    block text 1. The companion stores `xdispEdu` 455 and `ydisp` -116.
+
+F300-meatext-neg.mus / .etf / -finale27/F300-meatext-neg.musx
+    sha256 2df51501d4fe0a7cc8a172ea638dc7a7d1f7066e3d5c4f797bb6b54cedf21f6c (.mus)
+    sha256 064e3bf60ea74f9d9609d4db99bf9dfd18d5c65b127c65c4c5de698b467de6dd (.etf)
+    sha256 c5731d14520f0fd5377b4455c6b3b9a8d925c862cc97b5dd55bef3711f077933 (.musx)
+    The same measure text block positioned left of the measure start. Its `mt(1,1)` tuple
+    is `1 -340 -136 0 0`; the companion stores `xdispEvpu` -364 and `ydisp` -136.
+
+F300-meatext-pos-staffred.mus / .etf / -finale27/F300-meatext-pos-staffred.musx
+    sha256 c7dc12fd6637fb2b5afb16054ea1cbce22845830c7745140f4671b16b85507d9 (.mus)
+    sha256 997448d0ba853e6145d92d1ac122d7ed2f966534b5dbfffc3d8f8d933c289bef (.etf)
+    sha256 bb63a40df2df524e027be8885b82204292cea3df90eb64ec1f64a7b703e85995 (.musx)
+    From F300-meatext-pos, with staff 1 reduced to 67% on its system. The `mt(1,1)` tuple
+    is unchanged at `1 88 -116 0 0`; the companion stores `ydisp` -173.
+
+F300-meastext-beatchart.mus / .etf / -finale27/F300-meastext-beatchart.musx
+    sha256 d68b5bf5a82609e1f6adcb31da1fa32a343d9594c167377b307fbcd283ed8af0 (.mus)
+    sha256 0732620ef0b7f9bd5fef060c64dd30e54beb78c36d36efbf7f4fc117c3983296 (.etf)
+    sha256 5eb5f9d1d771075435863e4d936e55280ad5e83e279712fbf6f3328fac56b33e (.musx)
+    One staff, a measure of uneven rhythms positioned by an automatically spaced
+    beat chart, 1052 EVPU wide, with three measure texts: before the first note,
+    between two notes, and past the barline. The `mt(1,1)` tuples store horizontal
+    offsets 32, 352, and 1952 EVPU. The Finale 27 companion stores `xdispEvpu` -20
+    for the first and `xdispEdu` 416 and 27136 for the others.

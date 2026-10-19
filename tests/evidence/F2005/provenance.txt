@@ -1,0 +1,232 @@
+Version 2005b.r1
+Mac OS X 10.4.11 running in QEMU PowerPC emulator
+
+Origin: controlled test documents created by Robert G. Patterson. The documents and their
+musical content are released by their author under this repository's MIT license.
+
+F2005-tab-breaklines.mus
+    sha256 a4f129fd53c00d2f9faea4491ec6549dfa3f2867e6aedff9db52f9582fcc90fa
+F2005-tab-breaklines.etf
+    sha256 483166c8e004080776fce8ef31fea1e89865ede539a41fb17589114dbf42ffe4
+-finale27/F2005-tab-breaklines.musx
+    sha256 7f3712a73e2e3cf575bb8b6bc74f90375c787fb619d4a61d624d4c753d090ba7
+    From F2005-baseline, changed staff 1 to tablature and enabled breaking staff lines at numbers.
+    The extended flag word is 0x2c1f; its `0x0800` bit is the setting unique to this variant.
+
+F2005-tab-notuplets.mus
+    sha256 76ad0ca8e5246b4e198a4a98e3629969a4066b0cee0d52648c12a1b2f2e3241e
+F2005-tab-notuplets.etf
+    sha256 b5e1e834f91d81385e8ad3c130c37a866ead035d61de83ab02364983e179020c
+-finale27/F2005-tab-notuplets.musx
+    sha256 6e98a7305c6ee9ded9dd492765a18794183ba5d55aa57f6f3448cc73ee52dba5
+    The same tablature setup with tuplets hidden, capo position 5, and default lowest fret 13. The
+    extended flag word is 0x041f, clearing `0x2000`; word 1 is 0x0d05.
+
+F2005-tab-showclefs.mus
+    sha256 78710f77d2076e67813220ee627928fcc7693f4e47825db9954aeb42c795b82d
+F2005-tab-showclefs.etf
+    sha256 ac44479e4275a1136525937d139165f578a3da7d316975184fb81cafded226d3
+-finale27/F2005-tab-showclefs.musx
+    sha256 1baa4d150e4ce3b983b7c419cf51ebb69db4f9f11026b1b108ce3f0fa991b3b6
+    The same tablature setup with clefs shown on every system. The extended flag word is 0x241e,
+    clearing `0x0001`.
+
+F2005-tab-showletters.mus
+    sha256 0c1bd828cd593575e5631cea4f4059eddae2ae5d4a6f918e6fc9cdf0ee0d656a
+F2005-tab-showletters.etf
+    sha256 f4c8a32299c54764efbf1f76df47ccf2bbfbe18755c32659254f111ccd23b
+-finale27/F2005-tab-showletters.musx
+    sha256 77d78abf908ca833d8e0c99db7d6ce607f18b302b7085f6ce69322ae11739f31
+    The same tablature setup with letters in place of numbers. The extended flag word is 0x261f,
+    setting `0x0200`. Except for the no-tuplets variant, word 1 is 0x0b17: capo position 23 in the
+    low byte and default lowest fret 11 in the high byte. All four ETF and Finale 27 companions
+    corroborate the named setting, the two packed positions, vertical number offset -1088, and
+    fret-instrument comparator 2.
+
+F2005-clef-baseline: from F2005-baseline, Clef Designer baseline adjustment set on two clefs.
+  Clef 0 (treble): 1 inch requested. The document's measurement unit was inches, so this is
+  288 Evpu and the file stores 18432 Efix.
+  Clef 1 (bass): -2 inches requested. That is -36864 Efix, which does not fit the signed
+  16-bit stored field, so Finale saturated it to -32768 and the dialog reads it back as
+  -1.7778 inches.
+
+F2005-courtesy-clef-off: from F2005-baseline, "Display Courtesy Clef at End of Staff
+  System" turned off and the key and time signature courtesies left on. Selector 44
+  word 3 moves 7 -> 3, so the clef's courtesy is bit 2.
+
+F2005-courtesy-key-off: from F2005-baseline, only the courtesy key signature turned
+  off. Selector 44 word 3 moves 7 -> 6, so the key signature's courtesy is bit 0.
+  This is the save that distinguishes the clef bit from a bit that merely happened to
+  be clear; time is bit 1 by elimination.
+
+F2005-insert-sharp-font.mus
+    sha256 5646429f2f86fac67023b645874b32b81facf53294f2702d750dccda3d99439b
+    From F2005-baseline, the sharp accidental insert's symbol font set to Petrucci at 79%
+    with bold. Bytes 10, 12 and 14 of the block's first element move to 9, 79 and 1. The
+    source's own ^FN(9) is "Petrucci", and the companion resolves the same face, which is
+    what shows the field is a font-definition comparator in the source's numbering.
+
+F2005-insert-sharp-font-it-und.mus
+    sha256 95bbed8fa04b9511c5593d91eb8212a769d39e9c55aa17caeeabc4ccbabad792
+    The same font with the styles changed to italic and underline. The effects word moves
+    1 -> 6, so the field is the ordinary Enigma style bitmask and musxdom's setEnigmaStyles
+    reads it unchanged.
+
+F2005-insert-flat-tracking.mus
+    sha256 7b1b3e27813135d06d18067e21682bf65d019c70787bdbbeaa6e985f9c3e4543
+    From F2005-baseline, the flat insert's tracking before set to 1000, tracking after to
+    250 and baseline shift to -25. Fixes both 32-bit widths, their high-word-first order and
+    the sign of the 16-bit shift in one save; all three are zero or default in every
+    unedited document.
+
+F2005-textopts-scalars.mus
+    sha256 a369692d9b8dcee728ed64be33904633ea1af8049346f627ae0adce472944ed1
+    From F2005-baseline, every Document Options > Text value changed at once. Five records
+    move: selector 05 words 4 and 5, selector 13 word 0, all three of selector 81's 32-bit
+    values, selector 82 words 0, 2, 3 and 4, and selector 83 words 0, 1 and 3. One save
+    locates eleven fields.
+
+F2005-textvert-center.mus
+    sha256 4fee0d73fa505cba481431c695d4df9d01f1a69bd319209b6e764a2a17e404d3
+    From F2005-baseline, the vertical alignment set to Center and nothing else. Selector 83
+    word 1 moves 0 -> 2, the ETF reads ^83(65534) 0 2 0 0 0 0, and the companion gains
+    <textVertAlign>center</textVertAlign>. Center at 2, against the scalars save reading
+    bottom from a stored 1, fixes the legacy list as Top, Bottom, Center -- the same
+    first/opposite/center order as AlignJustify -- and leaves word 3 as the page-edge flag.
+
+F2005-linespace-to-evpu.mus
+    sha256 4e03b6187689ad6daa21c81709d3e6751eff8d8acdce179f9bede390150e4494
+    From F2005-baseline, the line spacing switched from 100 percent to an absolute 72 Evpu.
+    Selector 82 words 0 and 1 move, 100 -> 72 and 1 -> 0, and the companion replaces
+    <textLineSpacingPercent>100</> with <textLineSpacingEvpu>72</> while keeping
+    <textExpandSingleWord/>. Word 1 selects which of the two musxdom members word 0
+    populates. Finale 27 has no boolean for that mode -- it writes one element or the other --
+    so only a save that moves the units alone can fix the word.
+
+F2005-staffname-lineperc88.mus
+    sha256 f66e08212a22ff3869a4ee4e6d00615cacc45002f824c4f9d3c8c8969cf8c062
+F2005-staffname-lineperc88.etf
+    sha256 bbb72bf8d9a11bdc4988e7b5a918dd5ed4951110f128f6b225f790f9ca9213bf
+F2005/-finale27/F2005-staffname-lineperc88.musx
+    sha256 e09c384e75eca29eb0082355bab6a96ad955dc664acf398a30c4c7f916ca8523
+    The staff-name TextBlock uses 88-percent line spacing. Its TX word 4 is 88 and flag
+    0x1000 is set. The Finale 27 companion writes <lineSpacingPercent>88</>.
+
+F2005-staffname-lineevpu0.mus
+    sha256 7bbdd85bae6572cb850c6f3f5aa0f6d13d212f4565d759ecca5e460f82aca68d
+F2005-staffname-lineevpu0.etf
+    sha256 643bad58598e101f156ed92f28dec089f54f4b0f1f07eff94cdb516b7ccd0143
+F2005/-finale27/F2005-staffname-lineevpu0.musx
+    sha256 a764175ae97c11a3a3d2183818c5ab93b99ba7d53b3b6598ab65469e91bec5dd
+    The same TextBlock uses absolute zero-EVPU line spacing. Its TX word 4 is zero and flag
+    0x1000 is clear. Finale 27 continues to show zero EVPU, while its EnigmaXML omits both
+    line-spacing elements. That omission must not be treated as evidence that Finale changed
+    the stored setting to 100 percent.
+
+F2005-staffname-lineperc0.mus
+    sha256 d005026360ef966393ab82b1b8f9f102a667abced2299725a5f5a1fd46a092e6
+F2005-staffname-lineperc0.etf
+    sha256 936f31f226234cafaf2bf1a1eb66f8739c5207dd0dcba19f899592f33be676da
+F2005/-finale27/F2005-staffname-lineperc0.musx
+    sha256 b5ce47588d09ea76d3de8f75c524ec0c7d8992e3585d8e66532151004b3d0982
+    The same TextBlock uses zero-percent line spacing. Its TX word 4 is zero and flag 0x1000
+    is set, distinguishing it from the zero-EVPU source. Finale 27 nevertheless writes the
+    same TextBlock XML for both upgrades: neither line-spacing element is present. The upgrade
+    therefore loses the source unit selector when the value is zero. Reopening the upgraded
+    package in Finale 27 shows zero EVPU: percentage zero is converted to zero EVPU, while
+    absolute zero remains zero EVPU.
+
+F2005-acci-adjstart.mus
+    sha256 a3f0bb2ba8a3de16b755e048099ae4df18a3f837a60ef972a5c44647b778bd03
+F2005-acci-adjstart.etf
+    sha256 80f9521cd1df1a1aa52927920b0d2cd52cf4af2b708700a69391c80fd70d9e1c
+F2005/-finale27/F2005-acci-adjstart.musx
+    sha256 d069d14bdab4cd2f06c123228cfa0a30237f60ff257d1b84ceb6d15a72699c58
+    From F2005-baseline, Document Options > Accidentals > Adjust Starting Measure Position
+    changed from 24 to 27 EVPU. Selector 41 incidence 2 word 2 is the only decoded source
+    word that changes, 24 -> 27; the ETF prints the same value and the Finale 27 companion
+    writes <frontAcciSepar>27</frontAcciSepar>.
+
+F2005-rptopts-topstaff.mus
+    sha256 e8b4745c495277f222c4920bdcedfd7128f80eee21befea0ad22d971d0ef604f
+F2005-rptopts-topstaff.etf
+    sha256 ee2f7d2926e4d0be8747298bdf7e083aa27bf4fd1cbdef32fc6ae2a586f2e574
+F2005/-finale27/F2005-rptopts-topstaff.musx
+    sha256 e17346e595cc58ead82852eb103365f4878496cb14d91454711513a746115290
+    From F2005-baseline, Repeat Options remained at Top Staff Only. This is the baseline for
+    the staff-list edit below.
+
+F2005-rptopts-stafflist.mus
+    sha256 d06ac9c2fc9adc709c058b2e94d19d4f58e527acc2344c202e513a8796f25673
+F2005-rptopts-stafflist.etf
+    sha256 2feface2c37cdf77a4973cb034dd4cb7d975c5fe0e2020d9e8dd2df852fb7885
+F2005/-finale27/F2005-rptopts-stafflist.musx
+    sha256 0b1124ec6cc2ba0a7973a3bbaf545b4142608175d90fe94cc0e83326bb97f646
+    From F2005-rptopts-topstaff, Repeat Options changed to a new repeat staff list named
+    "Repeat Staves." The source adds one DC score row containing -1, two Dc name rows, one dc
+    parts row containing -3, and one io forced-parts row containing -3. No RepeatOptions row
+    changes. The Finale 27 companion predates the corrected source edit and is retained only as
+    provenance, not as its semantic companion.
+
+F2005-rpts-forparts.mus
+    sha256 3b8e743c56390247d733669d93660c3a84ffaad748b18fc59fda880140ea901a
+F2005-rpts-forparts.etf
+    sha256 5fe1cdb182679cfd4b69d135c82870cf912cb98066692375d059f17366bc7366
+F2005/-finale27/F2005-rpts-forparts.musx
+    sha256 beca3e5908dece4d423c11d921591b8710a5214d9b6a1cec0ef432445d1ba901
+    From F2005-baseline, Show Repeats for Parts enabled and nothing else requested. Selector
+    16 comparator 65534 word 5 is the only decoded source word that changes, 0 -> 1, and
+    the ETF prints the same value. The Finale 27 companion preserves the enabled setting.
+
+F2005-tie-xtrasys.mus
+    sha256 7e5608f8e981db80b4d6a1a35a540edd037a4389c47570c5c732986054981204
+F2005-tie-xtrasys.etf
+    sha256 e8228e799060f3c9036ab2a8964c13ffdb885dae40520154ba3ecac0c290e801
+F2005/-finale27/F2005-tie-xtrasys.musx
+    sha256 e5090996d36b93fd2e228a1b972dabc1faab011f1437f8423946e1b4afbda773
+    From F2005-baseline, Document Options > Ties > Extra System Separation changed from
+    -12 to -11 EVPU. Selector 41 incidence 2 word 3 is the only decoded source word that
+    changes; the ETF prints the same value and the Finale 27 companion changes only
+    <frontTieSepar>, from -12 to -11.
+
+F2005-timecomp.mus / .etf / .musx
+    sha256 60d557ed2cb8a455f8eceddf8d1767bad9eec5b6a6fcac7d296c67c82e6f2050 (.mus)
+    sha256 82e65e1f112dfcc4af11a13a262f9d92d12eccf7053f01317333a1febc5dbdb2 (.etf)
+    sha256 398e6010d265a3332acaf4c3580bd4cbf0321e852637cea7bf4e2a6c7ceb2558 (.musx)
+    Measure 1 has a composite time signature of two groups: 3 + 1 + 2 1/2 over eighth +
+    sixteenth, then 1 + 2 over quarter + sixteenth. Numerator and denominator are both
+    composite. The MUSX file is its Finale 27 companion.
+
+F2005-rptback.mus / .etf / -finale27/F2005-rptback.musx
+    sha256 b0c22a3fb8c0a70dab230d7ac5d68b9dae6775950c2f13f766dbf5249df5989d (.mus)
+    sha256 7756d1b9500b30209eb1978ca99bbf4888eb7e6aae7b9d462e1f4fd75d39a692 (.etf)
+    sha256 52a6f565fa7d55d63ac5b49f3c0010443fe3a6d5f5cec675c01168b165e6ba46 (.musx)
+    From the Finale 2005 baseline, adds a backward repeat in measure 1 that plays
+    twice and targets one measure backward. The ETF and Finale 27 conversion
+    accompany the source.
+
+F2005-rptstafflists.mus / .etf / -finale27/F2005-rptstafflists.musx
+    sha256 fdb28d4f5e015426babe5f983fbfe433a44a5ea146dd1b99f429725607145b51 (.mus)
+    sha256 6c0660f6697c2ea3bd72236030f1bbbb64f7849b44efda9454ae8ee713c69e4b (.etf)
+    sha256 ae6df73eab6184df01dcdbdf93c953b4867d4f9086f1e8270f2c9382252ecd1f (.musx)
+    Adds an ending and a backward repeat in measure 2. The ending selects repeat
+    staff list 1 and the backward repeat selects repeat staff list 2. The ETF
+    and Finale 27 conversion accompany the source.
+
+F2005-textrpt.mus / .etf / -finale27/F2005-textrpt.musx
+    sha256 474f9b611e4e8a283d4211a5c2add2df8a90bda71ee32839df20ef70e5c66def (.mus)
+    sha256 12ff5cca82d5181acb0bb3e5df436a8e3ad092920b53f205e3499ddf99a531f5 (.etf)
+    sha256 b5c18ef04438a66f4ed3f2cfa99a9112221ae1a6d8e2fd89b940376f2b749898 (.musx)
+    A text repeat assignment at measure 1, saved by Finale 2005 with its ETF and Finale 27
+    companion. Two `RU(1)` rows store the self-contained assignment: the first has positions
+    152 and -192, pass number 2, text repeat ID 1, flags `0x0442`; the second is zero filled.
+
+F2005-rptindiv.mus / .etf / -finale27/F2005-rptindiv.musx
+    sha256 124c807e23aa12b6d85def16cfd4079a444b51874c3be97970387b91f467e3b5 (.mus)
+    sha256 cc235cbc1a065cf336a8a835f9eac460c6a14810b7746841d6404e4e0033ad05 (.etf)
+    sha256 6c68a6c04740d889dc84aea453f70a7ad95df150ac94199c768301dfda9b3669 (.musx)
+    Contains three backward-repeat, four ending-line, four ending-text, and two
+    text-repeat individual placements. The ETF stores measure numbers in the
+    second word of the first three variants and signed offsets in their four
+    coordinate words. The Finale 27 conversion retains all thirteen placements.
+    Finale 2005 offered no hidden option for these placements.

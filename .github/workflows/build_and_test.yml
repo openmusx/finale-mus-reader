@@ -1,0 +1,165 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  codestyle:
+    name: Code style / clang-format
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - name: Install clang-format
+        run: pip install clang-format==19.1.6
+
+      - name: Verify formatting
+        run: python scripts/check_format.py
+
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux / GCC
+            os: ubuntu-latest
+            cCompiler: gcc
+            cxxCompiler: g++
+          - name: macOS / AppleClang
+            os: macos-latest
+            cCompiler: clang
+            cxxCompiler: clang++
+          - name: Windows / MSVC
+            os: windows-latest
+            cCompiler: cl
+            cxxCompiler: cl
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y g++ ninja-build
+
+      - name: Install Ninja on macOS
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Install Ninja on Windows
+        if: runner.os == 'Windows'
+        run: choco install ninja -y
+
+      - name: Display build tools
+        run: |
+          cmake --version
+          ninja --version
+
+      - name: Verify embedded defaults
+        run: python scripts/generate_embedded_defaults.py --check
+
+      - name: Verify documentation links
+        run: python scripts/check_doc_links.py
+
+      - name: Verify reporting boundary
+        run: python scripts/check_reporting_boundary.py
+
+      - name: Configure CMake
+        if: runner.os != 'Windows'
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER=${{ matrix.cCompiler }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxxCompiler }}
+          -DFINALE_MUS_READER_INSTRUMENTATION=ON
+
+      - name: Configure CMake on Windows
+        if: runner.os == 'Windows'
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER=${{ matrix.cCompiler }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxxCompiler }}
+          -DFINALE_MUS_READER_INSTRUMENTATION=ON
+
+      - name: Compile Windows test unity objects first
+        if: runner.os == 'Windows'
+        run: |
+          $unityDir = 'build/tests/CMakeFiles/finale_mus_reader_tests.dir/Unity'
+          $sources = @(Get-ChildItem $unityDir -Filter 'unity_*_cxx.cxx' |
+            Sort-Object { [int]($_.BaseName -replace '^unity_(\d+)_cxx$', '$1') } -Descending)
+          if ($sources.Count -eq 0) { throw 'No test unity sources were generated' }
+          $objects = @($sources | ForEach-Object {
+            "tests/CMakeFiles/finale_mus_reader_tests.dir/Unity/$($_.Name).obj"
+          })
+          ninja -C build -j 2 @objects
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+  non-instrumented-build:
+    strategy:
+      matrix:
+        buildType: [Debug, Release]
+    name: Non-instrumented library / GCC / ${{ matrix.buildType }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y g++ ninja-build
+
+      - name: Configure CMake
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=${{ matrix.buildType }}
+          -DCMAKE_C_COMPILER=gcc
+          -DCMAKE_CXX_COMPILER=g++
+          -DFINALE_MUS_READER_BUILD_TESTING=OFF
+          -DFINALE_MUS_READER_BUILD_REPORTING_TESTING=ON
+          -DFINALE_MUS_READER_INSTRUMENTATION=OFF
+
+      - name: Build library
+        run: cmake --build build --target finale_mus_reader_reporting_tests --parallel 2
+
+      - name: Test disabled reporting
+        run: ctest --test-dir build -R "^reporting$" --output-on-failure
