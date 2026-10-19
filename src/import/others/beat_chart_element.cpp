@@ -121,26 +121,29 @@ void importBeatChartFamily(const ImportContext& context, const RecordFamilySourc
         const auto first = static_cast<std::int16_t>(payloadWord(payload, at + 4, context.profile.byteOrder));
         const auto second = static_cast<std::int16_t>(payloadWord(payload, at + 6, context.profile.byteOrder));
         const auto third = static_cast<std::int16_t>(payloadWord(payload, at + 8, context.profile.byteOrder));
+        if (inci == 0) {
+            target->control = std::make_shared<BeatChartTarget::Control>();
+            target->control->totalDur = edu;
+            target->control->totalWidth = first;
+            target->control->minWidth = second;
+            target->control->allotWidth = third;
+        } else {
+            target->dur = edu;
+            target->pos = first;
+            target->endPos = second;
+            target->minPos = third;
+        }
         withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
             const auto& longRow = source.rowOfWord(rows, at / 2);
             const auto& firstRow = source.rowOfWord(rows, at / 2 + 2);
             const auto& secondRow = source.rowOfWord(rows, at / 2 + 3);
             const auto& thirdRow = source.rowOfWord(rows, at / 2 + 4);
             if (inci == 0) {
-                target->control = std::make_shared<BeatChartTarget::Control>();
-                target->control->totalDur = edu;
-                target->control->totalWidth = first;
-                target->control->minWidth = second;
-                target->control->allotWidth = third;
                 reportBeatChartField<Reporting>(reporting, partId, cmper, inci, "control.totalDur", edu, longRow);
                 reportBeatChartField<Reporting>(reporting, partId, cmper, inci, "control.totalWidth", first, firstRow);
                 reportBeatChartField<Reporting>(reporting, partId, cmper, inci, "control.minWidth", second, secondRow);
                 reportBeatChartField<Reporting>(reporting, partId, cmper, inci, "control.allotWidth", third, thirdRow);
             } else {
-                target->dur = edu;
-                target->pos = first;
-                target->endPos = second;
-                target->minPos = third;
                 reportBeatChartField<Reporting>(reporting, partId, cmper, inci, "dur", edu, longRow);
                 reportBeatChartField<Reporting>(reporting, partId, cmper, inci, "pos", first, firstRow);
                 reportBeatChartField<Reporting>(reporting, partId, cmper, inci, "endPos", second, secondRow);
