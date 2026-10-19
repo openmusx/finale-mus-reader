@@ -356,7 +356,7 @@ endif()
 # Internal build interface: the private src/ headers plus the XML backend the tests use. Not
 # part of the library's API and never installed. It keeps test-only include paths and the
 # pugixml selection in one target.
-if(FINALE_MUS_READER_BUILD_TESTING)
+if(FINALE_MUS_READER_BUILD_TESTING OR FINALE_MUS_READER_BUILD_REPORTING_TESTING)
     if(TARGET pugixml)
         set(FINALE_MUS_READER_PUGIXML_TARGET pugixml)
     elseif(TARGET pugixml::pugixml)
@@ -383,11 +383,16 @@ if(FINALE_MUS_READER_BUILD_TESTING OR FINALE_MUS_READER_BUILD_REPORTING_TESTING)
     enable_testing()
 endif()
 
+# Built in either instrumentation mode: the reporting boundary checks, plus fixture reads that
+# catch document values an importer assigns only inside a reporting callback.
 if(FINALE_MUS_READER_BUILD_REPORTING_TESTING)
-    add_executable(finale_mus_reader_reporting_tests tests/reporting_tests.cpp)
+    add_executable(finale_mus_reader_reporting_tests
+        tests/reporting_tests.cpp
+        tests/disabled_reporting_construction_tests.cpp)
     finale_mus_reader_enable_unity(finale_mus_reader_reporting_tests)
-    target_include_directories(finale_mus_reader_reporting_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-    target_link_libraries(finale_mus_reader_reporting_tests PRIVATE finale_mus_reader::finale_mus_reader)
+    target_compile_definitions(finale_mus_reader_reporting_tests PRIVATE
+        FINALE_MUS_READER_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests")
+    target_link_libraries(finale_mus_reader_reporting_tests PRIVATE finale_mus_reader::internal)
     add_test(NAME reporting COMMAND finale_mus_reader_reporting_tests)
 endif()
 

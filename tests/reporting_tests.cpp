@@ -108,7 +108,12 @@ void testLazyReporting()
 
 } // namespace
 
+namespace disabled_reporting_construction_test {
+void testDisabledReportingConstruction();
+} // namespace disabled_reporting_construction_test
+
 int main()
 {
     testLazyReporting();
+    disabled_reporting_construction_test::testDisabledReportingConstruction();
 }
