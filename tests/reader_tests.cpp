@@ -1511,3 +1511,29 @@ TEST_CASE("Playback plugin names override sound-map descriptions with a fallback
     REQUIRE(resolvePluginName("TEST", "").empty());
     REQUIRE(resolvePluginName("", "").empty());
 }
+
+TEST_CASE("Per-import construction settings retain buffer identity and voicing", "[reader][import-options]")
+{
+    const auto reader = Reader::create<TestXmlDocument>();
+    const auto bytes = makeUncompressedMus();
+    finale_mus_reader::ImportOptions options;
+    options.sourcePath = std::filesystem::path("arbitrary score.bin");
+    options.partVoicingPolicy = musx::dom::PartVoicingPolicy::Apply;
+    const auto applied = reader.read(bytes, options);
+    REQUIRE(applied);
+    CHECK(applied->getSourcePath() == options.sourcePath);
+    CHECK(applied->getPartVoicingPolicy() == musx::dom::PartVoicingPolicy::Apply);
+    const auto defaults = reader.read(bytes);
+    REQUIRE(defaults);
+    CHECK_FALSE(defaults->getSourcePath());
+    CHECK(defaults->getPartVoicingPolicy() == musx::dom::PartVoicingPolicy::Ignore);
+    const auto report = reader.readWithReport(bytes, options);
+    REQUIRE(report.document);
+    CHECK(report.document->getSourcePath() == options.sourcePath);
+    CHECK(report.document->getPartVoicingPolicy() == musx::dom::PartVoicingPolicy::Apply);
+    const auto path = std::filesystem::path(FINALE_MUS_READER_TEST_SOURCE_DIR) / "evidence/F2002/F2002-baseline.mus";
+    const auto fromFile = reader.read(path, options);
+    REQUIRE(fromFile);
+    CHECK(fromFile->getSourcePath() == options.sourcePath);
+    CHECK(fromFile->getPartVoicingPolicy() == musx::dom::PartVoicingPolicy::Apply);
+}
