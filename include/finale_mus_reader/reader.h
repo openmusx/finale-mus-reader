@@ -479,6 +479,15 @@ struct ReaderOptions
     std::span<const std::uint8_t> instrumentCatalogXml{};
 };
 
+/// @brief Document construction settings for one import.
+struct ImportOptions
+{
+    /// @brief Source identity attached to the constructed document; filesystem imports default to their input path.
+    std::optional<std::filesystem::path> sourcePath;
+    /// @brief Linked-part voicing applied while resolving the imported document.
+    musx::dom::PartVoicingPolicy partVoicingPolicy = musx::dom::PartVoicingPolicy::Ignore;
+};
+
 class Reader
 {
 public:
@@ -491,35 +500,39 @@ public:
         return createWithParser(options, &parseXml<XmlDocumentType>, &parseDocument<XmlDocumentType>);
     }
 
-    [[nodiscard]] musx::dom::DocumentPtr read(const std::filesystem::path& path) const;
-    [[nodiscard]] musx::dom::DocumentPtr read(std::span<const std::uint8_t> data) const;
+    [[nodiscard]] musx::dom::DocumentPtr read(const std::filesystem::path& path, const ImportOptions& importOptions = {}) const;
+    [[nodiscard]] musx::dom::DocumentPtr read(std::span<const std::uint8_t> data, const ImportOptions& importOptions = {}) const;
 
     template <typename XmlDocumentType>
-    [[nodiscard]] static musx::dom::DocumentPtr read(const std::filesystem::path& path, const ReaderOptions& options = {})
+    [[nodiscard]] static musx::dom::DocumentPtr read(
+        const std::filesystem::path& path, const ReaderOptions& options = {}, const ImportOptions& importOptions = {})
     {
-        return create<XmlDocumentType>(options).read(path);
+        return create<XmlDocumentType>(options).read(path, importOptions);
     }
 
     template <typename XmlDocumentType>
-    [[nodiscard]] static musx::dom::DocumentPtr read(std::span<const std::uint8_t> data, const ReaderOptions& options = {})
+    [[nodiscard]] static musx::dom::DocumentPtr read(
+        std::span<const std::uint8_t> data, const ReaderOptions& options = {}, const ImportOptions& importOptions = {})
     {
-        return create<XmlDocumentType>(options).read(data);
+        return create<XmlDocumentType>(options).read(data, importOptions);
     }
 
 #if defined(FINALE_MUS_READER_ENABLE_INSTRUMENTATION)
-    [[nodiscard]] ImportResult readWithReport(const std::filesystem::path& path) const;
-    [[nodiscard]] ImportResult readWithReport(std::span<const std::uint8_t> data) const;
+    [[nodiscard]] ImportResult readWithReport(const std::filesystem::path& path, const ImportOptions& importOptions = {}) const;
+    [[nodiscard]] ImportResult readWithReport(std::span<const std::uint8_t> data, const ImportOptions& importOptions = {}) const;
 
     template <typename XmlDocumentType>
-    [[nodiscard]] static ImportResult readWithReport(const std::filesystem::path& path, const ReaderOptions& options = {})
+    [[nodiscard]] static ImportResult readWithReport(
+        const std::filesystem::path& path, const ReaderOptions& options = {}, const ImportOptions& importOptions = {})
     {
-        return create<XmlDocumentType>(options).readWithReport(path);
+        return create<XmlDocumentType>(options).readWithReport(path, importOptions);
     }
 
     template <typename XmlDocumentType>
-    [[nodiscard]] static ImportResult readWithReport(std::span<const std::uint8_t> data, const ReaderOptions& options = {})
+    [[nodiscard]] static ImportResult readWithReport(
+        std::span<const std::uint8_t> data, const ReaderOptions& options = {}, const ImportOptions& importOptions = {})
     {
-        return create<XmlDocumentType>(options).readWithReport(data);
+        return create<XmlDocumentType>(options).readWithReport(data, importOptions);
     }
 #endif // defined(FINALE_MUS_READER_ENABLE_INSTRUMENTATION)
 
@@ -545,8 +558,8 @@ private:
     }
 
     static Reader createWithParser(const ReaderOptions& options, XmlParser parseXml, DocumentParser parseDocument);
-    ImportResult readPrepared(const std::filesystem::path& path) const;
-    ImportResult readPrepared(std::span<const std::uint8_t> data) const;
+    ImportResult readPrepared(const std::filesystem::path& path, const ImportOptions& importOptions = {}) const;
+    ImportResult readPrepared(std::span<const std::uint8_t> data, const ImportOptions& importOptions = {}) const;
 
     std::shared_ptr<const detail::ReaderResources> m_resources;
     XmlParser m_parseXml;

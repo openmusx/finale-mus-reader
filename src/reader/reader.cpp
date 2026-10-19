@@ -22,7 +22,7 @@ namespace {
 
 ImportResult readImpl(std::span<const std::uint8_t> data, const container::ParsedContainer& parsed,
     const std::optional<std::filesystem::path>& sourcePath, const detail::ReaderResources& resources, XmlParser parseXml,
-    DocumentParser parseDocument)
+    DocumentParser parseDocument, musx::dom::PartVoicingPolicy partVoicingPolicy)
 {
     ImportResult result(parsed.formatEpoch);
     {
@@ -40,7 +40,8 @@ ImportResult readImpl(std::span<const std::uint8_t> data, const container::Parse
         }
     }
 
-    result.document = createDocument(parsed, data.data(), data.size(), sourcePath, resources, parseXml, parseDocument, result.report);
+    result.document = createDocument(parsed, data.data(), data.size(), sourcePath, resources, parseXml, parseDocument, result.report,
+        DeferredOrder::AsRegistered, partVoicingPolicy);
 
     // Each diagnostic goes out at its own level. Forwarding them all as warnings was what
     // made a routine fallback indistinguishable from an unreadable document.
@@ -93,14 +94,14 @@ Reader Reader::createWithParser(const ReaderOptions& options, XmlParser parseXml
     return Reader(std::make_shared<detail::ReaderResources>(detail::prepareReaderResources(options, parseXml)), parseXml, parseDocument);
 }
 
-musx::dom::DocumentPtr Reader::read(const std::filesystem::path& path) const
+musx::dom::DocumentPtr Reader::read(const std::filesystem::path& path, const ImportOptions& importOptions) const
 {
-    return readPrepared(path).document;
+    return readPrepared(path, importOptions).document;
 }
 
-musx::dom::DocumentPtr Reader::read(std::span<const std::uint8_t> data) const
+musx::dom::DocumentPtr Reader::read(std::span<const std::uint8_t> data, const ImportOptions& importOptions) const
 {
-    return readPrepared(data).document;
+    return readPrepared(data, importOptions).document;
 }
 
 MusRecognitionResult recognize(std::span<const std::uint8_t> data) noexcept
@@ -109,18 +110,18 @@ MusRecognitionResult recognize(std::span<const std::uint8_t> data) noexcept
 }
 
 #if defined(FINALE_MUS_READER_ENABLE_INSTRUMENTATION)
-ImportResult Reader::readWithReport(const std::filesystem::path& path) const
+ImportResult Reader::readWithReport(const std::filesystem::path& path, const ImportOptions& importOptions) const
 {
-    return readPrepared(path);
+    return readPrepared(path, importOptions);
 }
 
-ImportResult Reader::readWithReport(std::span<const std::uint8_t> data) const
+ImportResult Reader::readWithReport(std::span<const std::uint8_t> data, const ImportOptions& importOptions) const
 {
-    return readPrepared(data);
+    return readPrepared(data, importOptions);
 }
 #endif // defined(FINALE_MUS_READER_ENABLE_INSTRUMENTATION)
 
-ImportResult Reader::readPrepared(const std::filesystem::path& path) const
+ImportResult Reader::readPrepared(const std::filesystem::path& path, const ImportOptions& importOptions) const
 {
     auto data = [&] {
         FINALE_MUS_READER_TIMED_SCOPE(timing::Phase::FileIo);
@@ -149,10 +150,13 @@ ImportResult Reader::readPrepared(const std::filesystem::path& path) const
         FINALE_MUS_READER_TIMED_SCOPE(timing::Phase::ContainerParse);
         return container::parse(data.data(), data.size());
     }();
-    return runGuarded(parsed.formatEpoch, [&] { return readImpl(data, parsed, path, *m_resources, m_parseXml, m_parseDocument); });
+    return runGuarded(parsed.formatEpoch, [&] {
+        return readImpl(
+            data, parsed, importOptions.sourcePath.value_or(path), *m_resources, m_parseXml, m_parseDocument, importOptions.partVoicingPolicy);
+    });
 }
 
-ImportResult Reader::readPrepared(std::span<const std::uint8_t> data) const
+ImportResult Reader::readPrepared(std::span<const std::uint8_t> data, const ImportOptions& importOptions) const
 {
     if (data.empty()) {
         throw std::invalid_argument("MUS input is empty");
@@ -161,7 +165,8 @@ ImportResult Reader::readPrepared(std::span<const std::uint8_t> data) const
         FINALE_MUS_READER_TIMED_SCOPE(timing::Phase::ContainerParse);
         return container::parse(data.data(), data.size());
     }();
-    return runGuarded(parsed.formatEpoch, [&] { return readImpl(data, parsed, std::nullopt, *m_resources, m_parseXml, m_parseDocument); });
+    return runGuarded(parsed.formatEpoch,
+        [&] { return readImpl(data, parsed, importOptions.sourcePath, *m_resources, m_parseXml, m_parseDocument, importOptions.partVoicingPolicy); });
 }
 
 } // namespace finale_mus_reader

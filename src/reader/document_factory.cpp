@@ -59,7 +59,7 @@ void describeSourceIdentity(const std::uint8_t* data, std::size_t size, ImportRe
 
 musx::dom::DocumentPtr createDocument(const container::ParsedContainer& parsed, const std::uint8_t* data, std::size_t size,
     const std::optional<std::filesystem::path>& sourcePath, const detail::ReaderResources& resources, XmlParser parseXml,
-    DocumentParser parseDocument, ImportReport& report, DeferredOrder deferredOrder)
+    DocumentParser parseDocument, ImportReport& report, DeferredOrder deferredOrder, musx::dom::PartVoicingPolicy partVoicingPolicy)
 {
     auto embeddedGraphics = [&] {
         FINALE_MUS_READER_TIMED_SCOPE(timing::Phase::EmbeddedGraphics);
@@ -69,6 +69,7 @@ musx::dom::DocumentPtr createDocument(const container::ParsedContainer& parsed, 
         FINALE_MUS_READER_TIMED_SCOPE(timing::Phase::ConstructionBegin);
         musx::factory::DocumentFactory::ConstructionOptions constructionOptions;
         constructionOptions.sourcePath = sourcePath;
+        constructionOptions.partVoicingPolicy = partVoicingPolicy;
         constructionOptions.embeddedGraphics = std::move(embeddedGraphics);
         return musx::factory::DocumentFactory::begin(std::move(constructionOptions));
     }();

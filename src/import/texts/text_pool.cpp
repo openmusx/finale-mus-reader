@@ -6,11 +6,12 @@
 
 #include <algorithm>
 #include <array>
-#include <format>
+#include <iomanip>
 #include <limits>
 #include <memory>
 #include <optional>
 #include <span>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -243,9 +244,12 @@ void reportUnread(
     if (!codes.empty()) {
         std::string message = "Legacy text commands this reader could not read were "
                               "dropped; their codes are";
+        std::ostringstream formattedCodes;
+        formattedCodes << std::hex << std::setfill('0');
         for (const auto code : codes) {
-            message += ' ' + std::format("0x{:02x}", code);
+            formattedCodes << " 0x" << std::setw(2) << unsigned(code);
         }
+        message += formattedCodes.str();
         report.diagnostics.push_back({musx::util::Logger::LogLevel::Info, message + "."});
     }
     if (!effects.empty()) {

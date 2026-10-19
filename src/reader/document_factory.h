@@ -35,6 +35,7 @@ void describeSourceIdentity(const std::uint8_t* data, std::size_t size, ImportRe
 /// @p deferredOrder is a testing aid; the reader always uses the default.
 [[nodiscard]] musx::dom::DocumentPtr createDocument(const container::ParsedContainer& parsed, const std::uint8_t* data, std::size_t size,
     const std::optional<std::filesystem::path>& sourcePath, const detail::ReaderResources& resources, XmlParser parseXml,
-    DocumentParser parseDocument, ImportReport& report, DeferredOrder deferredOrder = DeferredOrder::AsRegistered);
+    DocumentParser parseDocument, ImportReport& report, DeferredOrder deferredOrder = DeferredOrder::AsRegistered,
+    musx::dom::PartVoicingPolicy partVoicingPolicy = musx::dom::PartVoicingPolicy::Ignore);
 
 } // namespace finale_mus_reader
