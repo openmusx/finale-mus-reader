@@ -44,7 +44,10 @@ musx::dom::DocumentPtr makeMmRestDocument()
 void testMmRestEarlyLayoutMarker()
 {
     using MmRest = musx::dom::options::MultimeasureRestOptions;
-    const auto runImport = [](const std::vector<SyntheticRow>& rows, const SourceProfile& profile, ImportReport& report) {
+    // The shape, when defined, is added after the options importer runs, as the others pool is
+    // in a real import, so the H-bar check only finds it if it waits for the deferred phase.
+    const auto runImport = [](const std::vector<SyntheticRow>& rows, const SourceProfile& profile, ImportReport& report,
+                               std::optional<musx::dom::Cmper> definedShape = std::nullopt) {
         const auto document = makeMmRestDocument();
         const auto reference = makeMmRestDocument();
         const auto index = LegacyRecordIndex::build(makeContainer(rows));
@@ -52,7 +55,18 @@ void testMmRestEarlyLayoutMarker()
         musx::factory::ConstructionContext construction;
         const finale_mus_reader::ImportContext context{index, profile, noSource, document, reference, report, pending, construction};
         finale_mus_reader::options::importMultimeasureRestOptions(context);
+        if (definedShape) {
+            document->getOthers()->add(
+                musx::dom::others::ShapeDef::XmlNodeName, std::make_shared<musx::dom::others::ShapeDef>(document, musx::dom::SCORE_PARTID,
+                                                              musx::dom::EnigmaBase::ShareMode::All, *definedShape));
+        }
+        finale_mus_reader::runDeferredChecks(pending);
         return document->getOptions()->get<MmRest>();
+    };
+    const auto notesHBar = [](const ImportReport& report) {
+        return std::any_of(report.diagnostics.begin(), report.diagnostics.end(), [](const finale_mus_reader::Diagnostic& entry) {
+            return entry.level == musx::util::Logger::LogLevel::Verbose && entry.message.find("H-bar") != std::string::npos;
+        });
     };
 
     // The early record: one incidence, the adjustment and shape in slots 4 and 5. Read through
@@ -84,15 +98,13 @@ void testMmRestEarlyLayoutMarker()
             "An asserted early value was not reported as era behavior");
         expectMapping(field(report, "options.multimeasureRestOptions.symSpacing").origin == ValueOrigin::Finale27Default,
             "An early field the baseline supplies was claimed as read");
-        // These documents recover shape 5 and define no shapes at all, which is the ordinary
-        // Finale case rather than a fault: a document commonly names an H-bar shape its own
-        // file never carries. It must be noted, and only at Verbose, so that a host filtering
-        // for real problems does not see a false one per document.
-        expectMapping(std::any_of(report.diagnostics.begin(), report.diagnostics.end(),
-                          [](const finale_mus_reader::Diagnostic& entry) {
-                              return entry.level == musx::util::Logger::LogLevel::Verbose && entry.message.find("H-bar") != std::string::npos;
-                          }),
-            "A multimeasure-rest H-bar naming an undefined shape was not noted at Verbose");
+        // These documents recover shape 5 and define no shapes at all. The dangling reference is
+        // kept and noted, only at Verbose.
+        expectMapping(notesHBar(report), "A multimeasure-rest H-bar naming an undefined shape was not noted at Verbose");
+        // Once the shape pool defines it, the same reference is not dangling.
+        ImportReport definedReport(FormatEpoch::UncompressedLegacy);
+        runImport(early, profile, definedReport, musx::dom::Cmper(5));
+        expectMapping(!notesHBar(definedReport), "A multimeasure-rest H-bar naming a defined shape was noted as undefined");
     }
 
     // The same reader on the two-incidence record, including under versions that predate the

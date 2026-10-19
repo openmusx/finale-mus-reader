@@ -316,8 +316,8 @@ void captureMultimeasureRestOptions(
 }
 
 /// @brief Checks the recovered H-bar shape reference against the shape pool.
-/// @details Runs after the shape definitions are decoded, which the registry guarantees by
-/// filling the others pool before any options class.
+/// @details The shape definitions belong to another importer, and the options pool runs before
+/// the others pool, so this must run in the deferred phase that follows every importer.
 void validateMultimeasureRestOptions(const musx::dom::DocumentPtr& document, ImportReport& report)
 {
     const auto target = document->getOptions()->get<MmRestTarget>();
@@ -329,10 +329,8 @@ void validateMultimeasureRestOptions(const musx::dom::DocumentPtr& document, Imp
     // is what the source says, and substituting the baseline's own shape would name a
     // different document's drawing.
     //
-    // Verbose, because this is ordinary Finale behavior and not a sign that anything went
-    // wrong. Documents commonly name an H-bar shape they never define, carrying no shape records
-    // at all, and Finale supplies the drawing from its own resources. Reporting it at a higher
-    // level would flag a normal document, which is how a diagnostic channel stops being read.
+    // Verbose, because the stored value is kept and nothing is lost: this notes the dangling
+    // reference for investigation rather than reporting a problem a host must act on.
     if (!document->getOthers()->get<musx::dom::others::ShapeDef>(musx::dom::SCORE_PARTID, target->shapeDef)) {
         report.diagnostics.push_back(
             {musx::util::Logger::LogLevel::Verbose, "The multimeasure rest H-bar names shape definition " + std::to_string(target->shapeDef)
@@ -350,7 +348,7 @@ void importMultimeasureRestOptions(const ImportContext& context)
     captureMultimeasureRestOptions(context.index, context.profile, context.document, context.report);
     applyMappingTables({&earlyMmRestTable(), &mmRestTable(), &mmRestAutoUpdateTable(), &classMmRestTable(), &classMmRestAutoUpdateTable()},
         context.index, context.profile, context.document, context.report);
-    validateMultimeasureRestOptions(context.document, context.report);
+    context.pending.defer(DeferredStage::ResolveStoredRefs, [&context] { validateMultimeasureRestOptions(context.document, context.report); });
 }
 
 } // namespace options
