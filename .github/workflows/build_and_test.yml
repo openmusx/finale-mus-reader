@@ -133,6 +133,61 @@ jobs:
       - name: Run tests
         run: ctest --test-dir build --output-on-failure
 
+  consumer-build:
+    name: Consumer / ${{ matrix.platform }} / ${{ matrix.method }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: native
+            method: SUBDIRECTORY
+            supplyDependencies: 'ON'
+          - platform: native
+            method: FETCHCONTENT
+            supplyDependencies: 'OFF'
+          - platform: wasm
+            method: SUBDIRECTORY
+            supplyDependencies: 'OFF'
+          - platform: wasm
+            method: FETCHCONTENT
+            supplyDependencies: 'ON'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y g++ ninja-build
+
+      - name: Set up Emscripten
+        if: matrix.platform == 'wasm'
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: '5.0.7'
+
+      - name: Configure native consumer
+        if: matrix.platform == 'native'
+        run: >-
+          cmake -S tests/consumer -B build-consumer -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DREADER_CONSUMER_METHOD=${{ matrix.method }}
+          -DREADER_CONSUMER_SUPPLY_DEPENDENCIES=${{ matrix.supplyDependencies }}
+
+      - name: Configure WebAssembly consumer
+        if: matrix.platform == 'wasm'
+        run: >-
+          emcmake cmake -S tests/consumer -B build-consumer -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DREADER_CONSUMER_METHOD=${{ matrix.method }}
+          -DREADER_CONSUMER_SUPPLY_DEPENDENCIES=${{ matrix.supplyDependencies }}
+
+      - name: Build consumer
+        run: cmake --build build-consumer --parallel 2
+
+      - name: Run consumer checks
+        run: ctest --test-dir build-consumer --output-on-failure
+
   non-instrumented-build:
     strategy:
       matrix:

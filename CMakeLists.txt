@@ -23,7 +23,13 @@ if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
-option(FINALE_MUS_READER_BUILD_TESTING "Build Legacy Finale MUS Reader tests" ON)
+set(FINALE_MUS_READER_DEFAULT_TESTING OFF)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR AND NOT EMSCRIPTEN)
+    set(FINALE_MUS_READER_DEFAULT_TESTING ON)
+endif()
+option(FINALE_MUS_READER_BUILD_TESTING "Build Legacy Finale MUS Reader tests"
+    ${FINALE_MUS_READER_DEFAULT_TESTING})
+unset(FINALE_MUS_READER_DEFAULT_TESTING)
 option(FINALE_MUS_READER_BUILD_REPORTING_TESTING
     "Build the standalone reporting test in either instrumentation mode"
     ${FINALE_MUS_READER_BUILD_TESTING})
@@ -41,7 +47,7 @@ endif()
 set(FINALE_MUS_READER_MUSXDOM_SOURCE_DIR "" CACHE PATH
     "Use an existing musxdom source tree instead of fetching the pinned revision")
 
-include(FetchContent)
+include(cmake/ReaderDependencies.cmake)
 
 # Unity compilation is this project's normal build, not a dependency's. Each project-owned
 # target opts in explicitly below so the setting cannot impose an amalgamation policy on code
@@ -75,11 +81,7 @@ elseif(FINALE_MUS_READER_USE_SYSTEM_ZLIB)
     set(FINALE_MUS_READER_ZLIB_TARGET ZLIB::ZLIB)
 else()
     set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Do not build zlib examples")
-    FetchContent_Declare(zlib
-        URL https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
-        URL_HASH SHA256=9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
-        DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
-
+    finale_mus_reader_declare_zlib()
     set(FINALE_MUS_READER_SAVED_DEV_WARNINGS
         "${CMAKE_SUPPRESS_DEVELOPER_WARNINGS}")
     set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON CACHE INTERNAL "")
@@ -91,6 +93,10 @@ else()
         set_target_properties(zlib PROPERTIES
             EXCLUDE_FROM_ALL TRUE
             EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+        if(EMSCRIPTEN)
+            # Both targets otherwise produce libz.a on platforms without shared libraries.
+            set_target_properties(zlib PROPERTIES OUTPUT_NAME z_shared)
+        endif()
     endif()
 
     finale_mus_reader_keep_out_of_unity(zlib zlibstatic)
@@ -115,7 +121,7 @@ if(TARGET musx)
     get_target_property(FINALE_MUS_READER_MUSXDOM_SOURCE musx SOURCE_DIR)
     set(FINALE_MUS_READER_MUSXDOM_ORIGIN "existing musx target")
 else()
-    set(musx_BUILD_TESTING OFF CACHE BOOL "Do not build musxdom tests" FORCE)
+    set(musx_BUILD_TESTING OFF CACHE BOOL "Do not build musxdom tests")
 
     if(FINALE_MUS_READER_MUSXDOM_SOURCE_DIR)
         get_filename_component(FINALE_MUS_READER_MUSXDOM_SOURCE_DIR
@@ -131,10 +137,7 @@ else()
             "${FINALE_MUS_READER_MUSXDOM_SOURCE_DIR}")
         set(FINALE_MUS_READER_MUSXDOM_ORIGIN "local source tree")
     else()
-        FetchContent_Declare(musxdom
-            GIT_REPOSITORY https://github.com/openmusx/musxdom.git
-            GIT_TAG 4f29939c68e2855e0494b059efa15761899374da
-            GIT_SHALLOW FALSE)
+        finale_mus_reader_declare_musxdom()
         FetchContent_MakeAvailable(musxdom)
         set(FINALE_MUS_READER_MUSXDOM_SOURCE "${musxdom_SOURCE_DIR}")
         set(FINALE_MUS_READER_MUSXDOM_ORIGIN "fetched pinned revision")
@@ -291,6 +294,7 @@ set_source_files_properties(src/import/others/text_repeat_assign.cpp
     PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 finale_mus_reader_enable_unity(finale_mus_reader)
 add_library(finale_mus_reader::finale_mus_reader ALIAS finale_mus_reader)
+target_compile_features(finale_mus_reader PUBLIC cxx_std_20)
 
 # The same warning policy as the tests: every diagnostic is a build break.
 if(MSVC)
@@ -334,9 +338,7 @@ endif()
 #
 # iconv is not linked, probed for, or compiled on Apple: macOS ships its own libiconv that
 # would otherwise be found and silently linked, and the source guards the iconv path behind
-# the same condition. That leaves iconv exercised only by the Linux CI, which is the
-# accepted cost of decoding classic Mac encodings accurately on the platform that wrote
-# most of them.
+# the same condition. Linux and Emscripten exercise the iconv path.
 if(WIN32)
     # MultiByteToWideChar and WideCharToMultiByte are in the standard Win32 libraries.
 elseif(APPLE)
@@ -361,10 +363,7 @@ if(FINALE_MUS_READER_BUILD_TESTING)
         set(FINALE_MUS_READER_PUGIXML_TARGET pugixml::pugixml)
     else()
         set(PUGIXML_BUILD_TESTS OFF CACHE BOOL "Do not build pugixml tests")
-        FetchContent_Declare(pugixml
-            URL https://github.com/zeux/pugixml/releases/download/v1.15/pugixml-1.15.tar.gz
-            URL_HASH SHA256=655ade57fa703fb421c2eb9a0113b5064bddb145d415dd1f88c79353d90d511a
-            DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+        finale_mus_reader_declare_pugixml()
         FetchContent_MakeAvailable(pugixml)
         finale_mus_reader_keep_out_of_unity(pugixml pugixml-static)
         set(FINALE_MUS_READER_PUGIXML_TARGET pugixml)

@@ -85,7 +85,72 @@ templated on a concrete implementation of `musx::xml::IXmlDocument`, in parallel
 `DocumentFactory`. Only the tests fetch pugixml and instantiate the reader with its musxdom
 adapter.
 
-Set `FINALE_MUS_READER_BUILD_TESTING=OFF` when consuming the library without its tests.
+Tests default to on for standalone native builds and off for subprojects and Emscripten.
+`FINALE_MUS_READER_BUILD_TESTING` overrides that default;
+`FINALE_MUS_READER_BUILD_REPORTING_TESTING` defaults to the same value.
+
+### Consuming from a parent build
+
+The parent selects and configures one compatible musxdom revision before adding the reader.
+When the `musx` target already exists, the reader uses it in preference to its local-source
+option and pinned fallback. The parent also owns musxdom's compile-time settings. The reader
+does not force musxdom's test option. Dependency declarations and standalone pins live in
+[`cmake/ReaderDependencies.cmake`](cmake/ReaderDependencies.cmake).
+
+```cmake
+# Configure and add the application's chosen musxdom first, creating the musx target.
+set(musx_BUILD_TESTING OFF CACHE BOOL "Build musxdom tests")
+add_subdirectory(dependencies/musxdom)
+add_subdirectory(dependencies/finale-mus-reader)
+
+target_link_libraries(my_application PRIVATE
+    musx
+    finale_mus_reader::finale_mus_reader)
+```
+
+`FetchContent_MakeAvailable()` is equally supported; make musxdom available before the reader.
+Supply zlib before the reader too when the application uses it elsewhere. Existing dependency
+targets take priority over fetching, so all users share one instance.
+
+A client using musxdom types directly should declare its dependency on `musx` as well as the
+reader. A client using only the reader receives musxdom transitively through the reader's
+public link interface, which also requires C++20 or higher. The reader is an input adapter;
+exporters consume the resulting musxdom document and need no reader dependency themselves.
+The standalone pin is a tested fallback, not a guarantee that every musxdom revision is
+compatible. Validate the parent's selected revision with the reader before integration.
+
+### WebAssembly
+
+Use the Emscripten toolchain for the entire parent build. Enable exceptions consistently before
+adding musxdom, the reader, and other C++ dependencies, for example:
+
+```bash
+emcmake cmake -S my_application -B build-wasm -DCMAKE_CXX_FLAGS=-fexceptions
+cmake --build build-wasm
+```
+
+The reader uses Emscripten's built-in iconv and its existing portable Mac encoding tables;
+no additional conversion library is needed. Application-specific link options, exported
+functions, memory limits, and filesystem support belong to the application. For a filesystem-free
+application, supply MUS bytes to the span overload of `Reader::read`. The final link must also
+enable exceptions; the example's `CMAKE_CXX_FLAGS` applies at compilation and linking.
+
+The independent consumer checks exercise native and WebAssembly imports without integrating
+denigma. They supply their own XML backend and embed an existing fixture into the build:
+
+```bash
+cmake -S tests/consumer -B build-consumer -DREADER_CONSUMER_METHOD=SUBDIRECTORY
+cmake --build build-consumer
+ctest --test-dir build-consumer --output-on-failure
+
+emcmake cmake -S tests/consumer -B build-consumer-wasm -DREADER_CONSUMER_METHOD=FETCHCONTENT
+cmake --build build-consumer-wasm
+ctest --test-dir build-consumer-wasm --output-on-failure
+```
+
+Set `READER_CONSUMER_SUPPLY_DEPENDENCIES=OFF` to exercise the reader's fallback dependency
+setup instead. `FETCHCONTENT_SOURCE_DIR_MUSXDOM` can select a compatible source checkout for
+these checks, including the revision a downstream application intends to supply.
 
 Reader diagnostics and phase timing are controlled together by
 `FINALE_MUS_READER_INSTRUMENTATION`, whose values are `AUTO`, `ON`, and `OFF`. `AUTO`
