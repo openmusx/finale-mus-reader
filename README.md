@@ -9,10 +9,9 @@ musxdom; musxdom does not depend on this library and contains no legacy `.mus` d
 
 ## Status
 
-The reader is a narrow, verified importer rather than a complete one. For every supported
-document it creates a musxdom document with a complete Finale 27 options pool, recovers the
-header, validates the container, and overlays every legacy value it has verified. It is not yet
-a complete score importer: entries (notes and rests) and their details are not imported.
+For every supported document, the reader creates a musxdom document with a complete Finale 27
+options pool, recovers the header, validates the container, and overlays every legacy value it
+has verified. Ossias are the only score content not yet read.
 
 What it does:
 
