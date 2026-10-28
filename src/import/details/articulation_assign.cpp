@@ -17,6 +17,7 @@ constexpr auto assignmentTag = records::packTag("IM");
 constexpr records::LegacyTag assignmentClass = 0x03f1;
 constexpr std::size_t fixedWordsPerAssignment = 5;
 constexpr std::size_t classWordsPerAssignment = 10;
+constexpr std::size_t assignmentVerticalOffsetSlot = 3;
 
 void importSource(const ImportContext& context, const RecordFamilySource& source)
 {
@@ -38,7 +39,7 @@ void importSource(const ImportContext& context, const RecordFamilySource& source
                 target->articDef = static_cast<musx::dom::Cmper>(static_cast<std::uint16_t>(words[at]));
                 target->horzOffset = words[at + 1];
                 target->horzAdd = words[at + 2];
-                target->vertOffset = words[at + 3];
+                target->vertOffset = words[at + assignmentVerticalOffsetSlot];
                 target->vertAdd = words[at + 4];
                 target->neverStack = true;
                 target->numSlursAvoided = -1;
@@ -56,7 +57,7 @@ void importSource(const ImportContext& context, const RecordFamilySource& source
                     stored("articDef", 0);
                     stored("horzOffset", 1);
                     stored("horzAdd", 2);
-                    stored("vertOffset", 3);
+                    stored("vertOffset", assignmentVerticalOffsetSlot);
                     stored("vertAdd", 4);
                     if (source.classRecords) {
                         stored("hide", 5);
@@ -71,6 +72,64 @@ void importSource(const ImportContext& context, const RecordFamilySource& source
                 });
                 context.document->getDetails()->add(Target::XmlNodeName, std::move(target));
             }
+        }
+    }
+}
+
+/// @brief Converts the stored vertical offset to the maintained-placement convention.
+/// @details Below-entry placement reverses the old sign before automatic placement removes
+/// the definition's default distance. Both operations store a signed 16-bit result.
+/// Score changes propagate through part link masks; unlinked part offsets are preserved.
+/// Rest and reversed-stem geometry corrections require layout and are not applied here.
+void normalizeArticulationVerticalOffsets(const ImportContext& context, const RecordFamilySource& source)
+{
+    using Definition = musx::dom::others::ArticulationDef;
+    const auto assignments = context.document->getDetails()->getAllSources<Target>();
+    // Complete score normalization before merging any linked part bits.
+    for (const bool parts : {false, true}) {
+        for (const auto& assignment : assignments) {
+            const auto partId = assignment->getSourcePartId();
+            if ((partId != musx::dom::SCORE_PARTID) != parts) {
+                continue;
+            }
+            const auto number = assignment->getEntryNumber();
+            auto offset = assignment->vertOffset;
+            if (!parts) {
+                const auto definition = assignment->articDef == 0
+                                            ? nullptr
+                                            : context.document->getOthers()->get<Definition>(musx::dom::SCORE_PARTID, assignment->articDef);
+                if (!definition) {
+                    continue;
+                }
+                if (definition->autoVertMode == Definition::AutoVerticalMode::BelowEntry) {
+                    offset = static_cast<std::int16_t>(-offset);
+                }
+                if (definition->autoVert) {
+                    offset = static_cast<std::int16_t>(offset - definition->defVertPos);
+                }
+            } else {
+                const auto rows =
+                    source.pool->getArray(source.identity, static_cast<std::uint16_t>(number >> 16U), static_cast<std::uint16_t>(number), partId);
+                const auto at = static_cast<std::size_t>(assignment->getInci().value_or(0)) * classWordsPerAssignment;
+                const auto mask = partUnlinkedBits(source, rows, at + assignmentVerticalOffsetSlot, context.profile.byteOrder);
+                const auto score = context.document->getDetails()->get<Target>(musx::dom::SCORE_PARTID, number, assignment->getInci());
+                if (!mask || *mask == 0xffffU || !score) {
+                    continue;
+                }
+                offset = static_cast<std::int16_t>(
+                    (static_cast<std::uint16_t>(score->vertOffset) & ~*mask) | (static_cast<std::uint16_t>(offset) & *mask));
+            }
+            if (offset == assignment->vertOffset) {
+                continue;
+            }
+            std::const_pointer_cast<Target>(assignment)->vertOffset = offset;
+            withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+                const auto key = reporting.template instanceKey<Target>(
+                    partId, static_cast<musx::dom::Cmper>(number >> 16U), assignment->getInci(), static_cast<musx::dom::Cmper>(number));
+                if (auto* field = reporting.report().findField(key, "vertOffset")) {
+                    field->origin = Reporting::Origin::LegacyMusAdjusted;
+                }
+            });
         }
     }
 }
@@ -105,6 +164,8 @@ void importArticulationAssigns(const ImportContext& context)
         selectRecordFamilySource(context, context.index.getDetails(), context.index.getClassDetails(), assignmentTag, assignmentClass, true);
     if (source) {
         importSource(context, *source);
+        context.pending.defer(
+            DeferredStage::NormalizeStoredValues, [&context, source = *source] { normalizeArticulationVerticalOffsets(context, source); });
     }
     if (sourcePredatesVersion(context.profile, FormatEpoch::UncompressedLegacy, versions::finale3_0)) {
         context.pending.defer(DeferredStage::RefreshDerivedFlags, [&context] { clearUnassignedArticulationFlags(context); });
