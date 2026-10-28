@@ -127,7 +127,7 @@ TEST_CASE("Articulation maintained-placement offsets normalize after definitions
                     const auto assignment = document->getDetails()->get<Target>(0, 0x2001b, musx::dom::Inci(0));
                     REQUIRE(assignment);
                     CHECK(assignment->vertOffset == position.stored);
-                    const auto key = finale_mus_reader::instanceKey<Target>(0, musx::dom::Cmper(2), musx::dom::Inci(0), musx::dom::Cmper(0x2001b));
+                    const auto key = finale_mus_reader::instanceKey<Target>(0, musx::dom::Cmper(2), musx::dom::Inci(0), musx::dom::Cmper(27));
                     const auto* vertical = report.findField(key, "vertOffset");
                     REQUIRE(vertical);
                     const auto before = *vertical;
@@ -179,7 +179,7 @@ TEST_CASE("Articulation vertical normalization propagates only through linked pa
         musx::factory::ConstructionContext construction;
         const finale_mus_reader::ImportContext context{index, profile, noSource, document, reference, report, pending, construction};
         finale_mus_reader::details::importArticulationAssigns(context);
-        auto definition = std::make_shared<Definition>(document, 0, musx::dom::EnigmaBase::ShareMode::All, 1);
+        auto definition = std::make_shared<Definition>(document, musx::dom::Cmper(0), musx::dom::EnigmaBase::ShareMode::All, musx::dom::Cmper(1));
         definition->autoVert = true;
         definition->defVertPos = 24;
         definition->autoVertMode = Definition::AutoVerticalMode::AboveEntry;
@@ -187,7 +187,8 @@ TEST_CASE("Articulation vertical normalization propagates only through linked pa
         SECTION("Part assignments inherit the score definition") {}
         SECTION("Part assignments use a part-specific definition")
         {
-            auto partDefinition = std::make_shared<Definition>(document, 1, musx::dom::EnigmaBase::ShareMode::None, 1);
+            auto partDefinition =
+                std::make_shared<Definition>(document, musx::dom::Cmper(1), musx::dom::EnigmaBase::ShareMode::None, musx::dom::Cmper(1));
             partDefinition->autoVert = true;
             partDefinition->defVertPos = 12;
             partDefinition->autoVertMode = Definition::AutoVerticalMode::BelowEntry;
