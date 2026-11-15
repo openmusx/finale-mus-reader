@@ -57,13 +57,13 @@ std::string readRowText(
 
 std::optional<RecordFamilySource> selectRecordFamilySource(const ImportContext& context, const records::LegacyRowPool& fixedPool,
     const records::LegacyRowPool& classPool, records::LegacyTag fixedTag, records::LegacyTag classId, bool details,
-    std::span<const CompactPartLayout> compactPartLayouts)
+    std::span<const std::size_t> compactPartPayloadSizes)
 {
     switch (context.profile.epoch) {
     case FormatEpoch::CodaBanner:
     case FormatEpoch::UncompressedLegacy:
     case FormatEpoch::DclLegacy: return RecordFamilySource{&fixedPool, fixedTag, false, details};
-    case FormatEpoch::ZlibLegacy: return RecordFamilySource{&classPool, classId, true, details, compactPartLayouts};
+    case FormatEpoch::ZlibLegacy: return RecordFamilySource{&classPool, classId, true, details, compactPartPayloadSizes};
     }
     return std::nullopt;
 }
@@ -93,18 +93,13 @@ musx::dom::EnigmaBase::ShareMode recordShareMode(const RecordFamilySource& sourc
     if (!source.classRecords || row.partId == musx::dom::SCORE_PARTID) {
         return ShareMode::All;
     }
-    if (row.continuationSize != 0) {
+    if (row.maskSize != 0) {
         return ShareMode::Partial;
     }
-
-    for (const auto& layout : source.compactPartLayouts) {
-        if (row.payloadSize != layout.partPayloadSize) {
-            continue;
-        }
-        const auto* score = source.pool->get(source.identity, row.cmper1, row.cmper2, row.inci, musx::dom::SCORE_PARTID);
-        if (score && score->payloadSize == layout.scorePayloadSize) {
-            return ShareMode::Partial;
-        }
+    const auto& sizes = source.compactPartPayloadSizes;
+    if (std::find(sizes.begin(), sizes.end(), row.payloadSize) != sizes.end()
+        && source.pool->get(source.identity, row.cmper1, row.cmper2, row.inci, musx::dom::SCORE_PARTID)) {
+        return ShareMode::Partial;
     }
     return ShareMode::None;
 }
@@ -146,16 +141,12 @@ std::optional<std::uint16_t> partUnlinkedBits(
         return std::nullopt;
     }
     const auto& row = source.rowOfWord(rows, wordSlot);
-    if (row.partId == musx::dom::SCORE_PARTID || !row.continuationOverlayReady) {
+    const auto mask = source.pool->maskOf(row);
+    const auto offset = source.byteOffsetInRow(wordSlot * sizeof(std::uint16_t));
+    if (offset + sizeof(std::uint16_t) > mask.size()) {
         return std::nullopt;
     }
-    constexpr std::size_t continuationPrefixSize = 4;
-    const auto continuation = source.pool->continuationOf(row);
-    const auto offset = continuationPrefixSize + source.byteOffsetInRow(wordSlot * sizeof(std::uint16_t));
-    if (offset + sizeof(std::uint16_t) > continuation.size()) {
-        return std::nullopt;
-    }
-    return payloadWord(continuation, offset, byteOrder);
+    return payloadWord(mask, offset, byteOrder);
 }
 
 bool partRecordUnlinked(const RecordFamilySource& source, std::span<const records::LegacyRow> rows, std::size_t at,
@@ -165,7 +156,7 @@ bool partRecordUnlinked(const RecordFamilySource& source, std::span<const record
         return true;
     }
     const auto& row = source.rowOfWord(rows, at);
-    if (row.partId == musx::dom::SCORE_PARTID || !row.continuationOverlayReady) {
+    if (row.maskSize == 0) {
         return true;
     }
     for (std::size_t word = 0; word < comparedBits.size(); ++word) {
@@ -979,7 +970,7 @@ void applyMappingTables(const std::vector<const MappingTable*>& tables, const re
             const auto& pool = table.encoding == RecordEncoding::ClassRecord ? index.getClassOthers() : index.getOthers();
             if (effective.applicable) {
                 const RecordFamilySource source{
-                    &pool, table.recordIdentity, table.encoding == RecordEncoding::ClassRecord, false, table.compactPartLayouts};
+                    &pool, table.recordIdentity, table.encoding == RecordEncoding::ClassRecord, false, table.compactPartPayloadSizes};
                 for (const auto& [partId, cmper] : recordKeys(source)) {
                     const auto rows = pool.getArray(table.recordIdentity, cmper, 0, partId);
                     if (rows.empty() || (skipRecord && skipRecord(partId, cmper))) {

@@ -97,20 +97,19 @@ constexpr std::size_t measureWordsThroughFinale98 = 6;
 constexpr std::size_t measureWordsThroughFinale2004 = 12;
 constexpr std::size_t measureWordsFromFinale2005 = 13;
 
-// The compact record a zlib-era part carries for a measure it has unlinked. Four words, and only
-// the four values a part may differ in; everything else comes from the score object this overlays.
-// The flag word is its own, not a copy of either flag word of the score layout: the positioning
-// mode occupies the same low bits, but the page break sits at 0x4000, where the score record's
-// first flag word spells "hide cautionary".
-constexpr std::size_t measureCompactPartPayloadSize = 8;
+// The compact record a zlib-era part carries for a measure it has unlinked: only the four values
+// a part may differ in; everything else comes from the score object this overlays. It is the only
+// form a part measure takes. The full form is four words; the short form is the first two, and
+// its part has no extra front or back space. The flag word is its own, not a copy of either flag
+// word of the score layout: the positioning mode occupies the same low bits, but the page break
+// sits at 0x4000, where the score record's first flag word spells "hide cautionary".
 constexpr std::size_t measureCompactWidthSlot = 0;
 constexpr std::size_t measureCompactFlagSlot = 1;
 constexpr std::size_t measureCompactFrontSpaceExtraSlot = 2;
 constexpr std::size_t measureCompactBackSpaceExtraSlot = 3;
 constexpr std::uint16_t measureCompactPageBreakMask = 0x4000;
 
-constexpr std::size_t measureScorePayloadSize = 26;
-constexpr CompactPartLayout measureCompactLayouts[] = {{measureScorePayloadSize, measureCompactPartPayloadSize}};
+constexpr std::size_t measureCompactPartPayloadSizes[] = {8, 4};
 
 // The first flag word (slot 4). Every bit below holds its position from Finale 1.0.0 through
 // Finale 2012 except @ref primaryNoBarlineMask, which the Coda-banner epoch uses for something else
@@ -638,12 +637,29 @@ void importOneMeasure(const ImportContext& context, const RecordFamilySource& so
 
 /// @brief Overlays one part's compact record onto the part object copied from the score.
 /// @details The part object already holds every score value, because @ref
-/// createOthersRecordTarget initialized it from the score instance the way a partially linked
-/// object is defined to be built. Only the four members the compact record carries are read here,
-/// and every other member keeps both the value and the provenance the score measure established.
-void importOneCompactPartMeasure(const ImportContext& context, const RecordFamilySource& source, const MeasureLayout& layout,
-    const records::LegacyRow& row, std::uint16_t partId, std::uint16_t cmper, MeasureTarget& target)
+/// createOthersRecordTarget initializes it from the score instance the way a partially linked
+/// object is defined to be built. Only the members the compact record carries are set here, and
+/// every other member keeps both the value and the provenance the score measure established. A
+/// part record of any other form, or one with no score measure to overlay, is not a part measure.
+void importOnePartMeasure(const ImportContext& context, const RecordFamilySource& source, const MeasureLayout& layout, const records::LegacyRow& row,
+    std::uint16_t partId, std::uint16_t cmper)
 {
+    if (recordShareMode(source, row) != musx::dom::EnigmaBase::ShareMode::Partial) {
+        context.report.diagnostics.push_back({musx::util::Logger::LogLevel::Info,
+            "Part " + std::to_string(partId) + " stores measure " + std::to_string(cmper) + " in a " + std::to_string(row.payloadSize)
+                + "-byte record that is not a compact part measure; it was not imported."});
+        return;
+    }
+    auto instance = createOthersRecordTarget<MeasureTarget>(context.document, source, row, cmper);
+    if (!instance) {
+        return;
+    }
+    if (!instance->globalKeySig) {
+        instance->globalKeySig = std::make_shared<musx::dom::KeySignature>(context.document);
+    }
+    auto& target = *instance;
+    context.document->getOthers()->add(MeasureTarget::XmlNodeName, std::move(instance));
+
     const auto record = readMeasureRecord(source, {&row, 1}, context.profile.byteOrder);
     MeasureDecoder decoder(context.report, record, layout, target);
     const auto flags = record.word(measureCompactFlagSlot);
@@ -651,10 +667,15 @@ void importOneCompactPartMeasure(const ImportContext& context, const RecordFamil
         "width", target.width, measureCompactWidthSlot, record.signedWord(measureCompactWidthSlot), record.signedWord(measureCompactWidthSlot));
     decoder.stored("positioningMode", target.positioningMode, measureCompactFlagSlot, positioningTypeOf(flags & primaryPositioningModeMask), flags);
     decoder.flag("pageBreak", target.pageBreak, measureCompactFlagSlot, measureCompactPageBreakMask);
-    decoder.stored("frontSpaceExtra", target.frontSpaceExtra, measureCompactFrontSpaceExtraSlot, record.signedWord(measureCompactFrontSpaceExtraSlot),
-        record.signedWord(measureCompactFrontSpaceExtraSlot));
-    decoder.stored("backSpaceExtra", target.backSpaceExtra, measureCompactBackSpaceExtraSlot, record.signedWord(measureCompactBackSpaceExtraSlot),
-        record.signedWord(measureCompactBackSpaceExtraSlot));
+    if (record.words.size() > measureCompactBackSpaceExtraSlot) {
+        decoder.stored("frontSpaceExtra", target.frontSpaceExtra, measureCompactFrontSpaceExtraSlot,
+            record.signedWord(measureCompactFrontSpaceExtraSlot), record.signedWord(measureCompactFrontSpaceExtraSlot));
+        decoder.stored("backSpaceExtra", target.backSpaceExtra, measureCompactBackSpaceExtraSlot, record.signedWord(measureCompactBackSpaceExtraSlot),
+            record.signedWord(measureCompactBackSpaceExtraSlot));
+    } else {
+        decoder.behavior("frontSpaceExtra", target.frontSpaceExtra, 0);
+        decoder.behavior("backSpaceExtra", target.backSpaceExtra, 0);
+    }
 
     withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
         const auto key = reporting.template instanceKey<MeasureTarget>(partId, cmper);
@@ -670,52 +691,12 @@ void importOneCompactPartMeasure(const ImportContext& context, const RecordFamil
     });
 }
 
-/// @brief Decodes one part's record, whichever of the two forms it takes.
-void importOnePartMeasure(const ImportContext& context, const RecordFamilySource& source, const MeasureLayout& layout,
-    std::span<const records::LegacyRow> rows, std::uint16_t partId, std::uint16_t cmper)
-{
-    auto instance = createOthersRecordTarget<MeasureTarget>(context.document, source, rows.front(), cmper);
-    if (!instance) {
-        return;
-    }
-    if (!instance->globalKeySig) {
-        instance->globalKeySig = std::make_shared<musx::dom::KeySignature>(context.document);
-    }
-    auto* target = instance.get();
-    const bool compact =
-        rows.front().payloadSize == measureCompactPartPayloadSize && instance->getShareMode() == musx::dom::EnigmaBase::ShareMode::Partial;
-    context.document->getOthers()->add(MeasureTarget::XmlNodeName, std::move(instance));
-
-    if (compact) {
-        importOneCompactPartMeasure(context, source, layout, rows.front(), partId, cmper, *target);
-        return;
-    }
-    // A part record that is not compact states the whole measure in the score layout, so it is
-    // decoded exactly as a score measure is.
-    const auto record = readMeasureRecord(source, rows, context.profile.byteOrder);
-    const auto display = readDisplayTimeSigRecord(context, source, layout, partId, cmper);
-    MeasureDecoder decoder(context.report, record, layout, *target, display ? &*display : nullptr);
-    decodeCommonWords(decoder);
-    decodePrimaryFlags(decoder);
-    decodeShowModes(decoder);
-    if (layout.flags == MeasureFlagLayout::Coda) {
-        decodeCodaSecondaryFlags(decoder);
-    } else {
-        decodeLaterSecondaryFlags(decoder);
-    }
-    decodeDisplayAndSpacingWords(decoder);
-    decodeAbsentMembers(decoder);
-    withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
-        reportMeasure(reporting, reporting.template instanceKey<MeasureTarget>(partId, cmper), record, decoder.fields(), source.identity);
-    });
-}
-
 } // namespace
 
 void importMeasures(const ImportContext& context)
 {
     const auto source = selectRecordFamilySource(context, context.index.getOthers(), context.index.getClassOthers(), measureTag, measureClass,
-        /*details*/ false, measureCompactLayouts);
+        /*details*/ false, measureCompactPartPayloadSizes);
     if (!source) {
         return;
     }
@@ -741,7 +722,7 @@ void importMeasures(const ImportContext& context)
                 context.report.diagnostics.push_back({musx::util::Logger::LogLevel::Warning,
                     "Part " + std::to_string(partId) + " stores measure " + std::to_string(cmper) + " beyond the score's last measure."});
             }
-            importOnePartMeasure(context, *source, layout, rows, partId, cmper);
+            importOnePartMeasure(context, *source, layout, rows.front(), partId, cmper);
         }
     }
 }

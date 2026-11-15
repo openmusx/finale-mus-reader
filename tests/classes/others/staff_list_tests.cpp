@@ -180,7 +180,7 @@ TEST_CASE("Category staff-list overrides are reported and ignored", "[class]")
     const auto report = importStaffLists(makeClassContainer(
                                              {
                                                  SyntheticClassRow{0x0131, {-1, 0, 0, 0, 0, 0}, 2},
-                                                 SyntheticClassRow{0x0133, {-2, 0, 0, 0, 0, 0}, 5, 3},
+                                                 SyntheticClassRow{0x0133, {-2, 0, 0, 0, 0, 0}, 5},
                                              },
                                              ByteOrder::LittleEndian),
         profile, document);
@@ -191,7 +191,7 @@ TEST_CASE("Category staff-list overrides are reported and ignored", "[class]")
     CHECK(report.diagnostics[0].level == musx::util::Logger::LogLevel::Info);
     CHECK(report.diagnostics[0].message.find("score staff-list override 2") != std::string::npos);
     CHECK(report.diagnostics[1].level == musx::util::Logger::LogLevel::Info);
-    CHECK(report.diagnostics[1].message.find("parts staff-list override 5 for part 3") != std::string::npos);
+    CHECK(report.diagnostics[1].message.find("parts staff-list override 5 for part 0") != std::string::npos);
 }
 
 TEST_CASE("Fixed-row repeat staff lists and forced arrays recover", "[class]")
@@ -232,7 +232,7 @@ TEST_CASE("Fixed-row repeat staff lists and forced arrays recover", "[class]")
     }
 }
 
-TEST_CASE("Class-record repeat staff lists retain part scope", "[class]")
+TEST_CASE("Class-record repeat staff lists recover", "[class]")
 {
     for (const auto byteOrder : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
         auto profile = profileFor(finale_mus_reader::versions::finale2012.major);
@@ -244,20 +244,20 @@ TEST_CASE("Class-record repeat staff lists retain part scope", "[class]")
             byteOrder == ByteOrder::BigEndian ? std::vector<std::int16_t>{0x5769, 0x6465, 0} : std::vector<std::int16_t>{0x6957, 0x6564, 0};
         const auto report = importStaffLists(makeClassContainer(
                                                  {
-                                                     SyntheticClassRow{0x00e1, nameWords, 11, 3},
-                                                     SyntheticClassRow{0x00e4, {-1, -2, 0}, 11, 3},
-                                                     SyntheticClassRow{0x00e2, {-3, 4, 0, 0, 0, 0, 5, 6, 0, 0, 0, 0}, 11, 3},
-                                                     SyntheticClassRow{0x00e5, {-2, 0}, 11, 3},
-                                                     SyntheticClassRow{0x00e3, {4, 0}, 11, 3},
-                                                     SyntheticClassRow{0x00e3, {0, 0}, 12, 3},
+                                                     SyntheticClassRow{0x00e1, nameWords, 11},
+                                                     SyntheticClassRow{0x00e4, {-1, -2, 0}, 11},
+                                                     SyntheticClassRow{0x00e2, {-3, 4, 0, 0, 0, 0, 5, 6, 0, 0, 0, 0}, 11},
+                                                     SyntheticClassRow{0x00e5, {-2, 0}, 11},
+                                                     SyntheticClassRow{0x00e3, {4, 0}, 11},
+                                                     SyntheticClassRow{0x00e3, {0, 0}, 12},
                                                  },
                                                  byteOrder),
             profile, document);
-        const auto name = document->getOthers()->get<RepeatName>(3, 11);
-        const auto score = document->getOthers()->get<RepeatScore>(3, 11);
-        const auto parts = document->getOthers()->get<RepeatParts>(3, 11);
-        const auto scoreForced = document->getOthers()->get<RepeatScoreForced>(3, 11);
-        const auto partsForced = document->getOthers()->get<RepeatPartsForced>(3, 11);
+        const auto name = document->getOthers()->get<RepeatName>(musx::dom::SCORE_PARTID, 11);
+        const auto score = document->getOthers()->get<RepeatScore>(musx::dom::SCORE_PARTID, 11);
+        const auto parts = document->getOthers()->get<RepeatParts>(musx::dom::SCORE_PARTID, 11);
+        const auto scoreForced = document->getOthers()->get<RepeatScoreForced>(musx::dom::SCORE_PARTID, 11);
+        const auto partsForced = document->getOthers()->get<RepeatPartsForced>(musx::dom::SCORE_PARTID, 11);
         REQUIRE(name);
         CHECK(name->name == "Wide");
         REQUIRE(score);
@@ -268,7 +268,7 @@ TEST_CASE("Class-record repeat staff lists retain part scope", "[class]")
         CHECK(scoreForced->values == std::vector<musx::dom::StaffCmper>{-2});
         REQUIRE(partsForced);
         CHECK(partsForced->values == std::vector<musx::dom::StaffCmper>{4});
-        CHECK_FALSE(document->getOthers()->get<RepeatPartsForced>(3, 12));
+        CHECK_FALSE(document->getOthers()->get<RepeatPartsForced>(musx::dom::SCORE_PARTID, 12));
         CHECK(document->getOthers()->getAllSources<RepeatName>().size() == 1);
         CHECK(reportedFieldCount(report) == 8);
     }

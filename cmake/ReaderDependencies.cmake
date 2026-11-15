@@ -5,7 +5,7 @@ include(FetchContent)
 function(finale_mus_reader_declare_musxdom)
     FetchContent_Declare(musxdom
         GIT_REPOSITORY https://github.com/openmusx/musxdom.git
-        GIT_TAG 4f29939c68e2855e0494b059efa15761899374da
+        GIT_TAG 53bd166d72435c30dd9285c48e8ef563fa5b03d8
         GIT_SHALLOW FALSE)
 endfunction()
 

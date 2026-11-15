@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 #include "import/details.h"
-#include "import/shared/measure_records.h"
 
 #include "musx/musx.h"
 #include <array>
@@ -316,25 +315,17 @@ void importEntryChords(const ImportContext& context, const RecordFamilySource& s
 
 /// @brief Sets each measure's chord flag the way Finale's entry-chord conversion does.
 /// @details The conversion writes the score measure's flag, set when it moved a chord there and
-/// clear otherwise, whatever the stored bit said. A part measure follows it unless the part's own
-/// record unlinks that bit.
+/// clear otherwise, whatever the stored bit said. A partially linked part measure follows it: its
+/// compact record stores no chord flag of its own.
 void refreshMeasureChordFlags(const ImportContext& context)
 {
     using musx::dom::others::Measure;
-    const auto source = selectRecordFamilySource(context, context.index.getOthers(), context.index.getClassOthers(), measureTag, measureClass);
     std::set<musx::dom::MeasCmper> withChords;
     for (const auto& chord : context.document->getDetails()->getArray<ChordTarget>(musx::dom::SCORE_PARTID)) {
         withChords.insert(chord->getCmper2());
     }
-    const auto follows = [&](const Measure& measure) {
-        if (measure.getSourcePartId() == musx::dom::SCORE_PARTID) {
-            return true;
-        }
-        if (!source || measure.getShareMode() != musx::dom::EnigmaBase::ShareMode::Partial) {
-            return false;
-        }
-        const auto rows = source->pool->getArray(source->identity, measure.getCmper(), 0, measure.getSourcePartId());
-        return !(partUnlinkedBits(*source, rows, measureExtendedFlagsSlot, context.profile.byteOrder).value_or(0) & extendedHasChordMask);
+    const auto follows = [](const Measure& measure) {
+        return measure.getSourcePartId() == musx::dom::SCORE_PARTID || measure.getShareMode() == musx::dom::EnigmaBase::ShareMode::Partial;
     };
     for (const auto& measure : context.document->getOthers()->getAllSources<Measure>()) {
         const bool hasChord = withChords.contains(measure->getCmper());

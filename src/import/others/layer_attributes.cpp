@@ -128,8 +128,8 @@ constexpr std::int16_t layerBehaviorRow[records::otherWordCount] = {0, 0, 0, 0, 
 // the range musxdom reads still reaches the document. Such a comparator is something the file
 // said, and discarding it here would be this reader deciding what a document may contain.
 // Identity and share mode of a created object come from the row through the shared helper, so it
-// is built exactly as any other source-owned others class would be -- including the part-scoped
-// row that Finale's own UI cannot produce, since layer attributes are not unlinkable.
+// is built exactly as any other source-owned others class would be. Layer attributes are kept
+// with the score, so every such row is a score row.
 MappingTarget poolOrOverlayLayerTarget(
     const musx::dom::DocumentPtr& document, const RecordFamilySource& source, const records::LegacyRow& row, std::uint16_t cmper)
 {

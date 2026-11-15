@@ -207,41 +207,6 @@ TEST_CASE("Tie alteration note references remap uniquely and preserve ambiguous 
     exerciseTieRemap<musx::dom::details::TieAlterStart>("Ts");
 }
 
-template <typename Target>
-void exerciseTieSharing(std::uint16_t classId)
-{
-    for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
-        SourceProfile profile(FormatEpoch::ZlibLegacy);
-        profile.byteOrder = order;
-        auto parsed = makeDetailClassContainer(0, 42, 0, fullTieTestWords, order, classId);
-        auto partWords = fullTieTestWords;
-        partWords[1] = -77;
-        partWords[2] = 999;
-        std::vector<std::uint16_t> masks(15);
-        masks[1] = 0xffff;
-        auto part = makeDetailClassContainer(0, 42, 2, partWords, order, classId, true, masks);
-        parsed.blocks.front().data.insert(parsed.blocks.front().data.end(), part.blocks.front().data.begin(), part.blocks.front().data.end());
-        auto session = musx::factory::DocumentFactory::begin();
-        const auto document = session.getDocument();
-        ImportReport report(profile.epoch);
-        PendingReferences pending;
-        musx::factory::ConstructionContext construction;
-        const auto index = LegacyRecordIndex::build(parsed);
-        const ImportContext context{index, profile, noSource, document, document, report, pending, construction};
-        importTestTie<Target>(context);
-        const auto target = document->getDetails()->template get<Target>(2, musx::dom::EntryNumber(42), musx::dom::Inci(0));
-        REQUIRE(target);
-        CHECK(target->xStart == -77);
-        CHECK(target->xEnd == 23);
-        CHECK(target->getShareMode() == musx::dom::EnigmaBase::ShareMode::Partial);
-    }
-}
-TEST_CASE("Tie alterations use linked-part masks with score inheritance", "[class][tie-alter]")
-{
-    exerciseTieSharing<musx::dom::details::TieAlterEnd>(0x042e);
-    exerciseTieSharing<musx::dom::details::TieAlterStart>(0x042f);
-}
-
 TEST_CASE("Tie alteration incomplete records do not create phantom instances", "[class][tie-alter]")
 {
     for (const auto size : {0U, 5U, 14U, 15U, 16U, 30U}) {

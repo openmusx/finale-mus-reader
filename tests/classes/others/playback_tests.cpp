@@ -318,29 +318,6 @@ TEST_CASE("Playback observes controlled baselines across all epochs", "[class][p
     }
 }
 
-TEST_CASE("Playback part records retain their effective payload and ownership", "[class][playback]")
-{
-    musx::dom::DocumentPtr doc;
-    std::vector<std::int16_t> settings(24);
-    for (std::size_t i = 0; i < 24; i += 4) {
-        settings[i] = 1;
-        settings[i + 3] = 1;
-    }
-    const auto report =
-        importPlaybackTest(makeClassContainer({{0xb9, {0, 0, 0, 0, 0, 0}, 2}, {0xb9, {15, 0x0304, 0x0506, 0, 0, 0}, 2, 5}, {0xe6, settings, 7, 5}},
-                               ByteOrder::LittleEndian),
-            doc);
-    const auto route = doc->getOthers()->get<TestPlaybackRoute>(5, 2);
-    REQUIRE(route);
-    CHECK(route->getSourcePartId() == 5);
-    CHECK(route->virtualChannel == 15);
-    const auto staff = doc->getOthers()->get<TestStaffPlayback>(5, 7);
-    REQUIRE(staff);
-    CHECK(staff->getSourcePartId() == 5);
-    CHECK(staff->layers[0]->getPlaybackRouteId() == 2);
-    CHECK_FALSE(report.fields.empty());
-}
-
 TEST_CASE("Playback rejects short records and reports unknown or missing data", "[class][playback]")
 {
     musx::dom::DocumentPtr doc;
@@ -455,13 +432,11 @@ TEST_CASE("Playback name upgrades can resolve a stored sound UUID without replac
     maps.push_back(std::move(xml));
     for (auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
         const std::vector<std::int16_t> route{0, 0, 0, 0, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111};
-        const auto parsed = makeClassContainer({{0xb9, route, 1}, {0xba, {78, 78, 0}, 1}, {0xb9, route, 1, 5}, {0xba, {78, 78, 0}, 1, 5},
-                                                   {0xb9, {0, 0, 0, 0, 0, 0}, 2}, {0xba, {78, 78, 0}, 2}},
-            order);
+        const auto parsed =
+            makeClassContainer({{0xb9, route, 1}, {0xba, {78, 78, 0}, 1}, {0xb9, {0, 0, 0, 0, 0, 0}, 2}, {0xba, {78, 78, 0}, 2}}, order);
         musx::dom::DocumentPtr doc;
         const auto report = importPlaybackTest(parsed, doc, SourceVersion{.major = 17, .devStatus = 2, .build = 111}, &maps);
         CHECK(doc->getOthers()->get<TestPlaybackName>(0, 1)->name == "ARIA Player");
-        CHECK(doc->getOthers()->get<TestPlaybackName>(5, 1)->name == "NN");
         CHECK(doc->getOthers()->get<TestPlaybackName>(0, 2)->name == "NN");
         CHECK(doc->getOthers()->get<TestPlaybackRoute>(0, 1)->soundUuid == "11111111-1111-1111-1111-111111111111");
         CHECK(report.findField<TestPlaybackRoute>("soundUuid", musx::dom::Cmper(0), musx::dom::Cmper(1))->origin == ValueOrigin::LegacyMus);

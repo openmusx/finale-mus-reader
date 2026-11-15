@@ -94,14 +94,6 @@ void testMeasureGraphicAssignmentsAcrossEpochs()
     expectMapping(partialAssignment && partialAssignment->left == 777 && partialAssignment->bottom == -324 && partialAssignment->width == 336
                       && partialAssignment->hidden,
         "A continued measure graphic did not overlay only its unlinked fields");
-
-    const auto continued = makeDetailClassContainer(7, 12, 2, tuple, ByteOrder::BigEndian, 0x041d, true);
-    const auto continuedIndex = LegacyRecordIndex::build(continued);
-    const auto continuedRows = continuedIndex.getClassDetails().getArray(0x041d, 7, 12, 2);
-    const finale_mus_reader::RecordFamilySource continuedSource{&continuedIndex.getClassDetails(), 0x041d, true, true, {}};
-    expectMapping(continuedRows.size() == 1
-                      && finale_mus_reader::recordShareMode(continuedSource, continuedRows.front()) == musx::dom::EnigmaBase::ShareMode::Partial,
-        "A continued detail record did not select partial sharing");
 }
 
 void testFinale372MeasureGraphic()

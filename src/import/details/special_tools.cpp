@@ -363,14 +363,8 @@ void importBeamAlterationFamily(const ImportContext& context, const char* tag, r
                 std::shared_ptr<Target> target;
                 if constexpr (Secondary) {
                     target = std::make_shared<Target>(context.document, rows.front().partId, shareMode, entry, inci);
-                    if (shareMode == musx::dom::EnigmaBase::ShareMode::Partial) {
-                        initializePartialFromScore(target, context.document->getDetails()->get<Target>(musx::dom::SCORE_PARTID, entry, inci));
-                    }
                 } else {
                     target = std::make_shared<Target>(context.document, rows.front().partId, shareMode, entry);
-                    if (shareMode == musx::dom::EnigmaBase::ShareMode::Partial) {
-                        initializePartialFromScore(target, context.document->getDetails()->get<Target>(musx::dom::SCORE_PARTID, entry));
-                    }
                 }
                 const std::span<const std::int16_t> element(words.data() + at, count);
                 target->leftOffsetH = element[0];

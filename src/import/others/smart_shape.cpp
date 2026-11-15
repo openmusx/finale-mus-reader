@@ -481,9 +481,9 @@ void importLyricTypes(const ImportContext& context)
 void inheritZeroPartShapeMetadata(const ImportContext& context)
 {
     // The conversion writes no element for a part's zero context direction or entry connection,
-    // whatever the continuation mask and the adjustment's activation, so the converted part takes
+    // whatever the part mask and the adjustment's activation, so the converted part takes
     // the score's. Believed: a zeroed part slur mode likewise inherits the score's even when the
-    // continuation mask marks those bits editable.
+    // part mask marks those bits editable.
     if (context.profile.epoch != FormatEpoch::ZlibLegacy) {
         return;
     }
@@ -498,16 +498,15 @@ void inheritZeroPartShapeMetadata(const ImportContext& context)
         const auto cmper = source->getCmper();
         const auto* row = pool.get(smartShapeClass, cmper, 0, 0, partId);
         const auto score = context.document->getOthers()->get<Shape>(musx::dom::SCORE_PARTID, cmper);
-        if (!row || !score || !row->continuationOverlayReady) {
+        if (!row || !score || row->maskSize == 0) {
             continue;
         }
         const auto payload = pool.payloadOf(*row);
-        const auto continuation = pool.continuationOf(*row);
-        // Bits the continuation leaves linked already hold the score's value.
+        const auto mask = pool.maskOf(*row);
+        // Bits the mask leaves linked already hold the score's value.
         const auto zeroPartBits = [&](std::size_t offset, std::uint16_t bits) {
-            return offset + 2 <= payload.size() && offset + 6 <= continuation.size()
-                   && (payloadWord(payload, offset, context.profile.byteOrder) & bits) == 0
-                   && (payloadWord(continuation, offset + 4, context.profile.byteOrder) & bits) != 0;
+            return offset + 2 <= payload.size() && offset + 2 <= mask.size() && (payloadWord(payload, offset, context.profile.byteOrder) & bits) == 0
+                   && (payloadWord(mask, offset, context.profile.byteOrder) & bits) != 0;
         };
         const auto reportAdjusted = [&]<typename Reporting>(Reporting& reporting, const char* member, std::size_t offset) {
             const auto key = reporting.template instanceKey<Shape>(partId, cmper);
@@ -538,9 +537,9 @@ void inheritZeroPartShapeMetadata(const ImportContext& context)
         inheritConnection(part->endTermSeg->breakAdj, score->endTermSeg->breakAdj, 64, "endTermSeg.breakAdj.contextEntCnct");
         inheritDirection(part->fullCtlPtAdj, score->fullCtlPtAdj, 74, "fullCtlPtAdj.contextDir");
 
-        if (payload.size() >= 4 && continuation.size() >= 8 && part->engraverSlurState == Shape::EngraverSlurState::Auto
+        if (payload.size() >= 4 && mask.size() >= 4 && part->engraverSlurState == Shape::EngraverSlurState::Auto
             && score->engraverSlurState != Shape::EngraverSlurState::Auto && (payloadWord(payload, 2, context.profile.byteOrder) & 0x30) == 0
-            && (payloadWord(continuation, 6, context.profile.byteOrder) & 0x30) == 0x30) {
+            && (payloadWord(mask, 2, context.profile.byteOrder) & 0x30) == 0x30) {
             part->engraverSlurState = score->engraverSlurState;
             withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) { reportAdjusted(reporting, "engraverSlurState", 2); });
         }

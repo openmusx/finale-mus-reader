@@ -187,17 +187,5 @@ TEST_CASE("A truncated part definition builds nothing and leaves the score part 
     expect(!report.diagnostics.empty(), "A short part definition record was discarded without saying so");
 }
 
-TEST_CASE("A part-owned part definition keeps its own identity and share mode")
-{
-    auto session = musx::factory::DocumentFactory::begin();
-    const auto document = session.getDocument();
-    const auto parsed = makeClassContainer(
-        {SyntheticClassRow{0x011a, scorePartWords, 0}, SyntheticClassRow{0x011a, staffNamedPartWords, 1, /*partId*/ 4}}, ByteOrder::BigEndian);
-    partDefinitionImport(parsed, zlibProfile(ByteOrder::BigEndian, 17), document);
-    const auto sources = document->getOthers()->getAllSources<PartDefinition>(1);
-    expect(sources.size() == 1, "The part-owned part definition was not built");
-    expect(sources.front()->getSourcePartId() == 4, "The part-owned part definition lost the part that owns it");
-    expect(sources.front()->getShareMode() == musx::dom::EnigmaBase::ShareMode::None, "A standalone part record was not read as unshared");
-}
 } // namespace
 } // namespace finale_mus_reader_tests
