@@ -4,7 +4,6 @@
 #include "import/others.h"
 #include "import/shared/coda_expression_shape.h"
 #include "import/shared/expression_common.h"
-#include "import/shared/measure_records.h"
 #include "musx/musx.h"
 
 #include <algorithm>
@@ -510,13 +509,12 @@ void importLegacyMeasureAssignments(const ImportContext& context, LegacyExpressi
 }
 
 /// @brief Sets a measure's expression flag the way Finale's entry conversion does.
-/// @details Finale sets the flag only on the score measure. A part measure follows it unless the
-/// part's own record unlinks that bit; a compact part record stores no such bit and always follows.
-/// That holds for every part storing the measure, including one with no part definition.
+/// @details Finale sets the flag only on the score measure. A partially linked part measure follows
+/// it, because its compact record stores no such bit. That holds for every part storing the
+/// measure, including one with no part definition.
 void markMeasureHasExpression(const ImportContext& context, ExprCmper measure, const std::set<ExprCmper>& measureParts)
 {
     using musx::dom::others::Measure;
-    const auto source = selectRecordFamilySource(context, context.index.getOthers(), context.index.getClassOthers(), measureTag, measureClass);
     const auto mark = [&](const musx::dom::MusxInstance<Measure>& target) {
         if (!target || target->hasExpression) {
             return;
@@ -530,12 +528,7 @@ void markMeasureHasExpression(const ImportContext& context, ExprCmper measure, c
     mark(context.document->getOthers()->get<Measure>(musx::dom::SCORE_PARTID, measure));
     for (const auto part : measureParts) {
         const auto partMeasure = context.document->getOthers()->get<Measure>(part, measure);
-        if (!source || !partMeasure || partMeasure->getSourcePartId() != part
-            || partMeasure->getShareMode() != musx::dom::EnigmaBase::ShareMode::Partial) {
-            continue;
-        }
-        const auto rows = source->pool->getArray(source->identity, measure, 0, part);
-        if (!(partUnlinkedBits(*source, rows, measureSecondaryFlagsSlot, context.profile.byteOrder).value_or(0) & secondaryHasExpressionMask)) {
+        if (partMeasure && partMeasure->getSourcePartId() == part && partMeasure->getShareMode() == musx::dom::EnigmaBase::ShareMode::Partial) {
             mark(partMeasure);
         }
     }
@@ -597,25 +590,15 @@ void importLegacyEntryAssignments(const ImportContext& context, LegacyExpression
                         continue;
                     }
                     const auto& row = source->rowOfWord(rows, at + 1);
-                    const auto continuation = source->pool->continuationOf(row);
+                    const auto mask = source->pool->maskOf(row);
                     const auto selectedMask = [&](std::size_t word) -> std::uint16_t {
                         const auto offset = source->byteOffsetInRow(word * 2);
-                        if (offset >= row.payloadSize) {
-                            return 0;
-                        }
-                        constexpr std::size_t prefixSize = sizeof(std::uint32_t);
-                        if (offset + prefixSize >= row.payloadSize) {
-                            return static_cast<std::uint16_t>(offset + prefixSize == row.payloadSize ? row.trailerFirst : row.trailerSecond);
-                        }
-                        const auto maskOffset = offset + prefixSize;
-                        const auto first = continuation[maskOffset];
-                        const auto second = continuation[maskOffset + 1];
-                        return context.profile.byteOrder == ByteOrder::BigEndian ? (first << 8U) | second : first | (second << 8U);
+                        return offset + 2 <= mask.size() ? payloadWord(mask, offset, context.profile.byteOrder) : 0;
                     };
                     // Finale converts a part's assignment only where the part unlinks its horizontal offset,
                     // vertical offset, or hidden bit; otherwise the part keeps the score's conversion.
                     // Sharing depends on the selected bits, even when the part value equals the score's.
-                    if (part && row.continuationOverlayReady && !(selectedMask(at + 1) || selectedMask(at + 2) || (selectedMask(at + 4) & 1U))) {
+                    if (!mask.empty() && !(selectedMask(at + 1) || selectedMask(at + 2) || (selectedMask(at + 4) & 1U))) {
                         continue;
                     }
                     const LegacyExpressionAssignments::SourceKey sourceKey{measure, frame->getStaff(), number, at, true};

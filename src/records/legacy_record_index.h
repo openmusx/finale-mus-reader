@@ -73,20 +73,16 @@ struct LegacyRow
     /// representation common to every era.
     std::uint32_t payloadOffset{};
     std::uint32_t payloadSize{};
-    /// @brief Same-sized continuation bytes following a zlib primary payload, if present.
-    /// @details The repeated length prefix remains part of this span. Its remaining bytes are
-    /// bit masks selecting the part payload bits that replace the corresponding score bits.
-    std::uint32_t continuationOffset{};
-    std::uint32_t continuationSize{};
-    /// @brief Whether a continued part row has a structurally compatible score payload.
-    bool continuationOverlayReady{};
+    /// @brief The bit mask of a partially linked zlib part record, as long as its payload.
+    /// @details Set bits select the part payload bits that replace the corresponding score bits;
+    /// clear bits stay linked to the score. Zero on every other row. A part row that keeps a mask
+    /// always has a score row of the same identity to resolve against.
+    std::uint32_t maskOffset{};
+    std::uint32_t maskSize{};
     /// @brief Offset of this row's resolved bytes within the pool's effective-part storage.
     std::uint32_t effectivePayloadOffset{};
     /// @brief Size of the resolved payload, which may differ from the physical part payload.
     std::uint32_t effectivePayloadSize{};
-    /// @brief The two words terminating a zlib class record.
-    std::int16_t trailerFirst{};
-    std::int16_t trailerSecond{};
     std::uint8_t wordCount{};
     std::size_t blockOffset{};
     std::size_t decodedOffset{};
@@ -106,8 +102,10 @@ class LegacyRowPool
 {
 public:
     /// @brief Sorts the rows and assigns incidences within each family.
+    /// @details A masked part row with no score row at its identity and incidence is dropped:
+    /// it has nothing for its mask to resolve against, so it describes no part object.
     /// @param payload Backing bytes that the rows index into.
-    static LegacyRowPool build(std::vector<LegacyRow> rows, std::vector<std::uint8_t> payload, ByteOrder byteOrder);
+    static LegacyRowPool build(std::vector<LegacyRow> rows, std::vector<std::uint8_t> payload);
 
     /// @brief Returns a row's payload bytes in file order.
     [[nodiscard]] std::span<const std::uint8_t> payloadOf(const LegacyRow& row) const
@@ -115,18 +113,21 @@ public:
         return std::span<const std::uint8_t>(m_payload.data() + row.payloadOffset, row.payloadSize);
     }
 
-    /// @brief Returns payload bytes with a continued part row resolved against its score row.
-    /// @details Physical payloads remain available through @ref payloadOf. For a continued part,
-    /// set continuation bits select the stored part bits and clear bits retain the score bits.
-    [[nodiscard]] std::span<const std::uint8_t> effectivePayloadOf(const LegacyRow& row) const;
-
-    /// @brief Returns a zlib row's uninterpreted continuation bytes, or an empty span.
-    [[nodiscard]] std::span<const std::uint8_t> continuationOf(const LegacyRow& row) const
+    /// @brief Returns payload bytes with a masked part row resolved against its score row.
+    /// @details Physical payloads remain available through @ref payloadOf. For a masked part,
+    /// set mask bits select the stored part bits and clear bits retain the score bits.
+    [[nodiscard]] std::span<const std::uint8_t> effectivePayloadOf(const LegacyRow& row) const
     {
-        if (row.continuationSize == 0) {
-            return {};
+        if (row.maskSize == 0) {
+            return payloadOf(row);
         }
-        return std::span<const std::uint8_t>(m_payload.data() + row.continuationOffset, row.continuationSize);
+        return std::span<const std::uint8_t>(m_effectivePartPayloads.data() + row.effectivePayloadOffset, row.effectivePayloadSize);
+    }
+
+    /// @brief Returns a masked part row's bit mask in file order, or an empty span.
+    [[nodiscard]] std::span<const std::uint8_t> maskOf(const LegacyRow& row) const
+    {
+        return std::span<const std::uint8_t>(m_payload.data() + row.maskOffset, row.maskSize);
     }
 
     /// @brief Returns every row of a family, in incidence order.

@@ -574,29 +574,6 @@ TEST_CASE("Staff height conversion stops at the Finale 2002 beta boundary", "[cl
     }
 }
 
-TEST_CASE("Part system masks inherit stored score boundaries", "[class][staff-system]")
-{
-    const auto document = emptyStaffSystemDocument();
-    auto score = staffSystemWords();
-    auto part = score;
-    part[4] = 27;
-    part[6] = 30;
-    part[1] = 42;
-    std::vector<std::uint16_t> mask(score.size(), 0);
-    mask[1] = 0xffff;
-    auto profile = SourceProfile(FormatEpoch::ZlibLegacy);
-    profile.byteOrder = ByteOrder::LittleEndian;
-    const auto report = importStaffSystems(
-        makeClassContainer({SyntheticClassRow{0x00df, score, 1}, SyntheticClassRow{0x00df, part, 1, 2, true, mask}}, ByteOrder::LittleEndian),
-        profile, document);
-    const auto system = document->getOthers()->get<StaffSystem>(2, 1);
-    REQUIRE(system);
-    CHECK(system->left == 42);
-    CHECK(system->startMeas == 4);
-    CHECK(system->endMeas == 9);
-    CHECK(report.findField<StaffSystem>("endMeas", 2, musx::dom::Cmper(1))->origin == ValueOrigin::LegacyMus);
-}
-
 TEST_CASE("StaffSystem recovers the stored staff-scaling flag", "[class][staff-system][reporting]")
 {
     const auto document = emptyStaffSystemDocument();

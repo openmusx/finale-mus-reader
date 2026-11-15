@@ -542,7 +542,7 @@ TEST_CASE("Legacy part measure assignments inherit absent individual placement c
     const auto adjustment = GENERATE(std::int16_t(21), std::int16_t(-21), std::int16_t(-24));
     const auto overrideStaff = GENERATE(std::int16_t(0), std::int16_t(2), std::int16_t(3));
     std::vector<SyntheticClassRow> rows{
-        {0xb1, {19, -12, 81, 7, 2, 0x1800}, 3}, {0xb1, {0, 0, 0, 0, 0, 0}, 3, 1, true, {0, 0, 0, 0}, 0, 0}, {0xcf, {2, 7, -6, adjustment, 0, 1}, 3}};
+        {0xb1, {19, -12, 81, 7, 2, 0x1800}, 3}, {0xb1, {0, 0, 0, 0, 0, 0}, 3, 1, true}, {0xcf, {2, 7, -6, adjustment, 0, 1}, 3}};
     if (overrideStaff) {
         rows.push_back({0xcf, {overrideStaff, 7, -9, 12, 0, 0}, 3, 1});
     }
@@ -776,7 +776,7 @@ TEST_CASE("Legacy part measure coordinates clear the inherited alternate unit", 
     const auto scorePosition = GENERATE(std::int16_t(-112), std::int16_t(251));
     const auto partPosition = GENERATE(std::int16_t(-18), std::int16_t(0), std::int16_t(663));
     const auto parsed = makeClassContainer(std::vector<SyntheticClassRow>{{0xb1, {1, scorePosition, 0, 0, 1, 0x1000}, 1},
-                                               {0xb1, {1, partPosition, 0, 0, 1, 0x1000}, 1, 1, true, {0, 0xffff}, 0, 0x800}},
+                                               {0xb1, {1, partPosition, 0, 0, 1, 0x1000}, 1, 1, true, {0, 0xffff, 0, 0, 0, 0x800}}},
         order);
     auto profile = SourceProfile(FormatEpoch::ZlibLegacy);
     profile.version = SourceVersion{.major = 13};
@@ -1155,11 +1155,10 @@ TEST_CASE("A part keeps the score's entry assignment unless it unlinks the place
     }
 }
 
-TEST_CASE("A linked part measure follows the score's expression flag", "[class][measure-expr-assign]")
+TEST_CASE("A compact part measure follows the score's expression flag", "[class][measure-expr-assign]")
 {
     using namespace musx::dom;
     const auto order = GENERATE(ByteOrder::LittleEndian, ByteOrder::BigEndian);
-    const bool unlinked = GENERATE(false, true);
     auto seed = readFixture("evidence/F2006/F2006-lyric-vcs.mus");
     auto document = seed.document;
     definePart(document, 1);
@@ -1177,10 +1176,8 @@ TEST_CASE("A linked part measure follows the score's expression flag", "[class][
     auto partMeasure = std::make_shared<others::Measure>(document, Cmper(1), EnigmaBase::ShareMode::Partial, measure);
     *partMeasure = *score;
     document->getOthers()->add(others::Measure::XmlNodeName, partMeasure);
-    auto parsed = makeClassContainer(std::vector<SyntheticClassRow>{{0xb0, std::vector<std::int16_t>(13), measure},
-                                         {0xb0, std::vector<std::int16_t>(13), measure, 1, true,
-                                             {0, 0, 0, 0, 0, static_cast<std::uint16_t>(unlinked ? 0x4000 : 0), 0, 0, 0, 0, 0, 0, 0}}},
-        order);
+    auto parsed = makeClassContainer(
+        std::vector<SyntheticClassRow>{{0xb0, std::vector<std::int16_t>(13), measure}, {0xb0, std::vector<std::int16_t>(4), measure, 1}}, order);
     auto entries = makeDetailClassContainer(number >> 16U, number & 0xffffU, 0, {7, 0, 0, 0, static_cast<std::int16_t>(0x8000)}, order, 0x423);
     parsed.blocks.push_back(std::move(entries.blocks.front()));
     auto profile = SourceProfile(FormatEpoch::ZlibLegacy);
@@ -1188,7 +1185,7 @@ TEST_CASE("A linked part measure follows the score's expression flag", "[class][
     profile.byteOrder = order;
     importExpressionTest(parsed, profile, document);
     CHECK(score->hasExpression);
-    CHECK(partMeasure->hasExpression == !unlinked);
+    CHECK(partMeasure->hasExpression);
 }
 
 TEST_CASE("Modern unknown flag enums stay unmapped and trailing partial tuples are diagnosed", "[class][measure-expr-assign]")

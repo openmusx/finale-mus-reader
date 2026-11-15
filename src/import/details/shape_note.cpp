@@ -3,6 +3,7 @@
 
 #include "import/details.h"
 
+#include <algorithm>
 #include <array>
 #include <memory>
 #include <string>
@@ -52,29 +53,12 @@ template <typename Target>
 void recoverShapeNoteFamily(const ImportContext& context, const RecordFamilySource& source)
 {
     for (const auto& [partId, cmper] : recordKeys(source)) {
-        const records::LegacyRow* first = nullptr;
-        bool partial = false;
-        for (const auto cmper2 : source.pool->secondCmpersForTag(source.identity, cmper, partId)) {
-            if (cmper2 > 4) {
-                continue;
-            }
-            const auto* row = source.pool->get(source.identity, cmper, cmper2, 0, partId);
-            if (row) {
-                if (!first) {
-                    first = row;
-                }
-                partial |= recordShareMode(source, *row) == musx::dom::EnigmaBase::ShareMode::Partial;
-            }
-        }
-        if (!first) {
+        const auto durations = source.pool->secondCmpersForTag(source.identity, cmper, partId);
+        if (std::none_of(durations.begin(), durations.end(), [](auto duration) { return duration <= 4; })) {
             continue;
         }
-        using ShareMode = musx::dom::EnigmaBase::ShareMode;
-        auto target = std::make_shared<Target>(context.document, partId,
-            partId == musx::dom::SCORE_PARTID ? ShareMode::All
-            : partial                         ? ShareMode::Partial
-                                              : ShareMode::None,
-            cmper, musx::dom::Cmper(0));
+        // Shape notes are kept with the score: Finale stores no part copy of them.
+        auto target = std::make_shared<Target>(context.document, partId, musx::dom::EnigmaBase::ShareMode::All, cmper, musx::dom::Cmper(0));
         const auto symbols = context.document->getOptions()->get<ShapeNoteSymbols>();
         const auto font = shapeNoteFont(context, *target);
         for (std::size_t index = 0; index < shapeNoteCount; ++index) {
@@ -86,14 +70,6 @@ void recoverShapeNoteFamily(const ImportContext& context, const RecordFamilySour
             }
             target->noteShapes.push_back(std::move(values));
         }
-        const auto rowsFor = [&](musx::dom::Cmper column) {
-            auto rows = source.pool->getArray(source.identity, cmper, column, partId);
-            // Each duration is independently shared. A missing part array inherits the score.
-            if (rows.empty() && partId != musx::dom::SCORE_PARTID) {
-                rows = source.pool->getArray(source.identity, cmper, column, musx::dom::SCORE_PARTID);
-            }
-            return rows;
-        };
         withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
             const auto key = reporting.template instanceKey<Target>(partId, cmper, std::nullopt, musx::dom::Cmper(0));
             reporting.report().setInstanceOrigin(key, Reporting::Origin::LegacyMus);
@@ -106,7 +82,7 @@ void recoverShapeNoteFamily(const ImportContext& context, const RecordFamilySour
             }
         });
         for (musx::dom::Cmper duration = 0; duration < shapeNoteColumns.size(); ++duration) {
-            const auto rows = rowsFor(duration);
+            const auto rows = source.pool->getArray(source.identity, cmper, duration, partId);
             if (rows.empty()) {
                 continue;
             }
@@ -134,7 +110,7 @@ void recoverShapeNoteFamily(const ImportContext& context, const RecordFamilySour
                 });
             }
         }
-        const auto flags = rowsFor(4);
+        const auto flags = source.pool->getArray(source.identity, cmper, 4, partId);
         if (!flags.empty()) {
             const auto words = collectRecordWords(source, flags, context.profile.byteOrder);
             if (!words.empty()) {

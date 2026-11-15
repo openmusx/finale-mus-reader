@@ -115,15 +115,6 @@ enum class RecordEncoding : std::uint8_t {
     ClassRecord
 };
 
-/// @brief One compact part representation used by a class-record importer.
-/// @details Layout tables live with the importer that decodes the class. Multiple entries permit
-/// the same class to use different structural representations within the zlib epoch.
-struct CompactPartLayout
-{
-    std::size_t scorePayloadSize{};
-    std::size_t partPayloadSize{};
-};
-
 /// @brief One logical record family selected from either fixed rows or class records.
 struct RecordFamilySource
 {
@@ -131,7 +122,10 @@ struct RecordFamilySource
     records::LegacyTag identity{};
     bool classRecords{};
     bool details{};
-    std::span<const CompactPartLayout> compactPartLayouts{};
+    /// @brief Payload sizes of the compact part records the class importer recognizes.
+    /// @details A compact part record holds only the members a part may change; every other member
+    /// is the score object's.
+    std::span<const std::size_t> compactPartPayloadSizes{};
 
     /// @brief Returns how many payload words one fixed row of this family holds.
     [[nodiscard]] std::size_t fixedRowWords() const { return details ? records::detailWordCount : records::otherWordCount; }
@@ -194,10 +188,9 @@ private:
 
 /// @brief Derives a DOM sharing mode from one normalized record's physical
 /// form.
-/// @details Score records are always shared to all parts. A part continuation
-/// marks a partial instance. Classes with a compact part record are also
-/// partial when their importer-provided layout matches; other standalone part records are
-/// unshared.
+/// @details Score records are always shared to all parts. A part record with a mask is
+/// partial, as is a compact part record of a size the importer recognizes when a score record of
+/// the same identity exists; other part records are unshared.
 [[nodiscard]] musx::dom::EnigmaBase::ShareMode recordShareMode(const RecordFamilySource& source, const records::LegacyRow& row);
 
 /// @brief Initializes a partially linked part target from the score instance of the same identity.
@@ -275,7 +268,7 @@ template <typename T>
 /// in the zlib epoch.
 [[nodiscard]] std::optional<RecordFamilySource> selectRecordFamilySource(const ImportContext& context, const records::LegacyRowPool& fixedPool,
     const records::LegacyRowPool& classPool, records::LegacyTag fixedTag, records::LegacyTag classId, bool details = false,
-    std::span<const CompactPartLayout> compactPartLayouts = {});
+    std::span<const std::size_t> compactPartPayloadSizes = {});
 
 /// @brief Collects a record family's payload bytes in incidence order.
 [[nodiscard]] std::vector<std::uint8_t> collectRecordPayload(const RecordFamilySource& source, std::span<const records::LegacyRow> rows);
@@ -293,9 +286,9 @@ template <typename T>
 /// @brief Reads a fixed-capacity, null-terminated byte string from a payload.
 [[nodiscard]] std::string payloadString(std::span<const std::uint8_t> payload, std::size_t offset, std::size_t capacity);
 
-/// @brief Returns a continued part row's link-mask word for one payload word.
+/// @brief Returns a masked part row's link-mask word for one payload word.
 /// @details A set bit is unlinked from the score. Returns nothing when the row at @p wordSlot is
-/// not a continued part row or its continuation stores no mask for that word.
+/// not a masked part row or its mask does not reach that word.
 [[nodiscard]] std::optional<std::uint16_t> partUnlinkedBits(
     const RecordFamilySource& source, std::span<const records::LegacyRow> rows, std::size_t wordSlot, ByteOrder byteOrder);
 
@@ -775,8 +768,8 @@ struct MappingTable
     /// and the pool that id points into. A finalizer that reads the document depends on the
     /// classes it reads being imported first, which the registry order states.
     void (*finalizeTarget)(void* instance, const SourceProfile& profile, const musx::dom::DocumentPtr& document){};
-    /// @brief Compact score/part payload pairs recognized by this class importer.
-    std::span<const CompactPartLayout> compactPartLayouts{};
+    /// @brief Payload sizes of the compact part records this class importer recognizes.
+    std::span<const std::size_t> compactPartPayloadSizes{};
 };
 
 /// @brief Creates one others object of type T and adds it to the document pool.

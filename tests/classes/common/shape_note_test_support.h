@@ -37,14 +37,13 @@ inline ImportReport importShapeNoteTest(const finale_mus_reader::container::Pars
 }
 
 inline void appendShapeNoteRecord(finale_mus_reader::container::ParsedContainer& parsed, std::uint16_t cmper, std::uint16_t duration,
-    std::vector<std::int16_t> words, bool style = false, std::uint16_t part = 0, bool continuation = false,
-    const std::vector<std::uint16_t>& masks = {})
+    std::vector<std::int16_t> words, bool style = false)
 {
     if (parsed.formatEpoch != FormatEpoch::ZlibLegacy) {
         words.resize((words.size() + 4) / 5 * 5);
     }
     auto record = parsed.formatEpoch == FormatEpoch::ZlibLegacy
-                      ? makeDetailClassContainer(cmper, duration, part, words, parsed.byteOrder, style ? 0x0427 : 0x0426, continuation, masks)
+                      ? makeDetailClassContainer(cmper, duration, 0, words, parsed.byteOrder, style ? 0x0427 : 0x0426)
                       : makeDetailContainer(parsed.formatEpoch, cmper, duration, words, style ? "HY" : "HI", parsed.byteOrder);
     if (parsed.blocks.empty()) {
         parsed.blocks = std::move(record.blocks);

@@ -4,7 +4,9 @@
 #include "records/legacy_record_index.h"
 
 #include <algorithm>
+#include <format>
 #include <limits>
+#include <span>
 #include <tuple>
 #include <utility>
 
@@ -150,66 +152,108 @@ std::vector<LegacyRow> decodeRows(
     return result;
 }
 
+// How a zlib class keeps its part data. Every class follows one of three sharing models, and the
+// class's model, not the shape of a part record, decides whether that record becomes a part
+// object.
+enum class PartSharing {
+    /// @brief The class has no part objects; every object belongs to the score.
+    Score,
+    /// @brief A part object is a complete record of its own, with no mask.
+    Unshared,
+    /// @brief A part object is the score object with the bits its mask selects replaced.
+    Partial,
+};
+
+// Sorted, for binary search. A class in neither list of its pool is shared with the score.
+// Others class 0x00b0 (measure specification) keeps its part data in compact records without a
+// mask, so it is listed with the unshared classes.
+constexpr std::uint16_t partialOtherClasses[] = {
+    0x00b1, 0x00b3, 0x00b4, 0x00b5, 0x00b6, 0x00bc, 0x00bd, 0x00c2, 0x00cb, 0x00cc, 0x00cf, 0x00d1, 0x00d2, 0x00d3, 0x00d4, 0x00d9, 0x00f3};
+constexpr std::uint16_t unsharedOtherClasses[] = {0x007a, 0x0093, 0x0098, 0x009f, 0x00af, 0x00b0, 0x00bb, 0x00df, 0x00e9, 0x0120, 0x0121, 0x0143};
+constexpr std::uint16_t partialDetailClasses[] = {0x03f1, 0x03f2, 0x03f3, 0x03f4, 0x03f5, 0x03f6, 0x03f7, 0x03f8, 0x03f9, 0x03fa, 0x0407, 0x0418,
+    0x0419, 0x041a, 0x041c, 0x041d, 0x041f, 0x0420, 0x0422, 0x0423, 0x0430, 0x0450, 0x0452, 0x0453, 0x0454};
+constexpr std::uint16_t unsharedDetailClasses[] = {0x0406, 0x0410, 0x0421, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044a, 0x044b};
+
+PartSharing partSharingOf(bool details, std::uint16_t classId)
+{
+    const auto listed = [classId](std::span<const std::uint16_t> classes) { return std::binary_search(classes.begin(), classes.end(), classId); };
+    if (listed(details ? std::span<const std::uint16_t>(partialDetailClasses) : partialOtherClasses)) {
+        return PartSharing::Partial;
+    }
+    if (listed(details ? std::span<const std::uint16_t>(unsharedDetailClasses) : unsharedOtherClasses)) {
+        return PartSharing::Unshared;
+    }
+    return PartSharing::Score;
+}
+
+// Whether Finale makes a part record into a part object. A part record of a class shared with
+// the score describes no part object, and neither does a masked part record of a class whose
+// part objects are not partially shared.
+bool keepsPartRecord(bool details, const LegacyRow& row)
+{
+    if (row.partId == musx::dom::SCORE_PARTID) {
+        return true;
+    }
+    const auto sharing = partSharingOf(details, row.tag);
+    const char* reason = sharing == PartSharing::Score                           ? "is shared with the score"
+                         : sharing == PartSharing::Unshared && row.maskSize != 0 ? "does not take a part mask"
+                                                                                 : nullptr;
+    if (!reason) {
+        return true;
+    }
+    musx::util::Logger::log(musx::util::Logger::LogLevel::Info,
+        std::format("{} class 0x{:04x} {}; its record for part {} was not imported.", details ? "Detail" : "Other", row.tag, reason, row.partId));
+    return false;
+}
+
 // The 2007 encoding replaces the fixed row with streams of self-describing records. Other
 // records in block 0x001a carry class, cmper1, part id, and a 32-bit payload length. Detail
-// records in block 0x001b retain the pre-zlib second comparator between cmper1 and part id;
-// the endian-specific length geometry is handled below. Incidence arrays remain in each
-// class-specific payload rather than becoming a header dimension.
+// records in block 0x001b retain the pre-zlib second comparator between cmper1 and part id.
+// Incidence arrays remain in each class-specific payload rather than becoming a header
+// dimension.
 // Class 0x041d establishes that the second comparator is the measure. Its payload retains the
 // fixed-detail representation: an 18-word graphic assignment rounded up to four five-word rows.
+//
+// The payload is followed by a 32-bit mask length and the mask. A zero length means no mask;
+// otherwise the mask is exactly as long as the payload, and any other length ends the block.
+// Only a part record's mask has meaning, so a score record's mask is not retained.
 std::vector<LegacyRow> decodeClassRecords(const container::ParsedContainer& parsed, bool details, std::vector<std::uint8_t>& payload)
 {
     constexpr std::uint16_t otherRecordBlockType = 0x001a;
     constexpr std::uint16_t detailRecordBlockType = 0x001b;
     constexpr std::size_t otherHeaderSize = 10;
     constexpr std::size_t detailHeaderSize = 12;
-    constexpr std::size_t trailerSize = 4;
+    constexpr std::size_t maskLengthSize = 4;
 
     std::vector<LegacyRow> result;
     for (const auto& block : parsed.blocks) {
-        const bool isDetail = block.info.type == detailRecordBlockType;
         if (block.info.type != (details ? detailRecordBlockType : otherRecordBlockType)) {
             continue;
         }
         // Detail headers retain both comparators and the part id before their 32-bit length,
         // making them one word wider than other headers in either byte order.
-        const auto headerSize = isDetail ? detailHeaderSize : otherHeaderSize;
+        const auto headerSize = details ? detailHeaderSize : otherHeaderSize;
         std::size_t offset = 0;
         while (offset + headerSize <= block.data.size()) {
             const auto* header = block.data.data() + offset;
             const auto classId = static_cast<std::uint16_t>(readWord(header, parsed.byteOrder));
-            const auto length = readLong(header + (isDetail ? 8U : 6U), parsed.byteOrder);
+            const auto length = readLong(header + headerSize - 4, parsed.byteOrder);
             if (classId == 0 || length > block.data.size() - offset - headerSize) {
                 break;
             }
-
-            const auto primaryEnd = offset + headerSize + length;
-            auto trailerOffset = primaryEnd;
-            // Some records carry a same-sized continuation segment. Its first four bytes
-            // repeat the payload length in the file's byte order. It has no independent
-            // class/key header, so the normalized row retains it with its primary payload
-            // and advances across the segment.
-            bool hasContinuation = false;
-            if (length >= 4 && length <= block.data.size() - primaryEnd && readLong(block.data.data() + primaryEnd, parsed.byteOrder) == length) {
-                trailerOffset += length;
-                hasContinuation = true;
-            }
-            if (trailerOffset + trailerSize > block.data.size()) {
+            const auto maskLengthOffset = offset + headerSize + length;
+            if (maskLengthSize > block.data.size() - maskLengthOffset) {
                 break;
             }
-            const auto trailerFirst = readWord(block.data.data() + trailerOffset, parsed.byteOrder);
-            const auto trailerSecond = readWord(block.data.data() + trailerOffset + 2, parsed.byteOrder);
-            // A continued record repurposes its trailer words as metadata, whereas
-            // ordinary records retain the two-word zero trailer. The repeated length
-            // above states which form applies, so the metadata need not be interpreted
-            // to find the next record.
-            if (!hasContinuation && (trailerFirst != 0 || trailerSecond != 0)) {
+            const auto maskLength = readLong(block.data.data() + maskLengthOffset, parsed.byteOrder);
+            const auto maskOffset = maskLengthOffset + maskLengthSize;
+            if ((maskLength != 0 && maskLength != length) || maskLength > block.data.size() - maskOffset) {
                 break;
             }
             LegacyRow decoded;
             decoded.tag = classId;
             decoded.cmper1 = readCmper(header + 2, parsed.byteOrder);
-            if (isDetail) {
+            if (details) {
                 decoded.cmper2 = readCmper(header + 4, parsed.byteOrder);
                 decoded.partId = readCmper(header + 6, parsed.byteOrder);
             } else {
@@ -219,18 +263,17 @@ std::vector<LegacyRow> decodeClassRecords(const container::ParsedContainer& pars
             decoded.payloadSize = length;
             const auto* body = header + headerSize;
             payload.insert(payload.end(), body, body + length);
-            if (hasContinuation) {
-                decoded.continuationOffset = static_cast<std::uint32_t>(payload.size());
-                decoded.continuationSize = length;
-                payload.insert(payload.end(), block.data.begin() + primaryEnd, block.data.begin() + trailerOffset);
+            if (maskLength != 0 && decoded.partId != musx::dom::SCORE_PARTID) {
+                decoded.maskOffset = static_cast<std::uint32_t>(payload.size());
+                decoded.maskSize = maskLength;
+                payload.insert(payload.end(), block.data.begin() + maskOffset, block.data.begin() + maskOffset + maskLength);
             }
-            decoded.trailerFirst = trailerFirst;
-            decoded.trailerSecond = trailerSecond;
             decoded.blockOffset = block.info.sourceOffset;
             decoded.decodedOffset = offset;
-            result.push_back(decoded);
-
-            offset = trailerOffset + trailerSize;
+            if (keepsPartRecord(details, decoded)) {
+                result.push_back(decoded);
+            }
+            offset = maskOffset + maskLength;
         }
     }
     return result;
@@ -238,7 +281,7 @@ std::vector<LegacyRow> decodeClassRecords(const container::ParsedContainer& pars
 
 } // namespace
 
-LegacyRowPool LegacyRowPool::build(std::vector<LegacyRow> rows, std::vector<std::uint8_t> payload, ByteOrder byteOrder)
+LegacyRowPool LegacyRowPool::build(std::vector<LegacyRow> rows, std::vector<std::uint8_t> payload)
 {
     // Sorting by family keeps each family contiguous, so a lookup is a binary search rather
     // than a hashed allocation. Fixed rows derive incidence from encounter order. A zlib class
@@ -267,53 +310,38 @@ LegacyRowPool LegacyRowPool::build(std::vector<LegacyRow> rows, std::vector<std:
     LegacyRowPool result;
     result.m_rows = std::move(rows);
     result.m_payload = std::move(payload);
-    constexpr std::size_t continuationPrefixSize = 4;
+    const auto unresolvable = [&result](const LegacyRow& row) {
+        if (row.maskSize == 0 || result.get(row.tag, row.cmper1, row.cmper2, row.inci, musx::dom::SCORE_PARTID)) {
+            return false;
+        }
+        musx::util::Logger::log(musx::util::Logger::LogLevel::Info,
+            std::format("Class 0x{:04x} has a masked record for part {} but no score record of the same identity; it was not imported.", row.tag,
+                row.partId));
+        return true;
+    };
+    // Only part rows are removed, so the score rows the predicate looks up stay in place.
+    std::erase_if(result.m_rows, unresolvable);
+
+    // A part payload longer than its score is resolved against zero bytes past the score's end;
+    // bytes past the part's end keep the score's values.
     for (auto& row : result.m_rows) {
-        if (row.partId == musx::dom::SCORE_PARTID || row.continuationSize == 0) {
+        if (row.maskSize == 0) {
             continue;
         }
         const auto* score = result.get(row.tag, row.cmper1, row.cmper2, row.inci, musx::dom::SCORE_PARTID);
-        if (!score || row.continuationSize != row.payloadSize || row.continuationSize < continuationPrefixSize) {
-            continue;
-        }
         const auto partPayload = result.payloadOf(row);
         const auto scorePayload = result.payloadOf(*score);
-        const auto continuation = result.continuationOf(row);
+        const auto mask = result.maskOf(row);
         row.effectivePayloadOffset = static_cast<std::uint32_t>(result.m_effectivePartPayloads.size());
         result.m_effectivePartPayloads.insert(result.m_effectivePartPayloads.end(), scorePayload.begin(), scorePayload.end());
         row.effectivePayloadSize = (std::max)(row.payloadSize, score->payloadSize);
         result.m_effectivePartPayloads.resize(row.effectivePayloadOffset + row.effectivePayloadSize, 0);
         auto* effective = result.m_effectivePartPayloads.data() + row.effectivePayloadOffset;
-        for (std::size_t offset = 0; offset < continuation.size() - continuationPrefixSize; ++offset) {
-            const auto mask = continuation[continuationPrefixSize + offset];
-            effective[offset] = static_cast<std::uint8_t>((effective[offset] & ~mask) | (partPayload[offset] & mask));
+        for (std::size_t offset = 0; offset < mask.size(); ++offset) {
+            effective[offset] = static_cast<std::uint8_t>((effective[offset] & ~mask[offset]) | (partPayload[offset] & mask[offset]));
         }
-        // The two terminal words extend the editable mask across the part payload's final
-        // four bytes, which the continuation uses for its length prefix.
-        for (std::size_t i = 0; i < continuationPrefixSize; ++i) {
-            const auto maskWord = static_cast<std::uint16_t>(i < 2 ? row.trailerFirst : row.trailerSecond);
-            const auto shift = byteOrder == ByteOrder::BigEndian ? (i % 2 == 0 ? 8U : 0U) : (i % 2 == 0 ? 0U : 8U);
-            const auto mask = static_cast<std::uint8_t>(maskWord >> shift);
-            const auto offset = row.payloadSize - continuationPrefixSize + i;
-            effective[offset] = static_cast<std::uint8_t>((effective[offset] & ~mask) | (partPayload[offset] & mask));
-        }
-        row.continuationOverlayReady = true;
     }
     return result;
-}
-
-std::span<const std::uint8_t> LegacyRowPool::effectivePayloadOf(const LegacyRow& row) const
-{
-    const bool unresolvedContinuation = row.partId != musx::dom::SCORE_PARTID && row.continuationSize != 0 && !row.continuationOverlayReady;
-    MUSX_ASSERT_IF(unresolvedContinuation)
-    {
-        musx::util::Logger::log(musx::util::Logger::LogLevel::Warning, "A continued part record has no structurally compatible score record.");
-        return payloadOf(row);
-    }
-    if (!row.continuationOverlayReady) {
-        return payloadOf(row);
-    }
-    return std::span<const std::uint8_t>(m_effectivePartPayloads.data() + row.effectivePayloadOffset, row.effectivePayloadSize);
 }
 
 std::span<const LegacyRow> LegacyRowPool::getArray(LegacyTag tag, std::uint16_t cmper1, std::uint16_t cmper2, std::uint16_t partId) const
@@ -447,19 +475,19 @@ LegacyRecordIndex LegacyRecordIndex::build(const container::ParsedContainer& par
     if (const auto types = poolTypesFor(parsed.formatEpoch)) {
         std::vector<std::uint8_t> othersPayload;
         auto othersRows = decodeRows(parsed, types->others, false, othersPayload);
-        result.m_others = LegacyRowPool::build(std::move(othersRows), std::move(othersPayload), parsed.byteOrder);
+        result.m_others = LegacyRowPool::build(std::move(othersRows), std::move(othersPayload));
 
         std::vector<std::uint8_t> detailsPayload;
         auto detailRows = decodeRows(parsed, types->details, true, detailsPayload);
-        result.m_details = LegacyRowPool::build(std::move(detailRows), std::move(detailsPayload), parsed.byteOrder);
+        result.m_details = LegacyRowPool::build(std::move(detailRows), std::move(detailsPayload));
     } else if (parsed.formatEpoch == FormatEpoch::ZlibLegacy) {
         std::vector<std::uint8_t> othersPayload;
         auto othersRows = decodeClassRecords(parsed, false, othersPayload);
-        result.m_classOthers = LegacyRowPool::build(std::move(othersRows), std::move(othersPayload), parsed.byteOrder);
+        result.m_classOthers = LegacyRowPool::build(std::move(othersRows), std::move(othersPayload));
 
         std::vector<std::uint8_t> detailsPayload;
         auto detailRows = decodeClassRecords(parsed, true, detailsPayload);
-        result.m_classDetails = LegacyRowPool::build(std::move(detailRows), std::move(detailsPayload), parsed.byteOrder);
+        result.m_classDetails = LegacyRowPool::build(std::move(detailRows), std::move(detailsPayload));
     }
     result.m_texts = collectTexts(parsed);
     return result;

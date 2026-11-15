@@ -92,32 +92,6 @@ TEST_CASE("Shape note Unicode width and encoding have distinct boundaries", "[cl
     }
 }
 
-TEST_CASE("Shape note parts merge each duration independently", "[class][shape-note]")
-{
-    finale_mus_reader::container::ParsedContainer parsed(FormatEpoch::ZlibLegacy);
-    parsed.byteOrder = ByteOrder::LittleEndian;
-    appendShapeNoteRecord(parsed, 2, 0, {65, 66, 0, 0, 0});
-    appendShapeNoteRecord(parsed, 2, 1, {70, 71, 0, 0, 0});
-    appendShapeNoteRecord(parsed, 2, 4, {1, 0, 0, 0, 0});
-    appendShapeNoteRecord(parsed, 2, 0, {80, 0, 0, 0, 0}, false, 1, true, {0xffff, 0, 0, 0, 0});
-    auto profile = SourceProfile(parsed.formatEpoch);
-    profile.byteOrder = parsed.byteOrder;
-    profile.version = SourceVersion{.major = 16};
-    const auto document = shapeNoteDocument();
-    const auto report = importShapeNoteTest(parsed, profile, document);
-    const auto score = document->getDetails()->get<ShapeNote>(0, 2, 0);
-    const auto part = document->getDetails()->get<ShapeNote>(1, 2, 0);
-    REQUIRE(score);
-    REQUIRE(part);
-    CHECK(part->getShareMode() == musx::dom::EnigmaBase::ShareMode::Partial);
-    CHECK(score->noteShapes[0]->doubleWhole == 65);
-    CHECK(part->noteShapes[0]->doubleWhole == 80);
-    CHECK(part->noteShapes[1]->doubleWhole == 66);
-    CHECK(part->noteShapes[0]->whole == 70);
-    CHECK(part->arrangedByPitch);
-    checkShapeNoteManifest(report, *part);
-}
-
 TEST_CASE("Shape note characters use staff and style font overrides", "[class][shape-note]")
 {
     const auto document = shapeNoteDocument();

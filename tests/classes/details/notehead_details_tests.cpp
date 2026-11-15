@@ -331,10 +331,7 @@ void checkSingleIncidenceNoteDetail(const char* tag, std::uint16_t classId)
     using namespace finale_mus_reader;
     for (const auto epoch : {FormatEpoch::CodaBanner, FormatEpoch::UncompressedLegacy, FormatEpoch::DclLegacy, FormatEpoch::ZlibLegacy}) {
         for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
-            for (const musx::dom::Cmper part : {musx::dom::Cmper(0), musx::dom::Cmper(2)}) {
-                if (part && epoch != FormatEpoch::ZlibLegacy) {
-                    continue;
-                }
+            for (const musx::dom::Cmper part : {musx::dom::Cmper(0)}) {
                 auto profile = SourceProfile(epoch);
                 profile.byteOrder = order;
                 profile.version = SourceVersion{.major = 1};
@@ -549,34 +546,6 @@ TEST_CASE("Single-incidence note details preserve complete tuples before a trunc
             CHECK(report.diagnostics.size() == (words.empty() ? 0 : 1));
         }
     }
-}
-
-TEST_CASE("Dot details overlay only unlinked part fields", "[class][notehead]")
-{
-    using namespace finale_mus_reader;
-    using Target = musx::dom::details::DotAlterations;
-    auto profile = SourceProfile(FormatEpoch::ZlibLegacy);
-    profile.byteOrder = ByteOrder::LittleEndian;
-    auto parsed = makeDetailClassContainer(0, 42, 0, {1, -30, 12, 8, 0}, profile.byteOrder, 0x040d);
-    const auto part = makeDetailClassContainer(0, 42, 2, {9, 18, 99, 99, 0}, profile.byteOrder, 0x040d, true, {0, 0xffff, 0});
-    auto& data = parsed.blocks.front().data;
-    data.insert(data.end(), part.blocks.front().data.begin(), part.blocks.front().data.end());
-    parsed.blocks.front().info.decodedSize = data.size();
-    auto session = musx::factory::DocumentFactory::begin();
-    const auto document = session.getDocument();
-    ImportReport report(profile.epoch);
-    PendingReferences pending;
-    musx::factory::ConstructionContext construction;
-    const ImportContext context{LegacyRecordIndex::build(parsed), profile, noSource, document, document, report, pending, construction};
-    details::importDotAlterations(context);
-    runDeferredChecks(pending);
-    const auto detail = document->getDetails()->get<Target>(2, musx::dom::EntryNumber(42), musx::dom::Inci(0));
-    REQUIRE(detail);
-    CHECK(detail->getShareMode() == musx::dom::EnigmaBase::ShareMode::Partial);
-    CHECK(detail->noteId == 1);
-    CHECK(detail->hOffset == 18);
-    CHECK(detail->vOffset == 12);
-    CHECK(detail->interdotSpacing == 8);
 }
 
 TEST_CASE("Finale 2.6 dot details preserve signed adjustments and Note ID attachment", "[class][fixture][notehead]")

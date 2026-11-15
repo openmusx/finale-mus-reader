@@ -157,7 +157,7 @@ TEST_CASE("A name-position part continuation overlays its byte and flags masks")
         const auto parsed = makeClassContainer(
             {
                 SyntheticClassRow{0x00b6, {123, -45, 0, 0, 0, scoreFlags}, 23},
-                SyntheticClassRow{0x00b6, {345, -45, 0, 0, 0, partFlags}, 23, 1, true, {0xffff, 0xffff}, 0, 0x0008},
+                SyntheticClassRow{0x00b6, {345, -45, 0, 0, 0, partFlags}, 23, 1, true, {0xffff, 0xffff, 0, 0, 0, 0x0008}},
             },
             byteOrder);
         const auto document = emptyNamePositionDocument();
