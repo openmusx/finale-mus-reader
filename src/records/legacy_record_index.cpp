@@ -4,9 +4,10 @@
 #include "records/legacy_record_index.h"
 
 #include <algorithm>
-#include <format>
+#include <iomanip>
 #include <limits>
 #include <span>
+#include <sstream>
 #include <tuple>
 #include <utility>
 
@@ -17,6 +18,14 @@ namespace records {
 namespace {
 
 constexpr std::size_t rowSize = 16;
+
+std::string legacyClassIdText(LegacyTag tag)
+{
+    constexpr int hexDigits = sizeof(LegacyTag) * 2;
+    std::ostringstream result;
+    result << "0x" << std::hex << std::setfill('0') << std::setw(hexDigits) << tag;
+    return result.str();
+}
 
 auto familyKey(const LegacyRow& row)
 {
@@ -201,8 +210,9 @@ bool keepsPartRecord(bool details, const LegacyRow& row)
     if (!reason) {
         return true;
     }
-    musx::util::Logger::log(musx::util::Logger::LogLevel::Info,
-        std::format("{} class 0x{:04x} {}; its record for part {} was not imported.", details ? "Detail" : "Other", row.tag, reason, row.partId));
+    musx::util::Logger::log(musx::util::Logger::LogLevel::Info, std::string(details ? "Detail" : "Other") + " class " + legacyClassIdText(row.tag)
+                                                                    + " " + reason + "; its record for part " + std::to_string(row.partId)
+                                                                    + " was not imported.");
     return false;
 }
 
@@ -314,9 +324,9 @@ LegacyRowPool LegacyRowPool::build(std::vector<LegacyRow> rows, std::vector<std:
         if (row.maskSize == 0 || result.get(row.tag, row.cmper1, row.cmper2, row.inci, musx::dom::SCORE_PARTID)) {
             return false;
         }
-        musx::util::Logger::log(musx::util::Logger::LogLevel::Info,
-            std::format("Class 0x{:04x} has a masked record for part {} but no score record of the same identity; it was not imported.", row.tag,
-                row.partId));
+        musx::util::Logger::log(musx::util::Logger::LogLevel::Info, "Class " + legacyClassIdText(row.tag) + " has a masked record for part "
+                                                                        + std::to_string(row.partId)
+                                                                        + " but no score record of the same identity; it was not imported.");
         return true;
     };
     // Only part rows are removed, so the score rows the predicate looks up stay in place.
