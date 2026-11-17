@@ -44,21 +44,9 @@ constexpr std::uint32_t earlyClefCharSlot = 2;
 constexpr std::uint32_t earlyStaffPositionSlot = 3;
 constexpr std::uint32_t earlyBaselineDifferenceSlot = 4;
 
-// Before Finale 97 the baseline adjustment is a feature the document switches on, in bit 0 of
-// word 5 of the *first* clef's selector. The switch is per document, not per clef: clearing it
-// suppresses the adjustment for every clef, including ones that plainly store one.
-//
-// Finale 97, internally 3.8, dropped the checkbox and applies the adjustment unconditionally.
-// Its files still carry other bits in word 5 -- 24, 30 and 36 all occur -- so testing the whole
-// word for non-zero would read those as a switch that is not there.
-//
-// The window is bounded at both ends rather than left open at "3.8 or later". The early path
-// only ever sees pre-2001 versions, so the upper bound changes nothing today; it is there so
-// that a file whose version is recovered as something wild cannot land in the always-on case
-// by accident. A wrong version should fall back to the bit test, which reads the document,
-// rather than to an unconditional yes.
+// Before Finale 97, a nonzero word 5 of the first clef enables baseline adjustments
+// for all eight definitions. Later files apply them unconditionally and reuse that word.
 constexpr std::uint32_t earlyBaselineEnableSlot = 5;
-constexpr std::uint16_t earlyBaselineEnableBit = 0x0001;
 bool sourceAlwaysAdjustsClefBaseline(const SourceProfile& profile)
 {
     return sourceAtOrAfter(profile, FormatEpoch::UncompressedLegacy, versions::finale97);
@@ -287,10 +275,8 @@ bool captureEarlyClefs(const musx::dom::DocumentPtr& document, const records::Le
     // The Coda era is excluded outright. Its word 4 is a mid-measure-clef baseline rather than
     // the general clef baseline musxdom means, and its switch is never set. Transferring it
     // would invent an offset from a field that does not mean the same thing.
-    const bool baselineEnabled =
-        sourceMatches(profile, EpochMask::FixedRow)
-        && (sourceAlwaysAdjustsClefBaseline(profile)
-            || (firstRow && (static_cast<std::uint16_t>(firstRow->words[earlyBaselineEnableSlot]) & earlyBaselineEnableBit) != 0));
+    const bool baselineEnabled = sourceMatches(profile, EpochMask::FixedRow)
+                                 && (sourceAlwaysAdjustsClefBaseline(profile) || (firstRow && firstRow->words[earlyBaselineEnableSlot] != 0));
 
     std::vector<PhysicalClef> stored;
     for (std::size_t i = 0; i < earlyClefCount; ++i) {

@@ -82,6 +82,20 @@ const std::vector<SyntheticClassRow> classGraceNoteRows{
     {finale_mus_reader::numericGlobalClass(64), {0, 116}},
 };
 
+TEST_CASE("Coda grace slash switch survives the early global migration", "[class]")
+{
+    for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+        for (const auto value : {std::int16_t{0}, std::int16_t{1}, std::int16_t{-1}}) {
+            const auto parsed = makeContainer({{GLOBALS_CMPER, "44", {0, 0, 0, 7, value, 2}}}, FormatEpoch::CodaBanner, order);
+            ImportReport report(FormatEpoch::CodaBanner);
+            const auto options = importGraceNoteOptions(parsed, FormatEpoch::CodaBanner, report);
+            CHECK(options->slashFlaggedGraceNotes == (value != 0));
+            CHECK(field(report, "options.graceNoteOptions.slashFlaggedGraceNotes").origin == ValueOrigin::LegacyMus);
+            CHECK(field(report, "options.graceNoteOptions.slashFlaggedGraceNotes").rawValue == value);
+        }
+    }
+}
+
 TEST_CASE("Grace-note options recover fixed rows across their two epochs", "[class]")
 {
     for (const auto epoch : {FormatEpoch::UncompressedLegacy, FormatEpoch::DclLegacy}) {

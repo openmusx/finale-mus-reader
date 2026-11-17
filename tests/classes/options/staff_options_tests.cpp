@@ -84,7 +84,7 @@ void expectCompleteStaffOptionsReport(
     }
 }
 
-void expectCodaStaffOptionsReport(const ImportReport& report)
+void expectCodaStaffOptionsReport(const ImportReport& report, bool recoveredHorizontal = false)
 {
     const auto instance = finale_mus_reader::instanceKey<StaffOptionsTestTarget>();
     REQUIRE(report.fields.at(instance).size() == 31);
@@ -94,7 +94,8 @@ void expectCodaStaffOptionsReport(const ImportReport& report)
     }
     for (const auto* prefix : {"namePos", "namePosAbbrv"}) {
         for (const auto* leaf : {"horzOff", "vertOff", "justify", "hAlign"}) {
-            REQUIRE(report.findField<StaffOptionsTestTarget>(std::string(prefix).append(".").append(leaf))->origin == ValueOrigin::LegacyBehavior);
+            const auto expected = recoveredHorizontal && std::string_view(leaf) == "horzOff" ? ValueOrigin::LegacyMus : ValueOrigin::LegacyBehavior;
+            REQUIRE(report.findField<StaffOptionsTestTarget>(std::string(prefix).append(".").append(leaf))->origin == expected);
         }
         for (const auto* leaf : {"expand", "indivPos", "hidden"}) {
             REQUIRE(report.findField<StaffOptionsTestTarget>(std::string(prefix).append(".").append(leaf))->origin == ValueOrigin::Finale27Default);
@@ -104,6 +105,19 @@ void expectCodaStaffOptionsReport(const ImportReport& report)
         for (const auto* leaf : {"horzOff", "vertOff", "justify", "hAlign", "expand", "indivPos", "hidden"}) {
             REQUIRE(report.findField<StaffOptionsTestTarget>(std::string(prefix).append(".").append(leaf))->origin == ValueOrigin::Finale27Default);
         }
+    }
+}
+
+TEST_CASE("Coda staff names share a signed stored horizontal offset", "[class]")
+{
+    for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+        ImportReport report(FormatEpoch::CodaBanner);
+        const auto parsed = makeContainer({{GLOBALS_CMPER, "04", {0, -237, -64, 4, 14, 0}}}, FormatEpoch::CodaBanner, order);
+        const auto options = importStaffOptionsForTest(parsed, FormatEpoch::CodaBanner, report);
+        CHECK(options->namePos->horzOff == -237);
+        CHECK(options->namePosAbbrv->horzOff == -237);
+        expectCodaStaffOptionsReport(report, true);
+        CHECK(report.findField<StaffOptionsTestTarget>("namePos.horzOff")->rawValue == -237);
     }
 }
 
@@ -162,7 +176,7 @@ TEST_CASE("Controlled Finale 2012 staff scalars recover from the stored tail", "
     }
 }
 
-TEST_CASE("Controlled Coda staff names use fixed positioning behavior", "[class][reader]")
+TEST_CASE("Controlled Coda staff names recover their shared horizontal position", "[class][reader]")
 {
     const auto result = readFixture("evidence/F100/F100-baseline.mus");
     const auto options = result.document->getOptions()->get<StaffOptionsTestTarget>();
@@ -171,7 +185,7 @@ TEST_CASE("Controlled Coda staff names use fixed positioning behavior", "[class]
     expectStaffNamePosition(*options->namePosAbbrv, -192, -27, musx::dom::AlignJustify::Left, musx::dom::AlignJustify::Left, true);
     expectStaffNamePosition(*options->groupNameFullPos, -72, 0, musx::dom::AlignJustify::Right, musx::dom::AlignJustify::Right, true);
     expectStaffNamePosition(*options->groupNameAbbrvPos, -72, 0, musx::dom::AlignJustify::Right, musx::dom::AlignJustify::Right, true);
-    expectCodaStaffOptionsReport(result.report);
+    expectCodaStaffOptionsReport(result.report, true);
 }
 
 TEST_CASE("Staff name positions recover across all container epochs", "[class]")
@@ -193,11 +207,11 @@ TEST_CASE("Staff name positions recover across all container epochs", "[class]")
 
     ImportReport codaReport(FormatEpoch::CodaBanner);
     const auto codaOptions = importStaffOptionsForTest(makeContainer(fixedRows, FormatEpoch::CodaBanner), FormatEpoch::CodaBanner, codaReport);
-    expectStaffNamePosition(*codaOptions->namePos, -192, -27, musx::dom::AlignJustify::Left, musx::dom::AlignJustify::Left, false);
-    expectStaffNamePosition(*codaOptions->namePosAbbrv, -192, -27, musx::dom::AlignJustify::Left, musx::dom::AlignJustify::Left, false);
+    expectStaffNamePosition(*codaOptions->namePos, -24, -27, musx::dom::AlignJustify::Left, musx::dom::AlignJustify::Left, false);
+    expectStaffNamePosition(*codaOptions->namePosAbbrv, -24, -27, musx::dom::AlignJustify::Left, musx::dom::AlignJustify::Left, false);
     expectStaffNamePosition(*codaOptions->groupNameFullPos, 81, 82, musx::dom::AlignJustify::Left, musx::dom::AlignJustify::Left, false);
     expectStaffNamePosition(*codaOptions->groupNameAbbrvPos, 81, 82, musx::dom::AlignJustify::Left, musx::dom::AlignJustify::Left, false);
-    expectCodaStaffOptionsReport(codaReport);
+    expectCodaStaffOptionsReport(codaReport, true);
 
     for (const auto epoch : {FormatEpoch::UncompressedLegacy, FormatEpoch::DclLegacy}) {
         ImportReport report(epoch);

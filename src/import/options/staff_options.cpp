@@ -195,19 +195,22 @@ void importStaffNamePosition(const ImportContext& context, StaffOptionsTarget& t
 
 void applyCodaStaffNameBehavior(const ImportContext& context, StaffOptionsTarget& target)
 {
-    // Coda has no editable name-position preferences. The fixed staff-name
-    // behavior replaces the apparent selector values; matching seeded leaves remain defaults.
+    // Coda shares the full-name horizontal offset with the abbreviated name.
+    // Vertical positioning still requires the unavailable original font metrics.
+    const auto source = readGlobalWords(context.index, context.profile, 4);
+    const bool hasHorizontalOffset = source.words.size() >= 6;
     for (const auto member : {&StaffOptionsTarget::namePos, &StaffOptionsTarget::namePosAbbrv}) {
         auto& position = target.*member;
-        position->horzOff = codaStaffNameHorzOff;
+        position->horzOff = hasHorizontalOffset ? source.words[1] : codaStaffNameHorzOff;
         position->vertOff = codaStaffNameVertOff;
         position->justify = musx::dom::AlignJustify::Left;
         position->hAlign = musx::dom::AlignJustify::Left;
 
         withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
             const auto prefix = member == &StaffOptionsTarget::namePos ? "namePos." : "namePosAbbrv.";
-            reportStaffNamePositionField(
-                reporting, context, std::string(prefix).append("horzOff"), Reporting::Origin::LegacyBehavior, position->horzOff);
+            reportStaffNamePositionField(reporting, context, std::string(prefix).append("horzOff"),
+                hasHorizontalOffset ? Reporting::Origin::LegacyMus : Reporting::Origin::LegacyBehavior, position->horzOff,
+                hasHorizontalOffset ? &source : nullptr, 4);
             reportStaffNamePositionField(
                 reporting, context, std::string(prefix).append("vertOff"), Reporting::Origin::LegacyBehavior, position->vertOff);
             reportStaffNamePositionField(reporting, context, std::string(prefix).append("justify"), Reporting::Origin::LegacyBehavior,

@@ -292,15 +292,15 @@ void testSmartShapeOptionsAcrossEpochs()
                       && codaOptions->slurThicknessCp1Y == -17 && codaOptions->slurThicknessCp2X == -15 && codaOptions->slurThicknessCp2Y == -19
                       && codaOptions->slurControlStyles.size() == 4 && codaOptions->slurConnectStyles.size() == 29
                       && codaOptions->slurConnectStyles.at(SmartShape::SlurConnectStyleType::OverNoteStart)->connectIndex
-                             == SmartShape::ConnectionIndex::NoteRightCenter
-                      && codaOptions->slurConnectStyles.at(SmartShape::SlurConnectStyleType::OverNoteStart)->xOffset == 31
-                      && codaOptions->slurConnectStyles.at(SmartShape::SlurConnectStyleType::OverNoteEnd)->yOffset == -34,
+                             == SmartShape::ConnectionIndex::HeadRightTop
+                      && codaOptions->slurConnectStyles.at(SmartShape::SlurConnectStyleType::OverNoteStart)->xOffset == 929
+                      && codaOptions->slurConnectStyles.at(SmartShape::SlurConnectStyleType::OverNoteEnd)->yOffset == 931,
         "The Coda epoch did not recover its SmartShapeOptions control-point pairs");
     expectMapping(field(codaReport, "options.smartShapeOptions.crescHeight").origin == ValueOrigin::Finale27Default
                       && field(codaReport, "options.smartShapeOptions.slurThicknessCp1Y").origin == ValueOrigin::LegacyMus
                       && field(codaReport, "options.smartShapeOptions.slurThicknessCp2Y").rawValue == 19
                       && field(codaReport, "options.smartShapeOptions.shortHairpinOpeningWidth").origin == ValueOrigin::LegacyBehavior
-                      && field(codaReport, "options.smartShapeOptions.slurConnectStyles[1].yOffset").origin == ValueOrigin::LegacyMus
+                      && field(codaReport, "options.smartShapeOptions.slurConnectStyles[1].yOffset").origin == ValueOrigin::Finale27Default
                       && field(codaReport, "options.smartShapeOptions.slurConnectStyles[2].yOffset").origin == ValueOrigin::Finale27Default,
         "The Coda epoch reported incorrect SmartShapeOptions origins");
 

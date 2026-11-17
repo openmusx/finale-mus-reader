@@ -119,7 +119,7 @@ void testRepeatOptionsAcrossEpochs()
     coda.version.reset();
     ImportReport codaReport(FormatEpoch::UncompressedLegacy);
     const auto codaOptions = runImport(makeContainer(rows, FormatEpoch::CodaBanner), coda, codaReport);
-    expectMapping(codaOptions->maxPasses == 90 && codaOptions->bracketHeight == 101 && !codaOptions->addPeriod && codaOptions->thinLineWidth == 224
+    expectMapping(codaOptions->maxPasses == 90 && codaOptions->bracketHeight == 14 && !codaOptions->addPeriod && codaOptions->thinLineWidth == 224
                       && codaOptions->upperDotVPos == 0 && codaOptions->lowerDotVPos == 0 && codaOptions->bracketLineWidth == 224
                       && !codaOptions->bracketEndAnchorThinLine && codaOptions->showOnStaffListNumber == 9,
         "The Coda epoch did not apply the pre-layout RepeatOptions behavior");
@@ -128,17 +128,38 @@ void testRepeatOptionsAcrossEpochs()
                       && field(codaReport, "options.repeatOptions.bracketEndAnchorThinLine").origin == ValueOrigin::LegacyBehavior,
         "The Coda epoch reported an incorrect RepeatOptions origin");
 
+    for (const auto epoch : {FormatEpoch::CodaBanner, FormatEpoch::UncompressedLegacy}) {
+        for (const auto byteOrder : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+            auto profile = coda;
+            profile.epoch = epoch;
+            profile.byteOrder = byteOrder;
+            for (const auto height : {0, -12, 72, 144}) {
+                const std::vector<SyntheticRow> heightRows{
+                    {GLOBALS_CMPER, "05", {7, 8, 9, static_cast<std::int16_t>(height), 10, 11}},
+                };
+                ImportReport report(epoch);
+                const auto options = runImport(makeContainer(heightRows, epoch, byteOrder), profile, report);
+                const auto& recovered = field(report, "options.repeatOptions.bracketHeight");
+                expectMapping(options->bracketHeight == height && recovered.origin == ValueOrigin::LegacyMus,
+                    "Early bracket height must be recovered without the later family or a version");
+            }
+            ImportReport missingReport(epoch);
+            const auto missing = runImport(makeContainer({}, epoch, byteOrder), profile, missingReport);
+            expectMapping(missing->bracketHeight == 101, "An absent early bracket-height record must preserve the seeded value");
+        }
+    }
+
     auto earlyUncompressed = profileFor(3, 0);
     earlyUncompressed.epoch = FormatEpoch::UncompressedLegacy;
     auto rowsWithoutLayoutMarker = rows;
     rowsWithoutLayoutMarker.erase(rowsWithoutLayoutMarker.begin() + 5);
     ImportReport earlyReport(FormatEpoch::UncompressedLegacy);
     const auto earlyOptions = runImport(makeContainer(rowsWithoutLayoutMarker, FormatEpoch::UncompressedLegacy), earlyUncompressed, earlyReport);
-    expectMapping(earlyOptions->maxPasses == 90 && earlyOptions->bracketHeight == 101 && earlyOptions->thickLineWidth == 91
-                      && !earlyOptions->addPeriod && earlyOptions->thinLineWidth == 224 && earlyOptions->upperDotVPos == 0
-                      && earlyOptions->lowerDotVPos == 0 && earlyOptions->bracketLineWidth == 224 && !earlyOptions->bracketEndAnchorThinLine,
+    expectMapping(earlyOptions->maxPasses == 17 && earlyOptions->bracketHeight == 14 && earlyOptions->thickLineWidth == 91 && !earlyOptions->addPeriod
+                      && earlyOptions->thinLineWidth == 224 && earlyOptions->upperDotVPos == 0 && earlyOptions->lowerDotVPos == 0
+                      && earlyOptions->bracketLineWidth == 224 && !earlyOptions->bracketEndAnchorThinLine,
         "An uncompressed file without the family did not apply the pre-layout behavior");
-    expectMapping(field(earlyReport, "options.repeatOptions.maxPasses").origin == ValueOrigin::Finale27Default
+    expectMapping(field(earlyReport, "options.repeatOptions.maxPasses").origin == ValueOrigin::LegacyMus
                       && field(earlyReport, "options.repeatOptions.thinLineWidth").origin == ValueOrigin::LegacyBehavior,
         "An uncompressed file without the family reported an incorrect RepeatOptions origin");
 }

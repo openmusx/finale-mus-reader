@@ -14,12 +14,10 @@ namespace {
 
 using ChordOptionsTarget = musx::dom::options::ChordOptions;
 
-// Only the typed fixed-row epoch has the fully mapped selector-41 layout. The Coda form uses
-// word 2 as a flag word whose individual meanings are not yet distinguished.
+// Only the typed fixed-row epoch has the fully mapped selector-41 layout.
 constexpr EpochMask chordFixedRowEpochs = EpochMask::FixedRow;
 constexpr std::uint16_t codaChordSelector = 41;
 constexpr std::size_t codaShowFretboardsSlot = 2;
-constexpr std::uint16_t codaShowFretboardsMask = 0x000c;
 constexpr std::int64_t preFinale37ChordAccidentalLift = 12;
 constexpr double unstatedChordPercent = 100.0;
 
@@ -184,12 +182,7 @@ void importCodaShowFretboards(const ImportContext& context, ChordOptionsTarget& 
     }
 
     const auto raw = static_cast<std::uint16_t>(source.words[codaShowFretboardsSlot]);
-    const auto state = raw & codaShowFretboardsMask;
-    if (state != 0 && state != codaShowFretboardsMask) {
-        return;
-    }
-
-    target.showFretboards = state == codaShowFretboardsMask;
+    target.showFretboards = raw != 0;
     withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
         reporting.report().setField(reporting.template instanceKey<ChordOptionsTarget>(), "showFretboards",
             {Reporting::Origin::LegacyMus, source.blockOffset, source.decodedOffset + codaShowFretboardsSlot * 2, raw,
@@ -218,12 +211,21 @@ void importChordOptions(const ImportContext& context)
     reportChordDefault(context, "useFretboardFont");
 
     if (!sourceStoresChordAccidentalLifts(context.profile)) {
-        target->chordSharpLift = preFinale37ChordAccidentalLift;
-        target->chordFlatLift = preFinale37ChordAccidentalLift;
-        target->chordNaturalLift = preFinale37ChordAccidentalLift;
-        reportChordBehavior(context, "chordSharpLift", preFinale37ChordAccidentalLift);
-        reportChordBehavior(context, "chordFlatLift", preFinale37ChordAccidentalLift);
-        reportChordBehavior(context, "chordNaturalLift", preFinale37ChordAccidentalLift);
+        const auto source = readGlobalWords(context.index, context.profile, 37);
+        const bool present = source.words.size() >= 6;
+        const bool separateFlat = sourceAtOrAfter(context.profile, FormatEpoch::UncompressedLegacy, versions::finale3_5);
+        target->chordSharpLift = present ? source.words[3] : preFinale37ChordAccidentalLift;
+        target->chordFlatLift = present ? source.words[separateFlat ? 4 : 3] : preFinale37ChordAccidentalLift;
+        target->chordNaturalLift = target->chordSharpLift;
+        withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+            for (const auto& [name, slot] :
+                {std::pair{"chordSharpLift", 3}, std::pair{"chordFlatLift", separateFlat ? 4 : 3}, std::pair{"chordNaturalLift", 3}}) {
+                reporting.report().setField(reporting.template instanceKey<ChordOptionsTarget>(), name,
+                    {present ? Reporting::Origin::LegacyMus : Reporting::Origin::LegacyBehavior, present ? source.blockOffset : 0,
+                        present ? source.decodedOffset + slot * 2 : 0, present ? source.words[slot] : preFinale37ChordAccidentalLift,
+                        present ? numericGlobalTag(37) : std::uint16_t{0}});
+            }
+        });
     }
     if (context.profile.epoch == FormatEpoch::CodaBanner) {
         target->useSimpleChordSpelling = false;

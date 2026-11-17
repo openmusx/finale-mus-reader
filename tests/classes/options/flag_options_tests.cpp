@@ -40,9 +40,21 @@ musx::dom::DocumentPtr makeFlagOptionsDocument()
 }
 
 std::shared_ptr<const FlagOptionsTarget> importFlagOptions(
-    const finale_mus_reader::container::ParsedContainer& parsed, SourceProfile profile, ImportReport& report)
+    const finale_mus_reader::container::ParsedContainer& parsed, SourceProfile profile, ImportReport& report, const char* fontName = nullptr)
 {
     const auto document = makeFlagOptionsDocument();
+    if (fontName) {
+        using Fonts = musx::dom::options::FontOptions;
+        auto fonts = std::make_shared<Fonts>(document);
+        auto font = std::make_shared<musx::dom::FontInfo>(document);
+        font->fontId = 0;
+        fonts->fontOptions.emplace(Fonts::FontType::Music, font);
+        document->getOptions()->add(Fonts::XmlNodeName, fonts);
+        auto definition = std::make_shared<musx::dom::others::FontDefinition>(
+            document, musx::dom::SCORE_PARTID, musx::dom::EnigmaBase::ShareMode::All, musx::dom::Cmper(0));
+        definition->name = fontName;
+        document->getOthers()->add(musx::dom::others::FontDefinition::XmlNodeName, definition);
+    }
     const auto reference = makeFlagOptionsDocument();
     profile.byteOrder = parsed.byteOrder;
     finale_mus_reader::PendingReferences pending;
@@ -50,6 +62,7 @@ std::shared_ptr<const FlagOptionsTarget> importFlagOptions(
     const finale_mus_reader::ImportContext context{
         LegacyRecordIndex::build(parsed), profile, noSource, document, reference, report, pending, construction};
     finale_mus_reader::options::importFlagOptions(context);
+    finale_mus_reader::runDeferredChecks(pending);
     return document->getOptions()->get<FlagOptionsTarget>();
 }
 
@@ -78,6 +91,59 @@ void verifyRecoveredFlagOptions(const FlagOptionsTarget& options, const ImportRe
                       && field(report, "options.flagOptions.secondaryGroupAdj").origin == ValueOrigin::LegacyMus
                       && field(report, "options.flagOptions.eighthFlagHoist").origin == ValueOrigin::Finale27Default,
         "FlagOptions reported an incorrect field origin");
+}
+
+TEST_CASE("Early straight flags use font-name constants without font metrics", "[class]")
+{
+    for (const auto epoch : {FormatEpoch::CodaBanner, FormatEpoch::UncompressedLegacy}) {
+        for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+            for (const auto& [name, sonata] : {std::pair{"Sonata", true}, std::pair{"sOnAtA", true}, std::pair{"Something", true},
+                     std::pair{"Petrucci", false}, std::pair{"Maestro", false}}) {
+                const auto parsed = makeContainer({}, epoch, order);
+                auto profile = profileFor(3, 0);
+                profile.epoch = epoch;
+                ImportReport report(epoch);
+                const auto options = importFlagOptions(parsed, profile, report, name);
+                CHECK(options->stUpHAdj == 0);
+                CHECK(options->stDownHAdj == 0);
+                CHECK(options->stUpVAdj == (sonata ? 0 : 1536));
+                CHECK(options->stDownVAdj == (sonata ? 0 : -1536));
+                CHECK(options->flagSpacing == (sonata ? 19 : 24));
+                CHECK(options->secondaryGroupAdj == (sonata ? 5 : 0));
+                CHECK(field(report, "options.flagOptions.stUpHAdj").origin == ValueOrigin::LegacyBehavior);
+            }
+        }
+    }
+    for (const auto epoch : {FormatEpoch::UncompressedLegacy, FormatEpoch::DclLegacy, FormatEpoch::ZlibLegacy}) {
+        const std::vector<std::int16_t> words{0, 0, 13, -14, 15, -16};
+        const auto parsed = epoch == FormatEpoch::ZlibLegacy
+                                ? makeClassContainer({{finale_mus_reader::numericGlobalClass(75), words}}, ByteOrder::BigEndian)
+                                : makeContainer({{GLOBALS_CMPER, "75", {0, 0, 13, -14, 15, -16}}}, epoch);
+        auto profile = profileFor(12);
+        profile.epoch = epoch;
+        ImportReport report(epoch);
+        const auto options = importFlagOptions(parsed, profile, report, "Sonata");
+        CHECK(options->stUpHAdj == 13);
+        CHECK(options->stDownVAdj == -16);
+    }
+}
+
+TEST_CASE("Early upward flag offsets follow the stored origin switch", "[class][reader]")
+{
+    for (const auto epoch : {FormatEpoch::CodaBanner, FormatEpoch::UncompressedLegacy}) {
+        for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+            for (const auto origin : {std::int16_t{0}, std::int16_t{1}, std::int16_t{-1}}) {
+                ImportReport report(epoch);
+                const auto parsed = makeContainer({{GLOBALS_CMPER, "36", {0, 0, 0, 0, 0, origin}}}, epoch, order);
+                const auto options = importFlagOptions(parsed, epoch, report);
+                CHECK(options->upHAdj == (origin == 0 ? 1696 : 0));
+                CHECK(options->upHAdj2 == options->upHAdj);
+                CHECK(options->upHAdj16 == options->upHAdj);
+                CHECK(field(report, "options.flagOptions.upHAdj").origin == ValueOrigin::LegacyMusAdjusted);
+                CHECK(field(report, "options.flagOptions.upHAdj").rawValue == origin);
+            }
+        }
+    }
 }
 
 TEST_CASE("Flag options recover the fixed-row layout", "[class]")
@@ -118,14 +184,14 @@ TEST_CASE("Coda flag options recover the vertical choice layout", "[class]")
     };
     ImportReport report(FormatEpoch::CodaBanner);
     const auto options = importFlagOptions(makeContainer(rows, FormatEpoch::CodaBanner), FormatEpoch::CodaBanner, report);
-    expectMapping(!options->straightFlags && options->upHAdj == 101 && options->upHAdj2 == 103 && options->upHAdj16 == 105 && options->downHAdj == 0
+    expectMapping(!options->straightFlags && options->upHAdj == 0 && options->upHAdj2 == 0 && options->upHAdj16 == 0 && options->downHAdj == 0
                       && options->downHAdj2 == 0 && options->downHAdj16 == 0 && options->upVAdj == 1536 && options->upVAdj2 == 1536
                       && options->upVAdj16 == 1536 && options->downVAdj == -1536 && options->downVAdj2 == -1536 && options->downVAdj16 == -1536
                       && options->stUpHAdj == 0 && options->stDownHAdj == 0 && options->stUpVAdj == 1536 && options->stDownVAdj == -1536
                       && options->flagSpacing == 24 && options->secondaryGroupAdj == 0,
         "Coda FlagOptions did not recover its vertical choices");
     expectMapping(field(report, "options.flagOptions.straightFlags").origin == ValueOrigin::Finale27Default
-                      && field(report, "options.flagOptions.upHAdj").origin == ValueOrigin::Finale27Default
+                      && field(report, "options.flagOptions.upHAdj").origin == ValueOrigin::LegacyMusAdjusted
                       && field(report, "options.flagOptions.stUpVAdj").origin == ValueOrigin::LegacyBehavior,
         "Coda FlagOptions reported an incorrect field origin");
 }
@@ -143,7 +209,7 @@ TEST_CASE("The editable flag family structurally gates straight flags", "[class]
         "Selector 05 supplied straight flags without the editable flag family");
 }
 
-TEST_CASE("Coda flag origin switches expand independently", "[class]")
+TEST_CASE("Early flag origin switches expand independently", "[class]")
 {
     struct Case
     {
@@ -158,11 +224,17 @@ TEST_CASE("Coda flag origin switches expand independently", "[class]")
             {GLOBALS_CMPER, "10", {0, 0, 0, 7, item.up, item.down}},
             {GLOBALS_CMPER, "36", {0, 0, 0, 0, 0, 0}},
         };
-        ImportReport report(FormatEpoch::CodaBanner);
-        const auto options = importFlagOptions(makeContainer(rows, FormatEpoch::CodaBanner), FormatEpoch::CodaBanner, report);
-        expectMapping(options->upHAdj == 101 && options->upVAdj == item.upExpected && options->upVAdj16 == item.upExpected
-                          && options->downVAdj == item.downExpected && options->downVAdj16 == item.down16Expected,
-            "Coda FlagOptions coupled independent origin choices");
+        for (const auto epoch : {FormatEpoch::CodaBanner, FormatEpoch::UncompressedLegacy}) {
+            for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+                ImportReport report(epoch);
+                auto profile = profileFor(3, 0);
+                profile.epoch = epoch;
+                const auto options = importFlagOptions(makeContainer(rows, epoch, order), profile, report);
+                expectMapping(options->upHAdj == 1696 && options->upVAdj == item.upExpected && options->upVAdj16 == item.upExpected
+                                  && options->downVAdj == item.downExpected && options->downVAdj16 == item.down16Expected,
+                    "Early FlagOptions coupled independent origin choices");
+            }
+        }
     }
 }
 
@@ -175,14 +247,14 @@ TEST_CASE("Controlled Coda flag fixtures recover vertical source choices", "[cla
 
     const auto offset = readFixture("evidence/F100/F100-flagoff-neg3.mus");
     const auto offsetOptions = offset.document->getOptions()->get<FlagOptionsTarget>();
-    expect(offsetOptions && offsetOptions->upHAdj == 0 && offsetOptions->upHAdj2 == 0 && offsetOptions->upHAdj16 == 0
-               && field(offset.report, "options.flagOptions.upHAdj").origin == ValueOrigin::Finale27Default,
+    expect(offsetOptions && offsetOptions->upHAdj == 1696 && offsetOptions->upHAdj2 == 1696 && offsetOptions->upHAdj16 == 1696
+               && field(offset.report, "options.flagOptions.upHAdj").origin == ValueOrigin::LegacyMusAdjusted,
         "The Finale 1.0 flag-offset fixture did not retain its horizontal defaults");
 
     const auto offset263 = readFixture("evidence/F263/F263-flagoff-neg3.mus");
     const auto offset263Options = offset263.document->getOptions()->get<FlagOptionsTarget>();
-    expect(offset263Options && offset263Options->upHAdj == 0 && offset263Options->upHAdj2 == 0 && offset263Options->upHAdj16 == 0
-               && field(offset263.report, "options.flagOptions.upHAdj").origin == ValueOrigin::Finale27Default,
+    expect(offset263Options && offset263Options->upHAdj == 1696 && offset263Options->upHAdj2 == 1696 && offset263Options->upHAdj16 == 1696
+               && field(offset263.report, "options.flagOptions.upHAdj").origin == ValueOrigin::LegacyMusAdjusted,
         "The Finale 2.6 flag-offset fixture did not retain its horizontal defaults");
 
     const auto up = readFixture("evidence/F263/F263-flagup-origy.mus");

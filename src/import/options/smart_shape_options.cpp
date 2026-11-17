@@ -636,6 +636,10 @@ template <typename Map>
 void captureSmartShapeConnectionStyles(const ImportContext& context, const std::shared_ptr<SmartShapeTarget>& target, std::uint16_t selector,
     std::string_view collection, Map SmartShapeTarget::* member, std::size_t semanticStyleCount, bool trailingTupleAfterInitialLayout = false)
 {
+    // Coda stores text and lyric font tuples at the later slur-connection selector.
+    if (context.profile.epoch == FormatEpoch::CodaBanner && selector == smartShapeSlurConnectionSelector) {
+        return;
+    }
     const auto family = readGlobalWords(context.index, context.profile, selector);
     if (!family.present) {
         return;
@@ -643,7 +647,7 @@ void captureSmartShapeConnectionStyles(const ImportContext& context, const std::
 
     auto& styles = target.get()->*member;
     auto tupleCount = family.words.size() / smartShapeConnectionStyleWords;
-    // The slur family starts as two ordinary tuples. Its two later fixed shapes append
+    // The slur family's fixed shapes append
     // one structural tuple after the 25- or 29-element semantic collection.
     if (trailingTupleAfterInitialLayout && tupleCount > 2) {
         --tupleCount;

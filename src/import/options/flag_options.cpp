@@ -92,7 +92,7 @@ void reportCodaFlagField(Reporting& reporting, const char* member, typename Repo
     reporting.report().setField(reporting.template instanceKey<FlagOptionsTarget>(), member, {origin, blockOffset, decodedOffset, rawValue});
 }
 
-void reportCodaFlagOptions(const ImportContext& context, const FlagOptionsTarget& target, const GlobalSelectorWords& position)
+void reportCodaFlagOptions(const ImportContext& context, const FlagOptionsTarget& target)
 {
     withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
         const auto reportDefault = [&](const char* member, std::int64_t value) {
@@ -115,14 +115,6 @@ void reportCodaFlagOptions(const ImportContext& context, const FlagOptionsTarget
         reportBehavior("stDownVAdj", target.stDownVAdj);
         reportBehavior("flagSpacing", target.flagSpacing);
         reportBehavior("secondaryGroupAdj", target.secondaryGroupAdj);
-        for (auto member : {"upVAdj", "upVAdj16"}) {
-            reportCodaFlagField(
-                reporting, member, Reporting::Origin::LegacyMusAdjusted, position.blockOffset, position.decodedOffset, position.words[4]);
-        }
-        for (auto member : {"downVAdj", "downVAdj16"}) {
-            reportCodaFlagField(
-                reporting, member, Reporting::Origin::LegacyMusAdjusted, position.blockOffset, position.decodedOffset, position.words[5]);
-        }
     });
 }
 
@@ -143,27 +135,110 @@ void importCodaFlagOptions(const ImportContext& context)
     }
     const auto target = std::const_pointer_cast<FlagOptionsTarget>(pooled);
 
-    // Coda stores vertical-origin switches rather than the later independent coordinates.
-    // Words 4 and 5 select the upward and downward origins independently. Word 3 changes
-    // with the horizontal-origin control, but its conversion to modern coordinates is
-    // unverified, so the horizontal coordinates retain their seeded defaults.
-    const auto upVertical = position.words[4] ? codaOriginVertical : codaCurvedUpVertical;
-    const auto downVertical = position.words[5] ? -codaOriginVertical : codaCurvedDownVertical;
-    const auto downVertical16 = position.words[5] ? -codaOriginVertical : codaCurvedDownVertical16;
-
     target->downHAdj = target->downHAdj2 = target->downHAdj16 = 0;
-    target->upVAdj = target->upVAdj16 = upVertical;
-    target->downVAdj = downVertical;
     target->upVAdj2 = codaOriginVertical;
     target->downVAdj2 = -codaOriginVertical;
-    target->downVAdj16 = downVertical16;
     target->stUpHAdj = target->stDownHAdj = 0;
     target->stUpVAdj = codaOriginVertical;
     target->stDownVAdj = -codaOriginVertical;
     target->flagSpacing = codaFlagSpacing;
     target->secondaryGroupAdj = 0;
 
-    reportCodaFlagOptions(context, *target, position);
+    reportCodaFlagOptions(context, *target);
+}
+
+void importEarlyVerticalFlagOptions(const ImportContext& context)
+{
+    if ((context.profile.epoch != FormatEpoch::CodaBanner && context.profile.epoch != FormatEpoch::UncompressedLegacy)
+        || storesFinale35OptionLayout(context.index, context.profile)) {
+        return;
+    }
+    const auto position = readGlobalWords(context.index, context.profile, codaFlagPositionSelector);
+    const auto pooled = context.document->getOptions()->get<FlagOptionsTarget>();
+    if (position.words.size() < 6 || !pooled) {
+        return;
+    }
+    const auto target = std::const_pointer_cast<FlagOptionsTarget>(pooled);
+    const auto upVertical = position.words[4] ? codaOriginVertical : codaCurvedUpVertical;
+    const auto downVertical = position.words[5] ? -codaOriginVertical : codaCurvedDownVertical;
+    const auto downVertical16 = position.words[5] ? -codaOriginVertical : codaCurvedDownVertical16;
+
+    target->upVAdj = target->upVAdj16 = upVertical;
+    target->downVAdj = downVertical;
+    target->downVAdj16 = downVertical16;
+    withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+        for (auto member : {"upVAdj", "upVAdj16"}) {
+            reportCodaFlagField(
+                reporting, member, Reporting::Origin::LegacyMusAdjusted, position.blockOffset, position.decodedOffset, position.words[4]);
+        }
+        for (auto member : {"downVAdj", "downVAdj16"}) {
+            reportCodaFlagField(
+                reporting, member, Reporting::Origin::LegacyMusAdjusted, position.blockOffset, position.decodedOffset, position.words[5]);
+        }
+    });
+}
+
+void importEarlyHorizontalFlagOptions(const ImportContext& context)
+{
+    if ((context.profile.epoch != FormatEpoch::CodaBanner && context.profile.epoch != FormatEpoch::UncompressedLegacy)
+        || storesFinale35OptionLayout(context.index, context.profile)) {
+        return;
+    }
+    constexpr std::uint16_t horizontalOriginSelector = 36;
+    const auto family = readGlobalWords(context.index, context.profile, horizontalOriginSelector);
+    if (!family.present || family.words.size() < 6) {
+        return;
+    }
+    const auto pooled = context.document->getOptions()->get<FlagOptionsTarget>();
+    if (!pooled) {
+        return;
+    }
+    const auto target = std::const_pointer_cast<FlagOptionsTarget>(pooled);
+    const auto origin = family.words[5];
+    // Believed: the early origin switch expands to the shared upward flag offset.
+    target->upHAdj = target->upHAdj2 = target->upHAdj16 = origin == 0 ? 1696 : 0;
+    withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+        for (const auto member : {"upHAdj", "upHAdj2", "upHAdj16"}) {
+            reportCodaFlagField(reporting, member, Reporting::Origin::LegacyMusAdjusted, family.blockOffset, family.decodedOffset, origin);
+        }
+    });
+}
+
+void deferEarlyFontFlagOptions(const ImportContext& context)
+{
+    if ((context.profile.epoch != FormatEpoch::CodaBanner && context.profile.epoch != FormatEpoch::UncompressedLegacy)
+        || storesFinale35OptionLayout(context.index, context.profile)) {
+        return;
+    }
+    context.pending.defer(DeferredStage::NormalizeStoredValues, [&context] {
+        using Fonts = musx::dom::options::FontOptions;
+        const auto font = Fonts::getFontInfoOrNull(context.document, Fonts::FontType::Music);
+        const auto pooled = context.document->getOptions()->get<FlagOptionsTarget>();
+        if (!font || !pooled) {
+            return;
+        }
+        const auto definition = context.document->getOthers()->get<musx::dom::others::FontDefinition>(musx::dom::SCORE_PARTID, font->fontId);
+        if (!definition || definition->name.empty()) {
+            return;
+        }
+        const auto& name = definition->name;
+        // The legacy choice compares at most the first two letters, without case.
+        const bool sonata = (name[0] == 'S' || name[0] == 's') && (name.size() == 1 || name[1] == 'O' || name[1] == 'o');
+        auto& target = *std::const_pointer_cast<FlagOptionsTarget>(pooled);
+        target.stUpHAdj = 0;
+        target.stDownHAdj = 0;
+        target.stUpVAdj = sonata ? 0 : codaOriginVertical;
+        target.stDownVAdj = sonata ? 0 : -codaOriginVertical;
+        target.flagSpacing = sonata ? 19 : codaFlagSpacing;
+        target.secondaryGroupAdj = sonata ? 5 : 0;
+        withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+            for (const auto& [member, value] : {std::pair{"stUpHAdj", target.stUpHAdj}, std::pair{"stDownHAdj", target.stDownHAdj},
+                     std::pair{"stUpVAdj", target.stUpVAdj}, std::pair{"stDownVAdj", target.stDownVAdj}, std::pair{"flagSpacing", target.flagSpacing},
+                     std::pair{"secondaryGroupAdj", target.secondaryGroupAdj}}) {
+                reporting.template behaviorField<FlagOptionsTarget>(member, value);
+            }
+        });
+    });
 }
 
 const MappingTable& classFlagTable()
@@ -189,6 +264,9 @@ void importFlagOptions(const ImportContext& context)
     }
     applyMappingTables({&fixedFlagTable(), &classFlagTable()}, context.index, context.profile, context.document, context.report);
     importCodaFlagOptions(context);
+    importEarlyHorizontalFlagOptions(context);
+    importEarlyVerticalFlagOptions(context);
+    deferEarlyFontFlagOptions(context);
 }
 
 } // namespace options

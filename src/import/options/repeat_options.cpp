@@ -62,8 +62,6 @@ bool hasRepeatOptionsLayout(const records::LegacyRecordIndex& index, const Sourc
 // The fixed-row representation is selected by its own record family rather than by
 // dating the file. This leaves earlier uncompressed files at the seeded defaults.
 const FieldMapping repeatFields[] = {
-    MUS_WORD(RepeatTarget, bracketHeightTag, GLOBALS_CMPER, 0, 3, bracketHeight),
-    MUS_WORD_AS_IF(RepeatTarget, maxPassesTag, GLOBALS_CMPER, 0, 3, nullptr, maxPasses, repeatMaxPasses(value)),
     MUS_WORD(RepeatTarget, periodTag, GLOBALS_CMPER, 0, 1, addPeriod),
     MUS_WORD(RepeatTarget, repeatLineTag, GLOBALS_CMPER, 0, 0, thickLineWidth),
     MUS_WORD(RepeatTarget, repeatLineTag, GLOBALS_CMPER, 0, 1, thinLineWidth),
@@ -117,6 +115,39 @@ const FieldMapping classRepeatFields[] = {
 
 constexpr const char* repeatReportPrefix = "options.repeatOptions";
 
+// The bracket height predates the remaining repeat-option family and retains its
+// word position through the early font-record migration.
+const FieldMapping bracketHeightFields[] = {
+    MUS_NUMERIC_WORD(RepeatTarget, repeatSelector(bracketHeightTag), 0, 3, bracketHeight),
+};
+
+const MappingTable& bracketHeightTable()
+{
+    static const MappingTable table{.reportPrefix = repeatReportPrefix,
+        .epochs = EpochMask::CodaBanner | EpochMask::FixedRow,
+        .targetKind = TargetKind::OptionsSingleton,
+        .enumerateTargets = &enumerateOptionsTarget<RepeatTarget>,
+        .fields = bracketHeightFields,
+        .fieldCount = std::size(bracketHeightFields)};
+    return table;
+}
+
+const FieldMapping maxPassFields[] = {
+    MUS_WORD_AS_IF(RepeatTarget, maxPassesTag, GLOBALS_CMPER, 0, 3, nullptr, maxPasses, repeatMaxPasses(value)),
+};
+
+const MappingTable& maxPassTable()
+{
+    // Coda uses this slot for a different purpose; its migration clears it.
+    static const MappingTable table{.reportPrefix = repeatReportPrefix,
+        .epochs = EpochMask::FixedRow,
+        .targetKind = TargetKind::OptionsSingleton,
+        .enumerateTargets = &enumerateOptionsTarget<RepeatTarget>,
+        .fields = maxPassFields,
+        .fieldCount = std::size(maxPassFields)};
+    return table;
+}
+
 const MappingTable& repeatTable()
 {
     static const MappingTable table{.reportPrefix = repeatReportPrefix,
@@ -146,7 +177,8 @@ const MappingTable& classRepeatTable()
 
 void importRepeatOptions(const ImportContext& context)
 {
-    applyMappingTables({&repeatTable(), &classRepeatTable()}, context.index, context.profile, context.document, context.report);
+    applyMappingTables({&bracketHeightTable(), &maxPassTable(), &repeatTable(), &classRepeatTable()}, context.index, context.profile,
+        context.document, context.report);
 
     const auto pooled = context.document->getOptions()->get<RepeatTarget>();
     if (!pooled) {
