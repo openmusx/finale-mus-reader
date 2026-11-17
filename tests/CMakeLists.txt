@@ -59,6 +59,7 @@ add_executable(finale_mus_reader_tests
     classes/options/lyric_options_tests.cpp
     classes/options/misc_options_tests.cpp
     classes/options/multimeasure_rest_options_tests.cpp
+    classes/options/music_spacing_options_tests.cpp
     classes/options/music_symbol_options_tests.cpp
     classes/options/note_rest_options_tests.cpp
     classes/options/page_format_options_tests.cpp

@@ -1,6 +1,8 @@
 // Copyright (c) 2026 Robert G. Patterson
 // SPDX-License-Identifier: MIT
 
+#include <catch2/generators/catch_generators.hpp>
+
 #include "class_test_support.h"
 
 namespace finale_mus_reader_tests {
@@ -114,9 +116,9 @@ void testControlledTieChanges()
                    && field(earlyContour, "options.tieOptions.tieControlStyles[" + std::to_string(index) + "].cp2.insetRatio").origin
                           == ValueOrigin::LegacyBehavior
                    && field(earlyContour, "options.tieOptions.tieControlStyles[" + std::to_string(index) + "].cp1.insetFixed").origin
-                          == (index < 3 ? ValueOrigin::LegacyMusAdjusted : ValueOrigin::Finale27Default)
+                          == ValueOrigin::LegacyMusAdjusted
                    && field(earlyContour, "options.tieOptions.tieControlStyles[" + std::to_string(index) + "].cp2.insetFixed").origin
-                          == (index < 3 ? ValueOrigin::LegacyMusAdjusted : ValueOrigin::Finale27Default),
+                          == ValueOrigin::LegacyMusAdjusted,
             "A Coda tie inset did not receive the correct fallback");
     }
 
@@ -173,7 +175,7 @@ void testControlledTieChanges()
                && finale37PostScriptMedium->cp1->insetFixed == 8 && finale37PostScriptMedium->cp2->insetFixed == 30,
         "The Finale 3.7 PostScript tie geometry decoded incorrectly");
     expect(field(finale37PostScript, "options.tieOptions.tieControlStyles[1].cp2.insetFixed").origin == ValueOrigin::LegacyMusAdjusted
-               && field(finale37PostScript, "options.tieOptions.tieControlStyles[3].cp1.insetFixed").origin == ValueOrigin::Finale27Default,
+               && field(finale37PostScript, "options.tieOptions.tieControlStyles[3].cp1.insetFixed").origin == ValueOrigin::LegacyMusAdjusted,
         "The Finale 3.7 PostScript tie geometry reported the wrong origins");
 
     const auto changed = readFixture("evidence/F2000/F2000-tieopts-changed.mus");
@@ -187,6 +189,47 @@ void testControlledTieChanges()
     const auto extraSystem = readFixture("evidence/F2005/F2005-tie-xtrasys.mus");
     expect(tieOptions(extraSystem)->frontTieSepar == -11 && field(extraSystem, "options.tieOptions.frontTieSepar").origin == ValueOrigin::LegacyMus,
         "The controlled extra system separation was not recovered");
+}
+
+TEST_CASE("Early tie-end insets use their stored offset and signed endpoints", "[class][reader]")
+{
+    for (const auto epoch : {FormatEpoch::CodaBanner, FormatEpoch::UncompressedLegacy}) {
+        for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+            const auto screenEndpoint = GENERATE(-12, 19);
+            auto session = musx::factory::DocumentFactory::begin();
+            const auto document = session.getDocument();
+            auto options = std::make_shared<TieOptions>(document);
+            auto style = std::make_shared<TieOptions::ControlStyle>();
+            style->cp1 = std::make_shared<TieOptions::ControlPoint>();
+            style->cp2 = std::make_shared<TieOptions::ControlPoint>();
+            options->tieControlStyles.emplace(TieOptions::ControlStyleType::TieEnds, style);
+            document->getOptions()->add(TieOptions::XmlNodeName, options);
+            const auto parsed = makeContainer(
+                {
+                    {GLOBALS_CMPER, "22", {0, 0, 0, 0, 0, static_cast<std::int16_t>(screenEndpoint)}},
+                    {GLOBALS_CMPER, "50", {9, 0, -13, 0, 0, 0}},
+                    {GLOBALS_CMPER, "51", {0, 0, 0, 0, 0, -5}},
+                },
+                epoch, order);
+            const auto index = LegacyRecordIndex::build(parsed);
+            auto profile = profileFor(3, 7);
+            profile.epoch = epoch;
+            profile.byteOrder = order;
+            profile.version.reset();
+            ImportReport report(epoch);
+            finale_mus_reader::PendingReferences pending;
+            musx::factory::ConstructionContext construction;
+            const finale_mus_reader::ImportContext context{index, profile, noSource, document, document, report, pending, construction};
+            finale_mus_reader::options::importTieOptions(context);
+            CHECK(style->cp1->insetFixed == -14);
+            CHECK(style->cp2->insetFixed == -18);
+            CHECK(options->sysBreakRightHAdj == 1);
+            CHECK(field(report, "options.tieOptions.sysBreakRightHAdj").rawValue == -13);
+            CHECK(field(report, "options.tieOptions.sysBreakRightHAdj").finaleUpgradeLossValue == 14 - screenEndpoint);
+            CHECK(field(report, "options.tieOptions.tieControlStyles[3].cp1.insetFixed").origin == ValueOrigin::LegacyMusAdjusted);
+            CHECK(field(report, "options.tieOptions.tieControlStyles[3].cp1.insetFixed").rawValue == -5);
+        }
+    }
 }
 
 TEST_CASE("TieOptions recover each located layout and preserve absent-family "

@@ -372,8 +372,8 @@ void testSmartShapeCustomLines()
     CHECK(codaOptions->ssLineStyleCmpTabBendCurve == 3);
     CHECK(codaOptions->hookLength == 8);
     CHECK(field(coda, "options.smartShapeOptions.hookLength").origin == ValueOrigin::LegacyBehavior);
-    CHECK(field(coda, "options.smartShapeOptions.slurConnectStyles[0].connectIndex").origin == ValueOrigin::LegacyMus);
-    CHECK(field(coda, "options.smartShapeOptions.slurConnectStyles[1].yOffset").origin == ValueOrigin::LegacyMus);
+    CHECK(field(coda, "options.smartShapeOptions.slurConnectStyles[0].connectIndex").origin == ValueOrigin::Finale27Default);
+    CHECK(field(coda, "options.smartShapeOptions.slurConnectStyles[1].yOffset").origin == ValueOrigin::Finale27Default);
     CHECK(field(coda, "options.smartShapeOptions.slurConnectStyles[2].xOffset").origin == ValueOrigin::Finale27Default);
     CHECK(coda.document->getOthers()->getArray<LineTarget>(SCORE_PARTID).size() == 3);
 

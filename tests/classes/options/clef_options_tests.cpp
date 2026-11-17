@@ -144,6 +144,18 @@ void testClefTupleDecoding()
     expectMapping(early->getClefDef(7)->middleCPos == -35 && early->getClefDef(8)->middleCPos == -1,
         "The boundary between eight stored and ten synthesized clefs moved");
 
+    for (const auto byteOrder : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+        for (const auto enabled : {0, 1, 2, -32768}) {
+            earlyRows[0].words[5] = static_cast<std::int16_t>(enabled);
+            auto profile = profileFor(3, 7);
+            profile.byteOrder = byteOrder;
+            const auto clefs = captured(makeContainer(earlyRows, FormatEpoch::UncompressedLegacy, byteOrder), profile);
+            expectMapping(
+                clefs->getClefDef(0)->baselineAdjust == (enabled ? 2 * 768 : 0) && clefs->getClefDef(7)->baselineAdjust == (enabled ? 2 * 768 : 0),
+                "The pre-Finale-97 baseline switch did not use the whole nonzero word for every clef");
+        }
+    }
+
     // 360 bytes divides by both tuple widths. Only the version separates them, and only
     // the wide reading yields the eighteen definitions Finale actually stores.
     std::vector<std::int16_t> wide(18 * 10, 0);

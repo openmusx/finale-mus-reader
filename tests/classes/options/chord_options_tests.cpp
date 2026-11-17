@@ -93,7 +93,7 @@ TEST_CASE("Chord options resolve their fret references whatever order the regist
         " options imported first");
 }
 
-TEST_CASE("Chord accidental lifts recover from Finale 3.7 onward")
+TEST_CASE("Chord accidental lifts preserve the shared and independent layouts")
 {
     const auto import = [](std::uint8_t minor) {
         auto session = musx::factory::DocumentFactory::begin();
@@ -119,11 +119,16 @@ TEST_CASE("Chord accidental lifts recover from Finale 3.7 onward")
         return std::pair{document->getOptions()->get<ChordOptions>(), std::move(report)};
     };
 
+    const auto [finale30, finale30Report] = import(0);
+    CHECK(finale30->chordSharpLift == 24);
+    CHECK(finale30->chordFlatLift == 24);
+    CHECK(finale30->chordNaturalLift == 24);
+
     const auto [finale35, finale35Report] = import(5);
-    CHECK(finale35->chordSharpLift == 12);
-    CHECK(finale35->chordFlatLift == 12);
-    CHECK(finale35->chordNaturalLift == 12);
-    CHECK(field(finale35Report, "options.chordOptions.chordSharpLift").origin == ValueOrigin::LegacyBehavior);
+    CHECK(finale35->chordSharpLift == 24);
+    CHECK(finale35->chordFlatLift == 25);
+    CHECK(finale35->chordNaturalLift == 24);
+    CHECK(field(finale35Report, "options.chordOptions.chordSharpLift").origin == ValueOrigin::LegacyMus);
 
     const auto [finale37, finale37Report] = import(7);
     CHECK(finale37->chordSharpLift == 24);
@@ -147,27 +152,31 @@ TEST_CASE("Finale 2.6.3 recovers the unambiguous fretboard display states", "[cl
         CHECK(field(result, "options.chordOptions.showFretboards").origin == ValueOrigin::LegacyMus);
     }
 
-    for (const auto mixedState : {0x0004, 0x0008}) {
-        auto session = musx::factory::DocumentFactory::begin();
-        const auto document = session.getDocument();
-        auto options = std::make_shared<ChordOptions>(document);
-        options->showFretboards = true;
-        document->getOptions()->add(ChordOptions::XmlNodeName, options);
+    for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+        for (const auto mixedState : {0, 1, 4, 8, 12, -32768}) {
+            auto session = musx::factory::DocumentFactory::begin();
+            const auto document = session.getDocument();
+            auto options = std::make_shared<ChordOptions>(document);
+            options->showFretboards = mixedState == 0;
+            document->getOptions()->add(ChordOptions::XmlNodeName, options);
 
-        auto referenceSession = musx::factory::DocumentFactory::begin();
-        const auto reference = chordReferenceDocument(referenceSession);
-        const auto parsed = makeContainer({{GLOBALS_CMPER, "41", {0, 0, static_cast<std::int16_t>(mixedState), 0, 0, 0}}}, FormatEpoch::CodaBanner);
-        SourceProfile profile(FormatEpoch::CodaBanner);
-        profile.byteOrder = parsed.byteOrder;
-        ImportReport report(profile.epoch);
-        const auto index = LegacyRecordIndex::build(parsed);
-        finale_mus_reader::PendingReferences pending;
-        musx::factory::ConstructionContext construction;
-        const finale_mus_reader::ImportContext context{index, profile, noSource, document, reference, report, pending, construction};
+            auto referenceSession = musx::factory::DocumentFactory::begin();
+            const auto reference = chordReferenceDocument(referenceSession);
+            const auto parsed =
+                makeContainer({{GLOBALS_CMPER, "41", {0, 0, static_cast<std::int16_t>(mixedState), 0, 0, 0}}}, FormatEpoch::CodaBanner, order);
+            SourceProfile profile(FormatEpoch::CodaBanner);
+            profile.byteOrder = parsed.byteOrder;
+            ImportReport report(profile.epoch);
+            const auto index = LegacyRecordIndex::build(parsed);
+            finale_mus_reader::PendingReferences pending;
+            musx::factory::ConstructionContext construction;
+            const finale_mus_reader::ImportContext context{index, profile, noSource, document, reference, report, pending, construction};
 
-        finale_mus_reader::options::importChordOptions(context);
-        INFO(mixedState);
-        CHECK(options->showFretboards);
+            finale_mus_reader::options::importChordOptions(context);
+            INFO(mixedState);
+            CHECK(options->showFretboards == (mixedState != 0));
+            CHECK(field(report, "options.chordOptions.showFretboards").origin == ValueOrigin::LegacyMus);
+        }
     }
 }
 } // namespace

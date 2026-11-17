@@ -21,6 +21,7 @@ constexpr std::uint16_t graceSlashBehaviorSelector = 44;
 constexpr std::uint16_t codaLineWidthSelector = 54;
 
 const FieldMapping codaGraceNoteFields[] = {
+    MUS_NUMERIC_WORD(GraceNoteOptionsTarget, graceSlashBehaviorSelector, 0, 4, slashFlaggedGraceNotes),
     MUS_WORD(GraceNoteOptionsTarget, "23", GLOBALS_CMPER, 0, 0, gracePerc),
 };
 

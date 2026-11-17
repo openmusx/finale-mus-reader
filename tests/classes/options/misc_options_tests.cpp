@@ -80,6 +80,44 @@ void verifyMiscOptions(const MiscOptionsTarget& options, const ImportReport& rep
     expect(reportedFieldCount(report) == 10, "MiscOptions report does not exhaust the musxdom field manifest");
 }
 
+TEST_CASE("Miscellaneous dash and adjustment fields recover without a UI", "[class][reader]")
+{
+    for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+        for (const auto epoch : {FormatEpoch::CodaBanner, FormatEpoch::UncompressedLegacy, FormatEpoch::DclLegacy, FormatEpoch::ZlibLegacy}) {
+            const std::vector<SyntheticRow> rows{
+                {GLOBALS_CMPER, "58", {1, 2, -1, -3, 0, 0}},
+                {GLOBALS_CMPER, "10", {0, 0, 0, 0, -7, 9}},
+                {GLOBALS_CMPER, "75", {0, 0, 0, 0, 0, 0}},
+            };
+            auto parsed = makeContainer(rows, epoch, order);
+            if (epoch == FormatEpoch::ZlibLegacy) {
+                parsed = makeClassContainer(
+                    {
+                        {finale_mus_reader::numericGlobalClass(58), {1, 2, -1, -3, 0, 0}, GLOBALS_CMPER},
+                        {finale_mus_reader::numericGlobalClass(10), {0, 0, 0, 0, -7, 9}, GLOBALS_CMPER},
+                    },
+                    order);
+            }
+            ImportReport report(epoch);
+            const auto options = importMiscOptions(parsed, epoch, report);
+            const bool coda = epoch == FormatEpoch::CodaBanner;
+            CHECK(options->shapeDesignerDashLength == (coda ? 102 : 65538));
+            CHECK(options->shapeDesignerDashSpace == (coda ? 103 : -3));
+            CHECK(options->restWidthAdjust == (coda ? 104 : -7));
+            CHECK(options->dblWholeVertAdjust == (coda ? 105 : 9));
+            for (const auto member : {"shapeDesignerDashLength", "shapeDesignerDashSpace", "restWidthAdjust", "dblWholeVertAdjust"}) {
+                CHECK(field(report, std::string("options.miscOptions.") + member).origin
+                      == (coda ? ValueOrigin::Finale27Default : ValueOrigin::LegacyMus));
+            }
+        }
+        ImportReport earlyReport(FormatEpoch::UncompressedLegacy);
+        const auto early = importMiscOptions(makeContainer({{GLOBALS_CMPER, "10", {0, 0, 0, 0, 1, 1}}}, FormatEpoch::UncompressedLegacy, order),
+            FormatEpoch::UncompressedLegacy, earlyReport, 3);
+        CHECK(early->restWidthAdjust == 104);
+        CHECK(early->dblWholeVertAdjust == 105);
+    }
+}
+
 TEST_CASE("MiscOptions recovers fixed-row layouts and reports every field")
 {
     const std::vector<SyntheticRow> rows{

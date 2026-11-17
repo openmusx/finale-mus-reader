@@ -332,6 +332,17 @@ void captureEarlyTieOptions(const ImportContext& context, const std::shared_ptr<
             musx::dom::TieConnectStyleType::OverEndPosInner, musx::dom::TieConnectStyleType::UnderEndPosInner, wordAt(placement.words, 3));
     }
 
+    if (curve.present && curve.words.size() >= 6) {
+        const auto found = target->tieControlStyles.find(TieOptionsTarget::ControlStyleType::TieEnds);
+        if (found != target->tieControlStyles.end() && found->second->cp1 && found->second->cp2) {
+            const auto endInset = wordAt(curve.words, 5);
+            found->second->cp1->insetFixed = static_cast<std::int16_t>(endInset - wordAt(placement.words, 0));
+            found->second->cp2->insetFixed = static_cast<std::int16_t>(wordAt(placement.words, 2) + endInset);
+            reportAdjustedTieField(context, "tieControlStyles[3].cp1.insetFixed", endInset, curve.blockOffset, curve.decodedOffset);
+            reportAdjustedTieField(context, "tieControlStyles[3].cp2.insetFixed", endInset, curve.blockOffset, curve.decodedOffset);
+        }
+    }
+
     const std::array fixedInsets{
         static_cast<std::int16_t>(wordAt(placement.words, 4) - wordAt(placement.words, 0)),
         static_cast<std::int16_t>(wordAt(placement.words, 2) - wordAt(placement.words, 5)),
@@ -349,6 +360,31 @@ void captureEarlyTieOptions(const ImportContext& context, const std::shared_ptr<
             reportAdjustedTieField(context, prefix + "cp2.insetFixed", fixedInsets[1], placement.blockOffset, placement.decodedOffset);
         });
     }
+}
+
+void captureEarlyTieSystemBreak(const ImportContext& context, const std::shared_ptr<TieOptionsTarget>& target)
+{
+    if ((context.profile.epoch != FormatEpoch::CodaBanner && context.profile.epoch != FormatEpoch::UncompressedLegacy)
+        || readGlobalWords(context.index, context.profile, tieScalarSelector).present) {
+        return;
+    }
+    const auto placement = readGlobalWords(context.index, context.profile, legacy_curve::slurThicknessSelector);
+    if (!placement.present || placement.words.size() < 6) {
+        return;
+    }
+    constexpr int systemBreakOffset = 14;
+    target->sysBreakRightHAdj = static_cast<std::int16_t>(wordAt(placement.words, 2) + systemBreakOffset);
+    withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+        auto info = typename Reporting::FieldInfo{
+            Reporting::Origin::LegacyMusAdjusted, placement.blockOffset, placement.decodedOffset, wordAt(placement.words, 2)};
+        const auto contour = readGlobalWords(context.index, context.profile, earlyTieContourSelector);
+        // Percent-style conversion substitutes the screen endpoint for the PostScript endpoint.
+        if (contour.present && contour.words.size() >= 6) {
+            const auto screenEndpoint = static_cast<std::int16_t>(-wordAt(contour.words, 5));
+            info.finaleUpgradeLossValue = static_cast<std::int16_t>(screenEndpoint + systemBreakOffset);
+        }
+        reporting.report().setField(reporting.template instanceKey<TieOptionsTarget>(), "sysBreakRightHAdj", std::move(info));
+    });
 }
 
 void applyUnstoredFrontTieSeparation(const ImportContext& context, const std::shared_ptr<TieOptionsTarget>& target)
@@ -476,6 +512,7 @@ void importTieOptions(const ImportContext& context)
     captureTieContours(context, target);
     captureEarlyTieOptions(context, target);
     applyMappingTables({&fixedTieScalarTable(), &classTieScalarTable()}, context.index, context.profile, context.document, context.report);
+    captureEarlyTieSystemBreak(context, target);
     applyUnstoredFrontTieSeparation(context, target);
     applyScatteredTieBehavior(context, target);
     reportRemainingTieFields(context, *target);

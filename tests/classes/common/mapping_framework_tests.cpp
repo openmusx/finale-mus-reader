@@ -88,8 +88,9 @@ void testMusicSpacingOptionsLayouts()
             "The grace-note spacing origin did not follow its version behavior");
         expectMapping(field(report, "options.musicSpacing.scalingFactor").origin == ValueOrigin::LegacyMus,
             "The music spacing scaling factor was not reported as recovered");
-        expectMapping(field(report, "options.musicSpacing.defaultAllotment").origin == ValueOrigin::Finale27Default,
-            "The non-UI allotment default was not retained from the Finale 27 seed");
+        expectMapping(field(report, "options.musicSpacing.defaultAllotment").origin
+                          == (epoch == FormatEpoch::ZlibLegacy ? ValueOrigin::LegacyMus : ValueOrigin::LegacyBehavior),
+            "The allotment tail must not consume padding from an earlier layout");
     };
 
     run(FormatEpoch::UncompressedLegacy);

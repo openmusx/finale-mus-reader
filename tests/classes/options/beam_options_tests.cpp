@@ -74,6 +74,22 @@ TEST_CASE("Beam options recover the packed fixed-row layout", "[class]")
     }
 }
 
+TEST_CASE("Coda beam width selects the screen width only for the untouched PostScript width", "[class]")
+{
+    for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+        for (const auto psWidth : {30000, 28750}) {
+            const std::vector<SyntheticRow> rows{
+                {GLOBALS_CMPER, "20", {0, 0, 0, 9, 0, 0}},
+                {GLOBALS_CMPER, "62", {0, 0, 0, 0, 0, static_cast<std::int16_t>(psWidth)}},
+            };
+            ImportReport report(FormatEpoch::CodaBanner);
+            const auto options = importBeamOptions(makeContainer(rows, FormatEpoch::CodaBanner, order), FormatEpoch::CodaBanner, report);
+            CHECK(options->beamWidth == (psWidth == 30000 ? 576 : 736));
+            CHECK(field(report, "options.beamOptions.beamWidth").origin == ValueOrigin::LegacyMusAdjusted);
+        }
+    }
+}
+
 TEST_CASE("Beam options recover class records in either byte order", "[class]")
 {
     const std::vector<SyntheticClassRow> rows{
@@ -116,6 +132,7 @@ TEST_CASE("Early beam layouts recover stored fields and assert era behavior", "[
         "The early BeamOptions layout reported incorrect origins");
 
     auto earlyUnitRows = laterUnitRows;
+    earlyUnitRows[3] = {GLOBALS_CMPER, "20", {23, 29, 31, 12, 0, 0}};
     earlyUnitRows.push_back({GLOBALS_CMPER, "40", {1, 2, 3, 4, 5, 6}});
     earlyUnitRows[6] = {GLOBALS_CMPER, "62", {0, 0, 0, 0, 0, 30000}};
     ImportReport earlyReport(FormatEpoch::CodaBanner);
@@ -162,6 +179,20 @@ TEST_CASE("Finale 97 beam-rest switch populates both modern options", "[class]")
         "The Finale 97 beam-rest switch reported an incorrect origin");
 }
 
+TEST_CASE("Finale 98 recovers its persistent beam group switch", "[class]")
+{
+    for (const auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
+        for (const auto value : {0, 2}) {
+            ImportReport report(FormatEpoch::UncompressedLegacy);
+            const auto parsed =
+                makeContainer({{GLOBALS_CMPER, "22", {0, 0, 0, 0, 0, static_cast<std::int16_t>(value)}}, {GLOBALS_CMPER, "41", {0, 0, 0, 0, 0, 0}}},
+                    FormatEpoch::UncompressedLegacy, order);
+            const auto options = importBeamOptions(parsed, FormatEpoch::UncompressedLegacy, report, finale_mus_reader::versions::finale98);
+            CHECK(options->incRestsInFourGroups == (value != 0));
+        }
+    }
+}
+
 TEST_CASE("Finale 98 ignores its nonpersistent four-groups switch", "[class]")
 {
     const auto baseline = readFixture("evidence/F98/F98-baseline.mus");
@@ -175,8 +206,8 @@ TEST_CASE("Finale 98 ignores its nonpersistent four-groups switch", "[class]")
                && !restOptions->incRestsInFourGroups && !fourEighthsOptions->beamFourEighthsInCommonTime && !fourEighthsOptions->incRestsInFourGroups,
         "The Finale 98 beam switches did not reproduce reload behavior");
     expect(field(baseline, "options.beamOptions.beamFourEighthsInCommonTime").origin == ValueOrigin::LegacyMus
-               && field(baseline, "options.beamOptions.incRestsInFourGroups").origin == ValueOrigin::LegacyBehavior
-               && field(includeRests, "options.beamOptions.incRestsInFourGroups").origin == ValueOrigin::LegacyBehavior
+               && field(baseline, "options.beamOptions.incRestsInFourGroups").origin == ValueOrigin::LegacyMus
+               && field(includeRests, "options.beamOptions.incRestsInFourGroups").origin == ValueOrigin::LegacyMus
                && field(noFourEighths, "options.beamOptions.beamFourEighthsInCommonTime").origin == ValueOrigin::LegacyMus,
         "The Finale 98 beam switches reported incorrect origins");
 }

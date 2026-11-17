@@ -43,8 +43,15 @@ std::optional<std::int64_t> adjustEarlyBeamDistance(std::int64_t value, const re
     return musx::dom::Evpu(value * musx::dom::EVPU_PER_STAFF_POSITION);
 }
 
-std::optional<std::int64_t> adjustCodaBeamWidth(std::int64_t value, const records::LegacyRecordIndex&, const SourceProfile&)
+std::optional<std::int64_t> adjustCodaBeamWidth(std::int64_t value, const records::LegacyRecordIndex& index, const SourceProfile& profile)
 {
+    // The untouched PostScript width yields to the separate screen width.
+    if (value == 30000) {
+        const auto geometry = readGlobalWords(index, profile, beamGeometrySelector);
+        if (geometry.present && geometry.words.size() >= 4) {
+            value = static_cast<std::int16_t>(geometry.words[3]) * 2500;
+        }
+    }
     return legacyTenThousandthsPointToEfix(value);
 }
 
@@ -58,7 +65,7 @@ bool sourceStoresSeparateFourEighthsBeamOption(const SourceProfile& profile)
 
 bool sourceUsesFinale98FourGroupsRestBehavior(const SourceProfile& profile)
 {
-    // Finale 98 writes this UI state but does not restore it when reopening a document.
+    // Finale 98 stores the persistent group switch separately from its transient UI word.
     return sourceMatchesVersion(profile, FormatEpoch::UncompressedLegacy, versions::finale98);
 }
 
@@ -239,7 +246,18 @@ void importBeamOptions(const ImportContext& context)
     applyBehavior(target->oldFinaleRestBeams, "oldFinaleRestBeams", true);
     applyBehavior(target->spanSpace, "spanSpace", true);
     if (sourceUsesFinale98FourGroupsRestBehavior(context.profile)) {
-        applyBehavior(target->incRestsInFourGroups, "incRestsInFourGroups", false);
+        const auto source = readGlobalWords(context.index, context.profile, 22);
+        if (source.words.size() >= 6) {
+            target->incRestsInFourGroups = source.words[5] != 0;
+            withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+                for (const auto* member : {"incRestsInFourGroups"}) {
+                    reporting.report().setField(reporting.template instanceKey<BeamOptionsTarget>(), member,
+                        {Reporting::Origin::LegacyMus, source.blockOffset, source.decodedOffset + 10, source.words[5], numericGlobalTag(22)});
+                }
+            });
+        } else {
+            applyBehavior(target->incRestsInFourGroups, "incRestsInFourGroups", false);
+        }
     }
 }
 
