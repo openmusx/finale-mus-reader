@@ -22,9 +22,7 @@
 #include "finale_mus_reader/reader.h"
 
 #include "import/support/deferred_order.h"
-#include "import/support/instrument_catalog.h"
 #include "import/support/reporting.h"
-#include "import/support/soundmaps.h"
 #include "import/support/text_encoding.h"
 #include "musx/dom/Document.h"
 #include "musx/dom/Fundamentals.h"
@@ -36,7 +34,7 @@
 namespace finale_mus_reader {
 
 namespace percussion {
-class MappingTables;
+class ConversionTable;
 struct LegacyConversion;
 } // namespace percussion
 
@@ -480,9 +478,9 @@ struct SourceProfile
     /// @brief The Coda-banner format flags; zero for every other epoch.
     std::uint8_t codaFormatFlags{};
     const text::SymbolFontNames* symbolFontNames{};
-    const percussion::MappingTables* percussionMappings{};
-    const soundmap::Documents* soundmaps{};
-    const playback::InstrumentCatalog* instrumentCatalog{};
+    const percussion::ConversionTable* percussionConversions{};
+    /// @brief The caller's playback resources; null when none were supplied.
+    const musx::dom::PlaybackResources* playbackResources{};
 };
 
 /// @brief Whether a source belongs to any of the requested format epochs.

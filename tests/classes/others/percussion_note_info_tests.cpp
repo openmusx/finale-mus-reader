@@ -239,7 +239,12 @@ TEST_CASE("Reusable readers retype through the first supplied conversion target"
             return std::span<const std::uint8_t>(reinterpret_cast<const std::uint8_t*>(value.data()), value.size());
         };
         const std::string symbolFontContents(fixtureLegacySymbolFonts);
-        finale_mus_reader::ReaderOptions options{bytes(symbolFontContents), {{"maps.xml", bytes(first)}, {"maps.xml", bytes(duplicate)}}};
+        musx::factory::PlaybackResourceInputs inputs;
+        inputs.deviceAnnotations.emplace_back("maps.xml", first);
+        inputs.deviceAnnotations.emplace_back("maps.xml", duplicate);
+        finale_mus_reader::ReaderOptions options;
+        options.macSymbolFonts = bytes(symbolFontContents);
+        options.playbackResources = makePlaybackResources(inputs);
         options.percussionMapConversionTable = bytes(conversion);
         return finale_mus_reader::Reader::create<TestXmlDocument>(options);
     }();
@@ -270,23 +275,22 @@ TEST_CASE("Legacy percussion conversion selects a supplied XML file and list", "
     const auto bytes = [](std::string_view value) {
         return std::span<const std::uint8_t>(reinterpret_cast<const std::uint8_t*>(value.data()), value.size());
     };
-    const std::array documents{finale_mus_reader::PercussionMappingXml{"/tmp/first.xml", bytes(first)},
-        finale_mus_reader::PercussionMappingXml{"second.xml", bytes(second)}};
-    const auto parseXml = [](const char* data, std::size_t size) -> std::unique_ptr<musx::xml::IXmlDocument> {
-        auto xml = std::make_unique<TestXmlDocument>();
-        xml->loadFromBuffer(data, size);
-        return xml;
-    };
-    const auto tables = finale_mus_reader::percussion::parseMappingTables(documents, bytes(conversion), parseXml);
+    musx::factory::PlaybackResourceInputs inputs;
+    inputs.deviceAnnotations.emplace_back("/tmp/first.xml", first);
+    inputs.deviceAnnotations.emplace_back("second.xml", second);
+    const auto resources = makePlaybackResources(inputs);
+    const auto table = finale_mus_reader::percussion::parseConversionTable(bytes(conversion));
     // The first entry whose file and list were supplied wins.
-    const auto* selected = tables.conversionTarget(" Legacy, Map ");
+    const auto* selected = table.conversionTarget(" Legacy, Map ", resources.get());
     REQUIRE(selected);
-    CHECK(selected->at(103) == 4131);
-    CHECK_FALSE(selected->contains(7));
-    CHECK(tables.conversionTarget("Fallback") == nullptr);
-    CHECK(tables.conversionTarget("Legacy\\, Map") == nullptr);
-    const auto withoutConversion = finale_mus_reader::percussion::parseMappingTables(documents, {}, parseXml);
-    CHECK(withoutConversion.conversionTarget("Legacy, Map") == nullptr);
+    CHECK(selected->getFileName() == "second.xml");
+    CHECK(selected->findNoteType(103) == musx::dom::PercussionNoteTypeId(4131));
+    CHECK_FALSE(selected->findNoteType(7));
+    CHECK(table.conversionTarget("Fallback", resources.get()) == nullptr);
+    CHECK(table.conversionTarget("Legacy\\, Map", resources.get()) == nullptr);
+    CHECK(table.conversionTarget("Legacy, Map", nullptr) == nullptr);
+    const auto withoutConversion = finale_mus_reader::percussion::parseConversionTable({});
+    CHECK(withoutConversion.conversionTarget("Legacy, Map", resources.get()) == nullptr);
 }
 
 TEST_CASE("An unreferenced DCL DF map is not constructed", "[class]")
@@ -452,13 +456,10 @@ TEST_CASE("A conversion-table entry retypes a layout through its default MIDI no
     const auto bytes = [](std::string_view value) {
         return std::span<const std::uint8_t>(reinterpret_cast<const std::uint8_t*>(value.data()), value.size());
     };
-    const auto parseXml = [](const char* data, std::size_t size) -> std::unique_ptr<musx::xml::IXmlDocument> {
-        auto xml = std::make_unique<TestXmlDocument>();
-        xml->loadFromBuffer(data, size);
-        return xml;
-    };
-    const std::array documents{finale_mus_reader::PercussionMappingXml{"SmartMusic SoftSynth.xml", bytes(mapping)}};
-    const auto tables = finale_mus_reader::percussion::parseMappingTables(documents, bytes(conversion), parseXml);
+    musx::factory::PlaybackResourceInputs inputs;
+    inputs.deviceAnnotations.emplace_back("SmartMusic SoftSynth.xml", mapping);
+    const auto resources = makePlaybackResources(inputs);
+    const auto table = finale_mus_reader::percussion::parseConversionTable(bytes(conversion));
 
     using namespace finale_mus_reader;
     for (const bool named : {true, false}) {
@@ -476,7 +477,8 @@ TEST_CASE("A conversion-table entry retypes a layout through its default MIDI no
         }
         auto profile = SourceProfile(FormatEpoch::DclLegacy);
         profile.byteOrder = ByteOrder::BigEndian;
-        profile.percussionMappings = &tables;
+        profile.percussionConversions = &table;
+        profile.playbackResources = resources.get();
         const auto document = makePercussionNoteInfoDocument();
         addScrollViewPercussionStaves(document, {1});
         ImportReport report(profile.epoch);

@@ -23,7 +23,6 @@
 #include "finale_mus_reader/reader.h"
 #include "import/support/playback_plugin_names.h"
 #include "musx/musx.h"
-#include "reader/resources.h"
 #include "support/finale_version.h"
 
 #ifndef MUSX_USE_PUGIXML
@@ -1371,102 +1370,34 @@ TEST_CASE("The other two banner spellings still parse", "[banner]")
     CHECK_FALSE(signature.isPreSignature());
 }
 
-TEST_CASE("Sound maps retain complete XML and caller order independently of input buffers", "[reader][soundmaps]")
+TEST_CASE("Reader shares caller playback resources with every document it creates", "[reader][playback]")
 {
-    static unsigned soundmapParseCount;
-    soundmapParseCount = 0;
-    const auto parser = +[](const char* data, std::size_t size) -> std::unique_ptr<musx::xml::IXmlDocument> {
-        ++soundmapParseCount;
-        auto xml = std::make_unique<TestXmlDocument>();
-        xml->loadFromBuffer(data, size);
-        return xml;
-    };
-    auto resources = [&] {
-        std::string first = R"(<Soundmap><Description><Name>Example MIDI</Name><PluginID>TEST</PluginID></Description>
-            <Sound id="second" uuid="00000000-0000-0000-0000-000000000002"><PatchMIDICommands><ProgramChange Number="1"/></PatchMIDICommands></Sound>
-            <Sound id="first" uuid="00000000-0000-0000-0000-000000000001"><SampleFile>example/sample</SampleFile></Sound>
-            <MapSounds><FinInstrument uuid="example"/><Sound ref="first"/></MapSounds><Extension>retained</Extension></Soundmap>)";
-        std::string second = R"(<Soundmap><Description><Name>Example Samples</Name></Description></Soundmap>)";
+    const auto path = std::filesystem::path(FINALE_MUS_READER_TEST_SOURCE_DIR) / "evidence/F2002/F2002-baseline.mus";
+    SECTION("No resources")
+    {
+        const auto document = Reader::read<TestXmlDocument>(path);
+        REQUIRE(document);
+        CHECK_FALSE(document->getPlaybackResources());
+    }
+    SECTION("Supplied resources outlive their input buffers")
+    {
         finale_mus_reader::ReaderOptions options;
-        options.soundmapXml = {{reinterpret_cast<const std::uint8_t*>(first.data()), first.size()}, {},
-            {reinterpret_cast<const std::uint8_t*>(second.data()), second.size()},
-            {reinterpret_cast<const std::uint8_t*>(first.data()), first.size()}};
-        return finale_mus_reader::detail::prepareReaderResources(options, parser);
-    }();
-    REQUIRE(soundmapParseCount == 3);
-    REQUIRE(resources.soundmaps.size() == 3);
-    const auto root = resources.soundmaps[0]->getRootElement();
-    REQUIRE(root->getFirstChildElement("Description")->getFirstChildElement("Name")->getText() == "Example MIDI");
-    const auto sound = root->getFirstChildElement("Sound");
-    REQUIRE(sound->findAttribute("id")->getValue() == "second");
-    REQUIRE(sound->getFirstChildElement("PatchMIDICommands")->getFirstChildElement("ProgramChange")->findAttribute("Number")->getValue() == "1");
-    REQUIRE(sound->getNextSibling("Sound")->getFirstChildElement("SampleFile")->getText() == "example/sample");
-    REQUIRE(root->getFirstChildElement("MapSounds")->getFirstChildElement("Sound")->findAttribute("ref")->getValue() == "first");
-    REQUIRE(root->getFirstChildElement("Extension")->getText() == "retained");
-    REQUIRE(
-        resources.soundmaps[1]->getRootElement()->getFirstChildElement("Description")->getFirstChildElement("Name")->getText() == "Example Samples");
-    REQUIRE(resources.soundmaps[2]->getRootElement()->getFirstChildElement("Description")->getFirstChildElement("Name")->getText() == "Example MIDI");
-}
-
-TEST_CASE("Reader creation validates optional sound-map XML", "[reader][soundmaps]")
-{
-    finale_mus_reader::ReaderOptions options;
-    SECTION("No maps")
-    {
-        REQUIRE_NOTHROW(Reader::create<TestXmlDocument>(options));
-    }
-    SECTION("Empty buffer")
-    {
-        options.soundmapXml.emplace_back();
-        REQUIRE_NOTHROW(Reader::create<TestXmlDocument>(options));
-    }
-    SECTION("Incorrect root")
-    {
-        const std::string xml = "<Other/>";
-        options.soundmapXml.emplace_back(reinterpret_cast<const std::uint8_t*>(xml.data()), xml.size());
-        REQUIRE_THROWS_AS(Reader::create<TestXmlDocument>(options), std::invalid_argument);
-    }
-    SECTION("Malformed XML")
-    {
-        const std::string xml = "<Soundmap><Sound>";
-        options.soundmapXml.emplace_back(reinterpret_cast<const std::uint8_t*>(xml.data()), xml.size());
-        REQUIRE_THROWS(Reader::create<TestXmlDocument>(options));
-    }
-    SECTION("Reusable reader owns resource data")
-    {
-        const auto reader = [] {
-            const std::string xml = "<Soundmap><Description><Name>Example</Name></Description></Soundmap>";
-            finale_mus_reader::ReaderOptions inputs;
-            inputs.soundmapXml.emplace_back(reinterpret_cast<const std::uint8_t*>(xml.data()), xml.size());
-            return Reader::create<TestXmlDocument>(inputs);
+        options.playbackResources = [] {
+            const std::string xml = "<Soundmap><Description><Name>Example</Name><PluginID>TEST</PluginID></Description></Soundmap>";
+            musx::factory::PlaybackResourceInputs inputs;
+            inputs.soundmaps.emplace_back("example.soundmap", xml);
+            return musx::factory::PlaybackResourcesFactory::create<TestXmlDocument>(inputs);
         }();
-        const auto path = std::filesystem::path(FINALE_MUS_READER_TEST_SOURCE_DIR) / "evidence/F2002/F2002-baseline.mus";
-        REQUIRE(reader.read(path));
-        REQUIRE(reader.read(path));
+        const auto reader = Reader::create<TestXmlDocument>(options);
+        const auto first = reader.read(path);
+        const auto second = reader.read(path);
+        REQUIRE(first);
+        REQUIRE(second);
+        CHECK(first->getPlaybackResources() == options.playbackResources);
+        CHECK(second->getPlaybackResources() == options.playbackResources);
+        REQUIRE(first->getPlaybackResources()->findSoundmap("TEST"));
+        CHECK(first->getPlaybackResources()->findSoundmap("TEST").value->getDescription().name == "Example");
     }
-}
-
-TEST_CASE("Reader creation parses a portable instrument catalog", "[reader][playback]")
-{
-    const std::string xml = R"(<InstrumentCatalog>
-        <Instrument uuid="instrument-1" name="Horn in F" fullName="Horn in F" clef="treble" notation="standard" transposition="-7"/>
-    </InstrumentCatalog>)";
-    finale_mus_reader::ReaderOptions options;
-    options.instrumentCatalogXml = {reinterpret_cast<const std::uint8_t*>(xml.data()), xml.size()};
-    const auto parser = +[](const char* data, std::size_t size) -> std::unique_ptr<musx::xml::IXmlDocument> {
-        auto result = std::make_unique<TestXmlDocument>();
-        result->loadFromBuffer(data, size);
-        return result;
-    };
-    const auto resources = finale_mus_reader::detail::prepareReaderResources(options, parser);
-    REQUIRE(resources.instrumentCatalog.size() == 1);
-    CHECK(resources.instrumentCatalog.front().uuid == "instrument-1");
-    CHECK(resources.instrumentCatalog.front().fullName == "Horn in F");
-    CHECK(resources.instrumentCatalog.front().transposition == -7);
-
-    const std::string invalid = "<Soundmap/>";
-    options.instrumentCatalogXml = {reinterpret_cast<const std::uint8_t*>(invalid.data()), invalid.size()};
-    CHECK_THROWS_AS(finale_mus_reader::detail::prepareReaderResources(options, parser), std::invalid_argument);
 }
 
 TEST_CASE("Available sound resources do not select a player for an unassigned legacy route", "[reader][playback]")
@@ -1478,9 +1409,11 @@ TEST_CASE("Available sound resources do not select a player for an unassigned le
         <Sound id="first" uuid="00000000-0000-0000-0000-000000000001"/>
         <MapSounds><FinInstrument uuid="instrument-1"/><Sound ref="first"/></MapSounds>
     </Soundmap>)";
+    musx::factory::PlaybackResourceInputs inputs;
+    inputs.soundmaps.emplace_back("example.soundmap", soundmap);
+    inputs.instrumentCatalogs.emplace_back("catalog.xml", catalog);
     finale_mus_reader::ReaderOptions options;
-    options.instrumentCatalogXml = {reinterpret_cast<const std::uint8_t*>(catalog.data()), catalog.size()};
-    options.soundmapXml.emplace_back(reinterpret_cast<const std::uint8_t*>(soundmap.data()), soundmap.size());
+    options.playbackResources = musx::factory::PlaybackResourcesFactory::create<TestXmlDocument>(inputs);
     const auto path = std::filesystem::path(FINALE_MUS_READER_TEST_SOURCE_DIR) / "evidence/F100/F100-quartet.mus";
     const auto result = Reader::readWithReport<TestXmlDocument>(path, options);
     REQUIRE(result.document);

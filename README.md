@@ -165,10 +165,16 @@ ordinary clients. Clients that want `ImportReport` select `ON`; `OFF` disables i
 // XmlDocument must derive from musx::xml::IXmlDocument.
 auto document = finale_mus_reader::Reader::read<XmlDocument>("legacy_score.mus");
 
+// Soundmaps, MIDI Device Annotation files, and an instrument catalog are parsed by musxdom.
+// The resulting object is immutable and may be shared by several readers.
+musx::factory::PlaybackResourceInputs playbackInputs;
+playbackInputs.soundmaps.emplace_back("GIFF.soundmap", soundmapBytes);
+playbackInputs.deviceAnnotations.emplace_back("SmartMusic SoftSynth.xml", deviceAnnotationBytes);
+
 // Parse optional resources once when importing multiple files.
 finale_mus_reader::ReaderOptions options;
 options.macSymbolFonts = macSymbolFontsBytes;            // Finale's MacSymbolFonts.txt, if available
-options.percussionMappingXml = {{"SmartMusic SoftSynth.xml", percussionMappingXmlBytes}};
+options.playbackResources = musx::factory::PlaybackResourcesFactory::create<XmlDocument>(playbackInputs);
 options.percussionMapConversionTable = percussionMapConversionTableBytes; // Finale's PercMapConversionTable.txt, if available
 auto reader = finale_mus_reader::Reader::create<XmlDocument>(options);
 auto anotherDocument = reader.read("another_legacy_score.mus");

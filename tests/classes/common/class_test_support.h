@@ -63,6 +63,12 @@ using finale_mus_reader::records::LegacyRecordIndex;
 using Spacing = musx::dom::options::MusicSpacingOptions;
 using TestXmlDocument = musx::xml::pugi::Document;
 
+/// @brief Builds playback resources from in-memory files with the test XML backend.
+inline musx::dom::PlaybackResourcesPtr makePlaybackResources(const musx::factory::PlaybackResourceInputs& inputs)
+{
+    return musx::factory::PlaybackResourcesFactory::create<TestXmlDocument>(inputs);
+}
+
 constexpr auto sourceMatchTestProfile = [] {
     SourceProfile result(FormatEpoch::ZlibLegacy);
     result.version = SourceVersion{.major = 15, .minor = 1};
