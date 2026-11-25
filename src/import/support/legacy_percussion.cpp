@@ -361,24 +361,24 @@ private:
     /// each note's default MIDI note.
     void retypeConvertedLayouts()
     {
-        const auto* mappings = m_context.profile.percussionMappings;
-        if (!mappings) {
+        const auto* conversions = m_context.profile.percussionConversions;
+        if (!conversions) {
             return;
         }
         for (auto& [layoutId, layout] : m_layouts) {
-            const auto* target = mappings->conversionTarget(layout.name);
+            const auto* target = conversions->conversionTarget(layout.name, m_context.profile.playbackResources);
             if (!target) {
                 continue;
             }
             auto& retypes = m_result.retypes[layoutId];
             for (auto& note : layout.notes) {
                 const auto midi = defaultMidiNote(note.type);
-                const auto converted = midi ? target->find(*midi) : target->end();
-                if (converted == target->end() || converted->second == 0) {
+                const auto converted = midi ? target->findNoteType(int(*midi)) : std::nullopt;
+                if (!converted || *converted == 0) {
                     continue;
                 }
-                retypes.try_emplace(note.type, converted->second);
-                note.type = converted->second;
+                retypes.try_emplace(note.type, *converted);
+                note.type = *converted;
             }
             separateDuplicateTypes(layout.notes);
         }

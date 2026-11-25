@@ -30,7 +30,7 @@ struct ReaderResources;
 } // namespace detail
 
 /// @brief Parses XML with the backend selected by the caller.
-/// @details Used for embedded EnigmaXML defaults and caller-supplied XML resources.
+/// @details Used for the embedded EnigmaXML defaults.
 using XmlParser = std::unique_ptr<musx::xml::IXmlDocument> (*)(const char* data, std::size_t size);
 
 /// @brief Parses a complete EnigmaXML document with the caller's selected XML backend.
@@ -431,18 +431,6 @@ struct ImportResult
     ImportReport report;
 };
 
-/// @brief A Finale MIDI Device Annotation XML document and its filename.
-struct PercussionMappingXml
-{
-    /// @brief Filename used by Finale's percussion-map conversion table.
-    /// @details Paths are accepted; only the final filename component is used. A document
-    /// without a name cannot be selected by the conversion table.
-    std::string fileName{};
-
-    /// @brief XML contents, parsed during reader creation without retaining the span.
-    std::span<const std::uint8_t> bytes{};
-};
-
 /// @brief Optional resources supplied by the application when a reader is created.
 struct ReaderOptions
 {
@@ -453,30 +441,23 @@ struct ReaderOptions
     /// charset in the returned document.
     std::span<const std::uint8_t> macSymbolFonts{};
 
-    /// @brief Finale MIDI Device Annotation XML documents used for legacy percussion maps.
-    /// @details The reader parses every buffer during creation and does not retain the spans.
-    /// Documents may contain one or more named `NoteNameList` tables. Within one filename, the
-    /// first table with each name is retained.
-    std::vector<PercussionMappingXml> percussionMappingXml{};
+    /// @brief Soundmaps, MIDI Device Annotation note-name lists, and instrument catalog
+    /// entries, built by the caller with `musx::factory::PlaybackResourcesFactory`. May be null.
+    /// @details The reader retains the pointer and shares it with every document it creates,
+    /// which returns it from `musx::dom::Document::getPlaybackResources`. Soundmaps supply legacy
+    /// playback names and sound UUIDs; note-name lists are the targets of
+    /// #percussionMapConversionTable; catalog entries identify a staff's instrument when its
+    /// source bank names a plugin but its route has no sound UUID. Without resources, a legacy
+    /// playback name is still upgraded from a known plugin ID, but no sound UUID is assigned and
+    /// no legacy percussion map is converted.
+    musx::dom::PlaybackResourcesPtr playbackResources{};
 
     /// @brief Contents of Finale's `PercMapConversionTable.txt`, if available.
     /// @details The reader parses these bytes during creation and does not retain the span.
-    /// A matching legacy map name selects a supplied XML file and note-name list, which
-    /// converts that map's note types. A map without an entry naming a supplied list keeps its
-    /// General MIDI note types.
+    /// A matching legacy map name selects a device file and note-name list in
+    /// #playbackResources, which converts that map's note types. A map without an entry naming
+    /// a supplied list keeps its General MIDI note types.
     std::span<const std::uint8_t> percussionMapConversionTable{};
-
-    /// @brief Contents of optional Finale `.soundmap` XML files, in caller-specified order.
-    /// @details Each nonempty buffer must have a `Soundmap` root. Documents are parsed once
-    /// during creation using the caller's XML backend; the input spans are not retained.
-    /// All supplied maps, including duplicate maps, retain their order. No files are located
-    /// automatically. Invalid XML or an incorrect root causes reader creation to throw.
-    std::vector<std::span<const std::uint8_t>> soundmapXml{};
-
-    /// @brief XML instrument catalog exported from Finale's instrument database.
-    /// @details Optional `InstrumentCatalog` XML is parsed once during reader creation.
-    /// The input span is not retained. Invalid XML or an incorrect root causes creation to throw.
-    std::span<const std::uint8_t> instrumentCatalogXml{};
 };
 
 /// @brief Document construction settings for one import.

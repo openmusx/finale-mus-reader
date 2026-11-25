@@ -4,42 +4,40 @@
 #pragma once
 
 #include <cstdint>
-#include <map>
 #include <span>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
-#include "finale_mus_reader/reader.h"
-#include "musx/dom/Fundamentals.h"
+#include "musx/dom/PlaybackResources.h"
 
 namespace finale_mus_reader {
 namespace percussion {
 
-/// @brief A percussion MIDI map's note type for each MIDI note, keeping the first listed.
-using MappingTable = std::unordered_map<std::uint16_t, musx::dom::PercussionNoteTypeId>;
-
-/// @brief Caller-supplied percussion MIDI maps and Finale's legacy map conversion table.
-class MappingTables
+/// @brief Finale's legacy percussion-map conversion table: for each legacy layout name, the
+/// device files and note-name lists it converts to, in table order.
+class ConversionTable
 {
 public:
-    /// @brief Returns the MIDI map a legacy layout name converts to: the first conversion-table
-    /// entry for that name whose file and note-name list were supplied.
-    [[nodiscard]] const MappingTable* conversionTarget(std::string_view layoutName) const;
+    /// @brief Returns the note-name list a legacy layout name converts to: the first table
+    /// entry for that name whose device file and list are in @p resources.
+    /// @param resources The caller's playback resources. May be null, which finds no list.
+    [[nodiscard]] const musx::dom::DeviceNoteList* conversionTarget(std::string_view layoutName, const musx::dom::PlaybackResources* resources) const;
 
 private:
-    std::map<std::pair<std::string, std::string>, MappingTable> m_namedTables;
     std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>>> m_conversions;
 
-    friend MappingTables parseMappingTables(std::span<const PercussionMappingXml>, std::span<const std::uint8_t>, XmlParser);
+    friend ConversionTable parseConversionTable(std::span<const std::uint8_t>);
 };
 
-/// @brief Parses Finale MIDI Device Annotation XML buffers through the caller's
-/// XML backend.
-/// @details Within one filename, the first `NoteNameList` with each name is retained.
-[[nodiscard]] MappingTables parseMappingTables(
-    std::span<const PercussionMappingXml> documents, std::span<const std::uint8_t> conversionTable, XmlParser parseXml);
+/// @brief Parses the contents of `PercMapConversionTable.txt`.
+/// @details Each nonblank line other than a `//` comment has three comma-separated columns:
+/// legacy layout name, device file name, and note-name list name. A backslash escapes a comma
+/// or a backslash. A leading UTF-8 byte-order mark is ignored.
+/// @throws std::invalid_argument if a row does not have three nonempty columns.
+[[nodiscard]] ConversionTable parseConversionTable(std::span<const std::uint8_t> contents);
 
 } // namespace percussion
 } // namespace finale_mus_reader

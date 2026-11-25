@@ -3,22 +3,14 @@
 
 #include "import/support/percussion_mappings.h"
 
-#include <algorithm>
 #include <array>
-#include <limits>
 #include <stdexcept>
-#include <utility>
-#include <vector>
 
 #include "import/support/text_encoding.h"
-#include "musx/dom/PercussionNoteType.h"
-#include "musx/xml/XmlInterface.h"
 
 namespace finale_mus_reader {
 namespace percussion {
 namespace {
-
-using NoteType = musx::dom::PercussionNoteTypeId;
 
 std::string_view trimMappingField(std::string_view value)
 {
@@ -29,12 +21,6 @@ std::string_view trimMappingField(std::string_view value)
         value.remove_suffix(1);
     }
     return value;
-}
-
-std::string mappingFileName(std::string_view path)
-{
-    const auto slash = path.find_last_of("/\\");
-    return std::string(slash == std::string_view::npos ? path : path.substr(slash + 1));
 }
 
 std::array<std::string, 3> parseConversionRow(std::string_view line)
@@ -74,93 +60,28 @@ std::array<std::string, 3> parseConversionRow(std::string_view line)
     return fields;
 }
 
-std::optional<std::string> attributeValue(const musx::xml::XmlElementPtr& element, const std::string& name)
-{
-    if (const auto attribute = element->findAttribute(name)) {
-        return attribute->getValueTrimmed();
-    }
-    return std::nullopt;
-}
-
-bool isValidNoteType(NoteType value)
-{
-    constexpr NoteType baseTypeMask = 0x0fff;
-    const auto baseType = NoteType(value & baseTypeMask);
-    return musx::dom::percussion::getPercussionNoteTypeFromId(baseType).instrumentId == baseType;
-}
-
-MappingTable parseNoteMap(const musx::xml::XmlElementPtr& list)
-{
-    MappingTable result;
-    for (auto note = list->getFirstChildElement("Note"); note; note = note->getNextSibling("Note")) {
-        const auto numberText = attributeValue(note, "Number");
-        const auto typeText = attributeValue(note, "PercNoteType");
-        if (!numberText || !typeText) {
-            continue;
-        }
-        const auto number = std::stoul(*numberText);
-        const auto type = std::stoul(*typeText);
-        if (number > (std::numeric_limits<std::uint16_t>::max)() || type > (std::numeric_limits<NoteType>::max)()) {
-            continue;
-        }
-        const auto noteType = NoteType(type);
-        if (!isValidNoteType(noteType)) {
-            continue;
-        }
-        result.try_emplace(std::uint16_t(number), noteType);
-    }
-    return result;
-}
-
-void collectNoteNameLists(const musx::xml::XmlElementPtr& element, std::vector<std::pair<std::string, MappingTable>>& result)
-{
-    if (!element) {
-        return;
-    }
-    if (element->getTagName() == "NoteNameList") {
-        if (const auto name = attributeValue(element, "Name"); name && !name->empty()) {
-            result.emplace_back(*name, parseNoteMap(element));
-        }
-        return;
-    }
-    for (auto child = element->getFirstChildElement(); child; child = child->getNextSibling()) {
-        collectNoteNameLists(child, result);
-    }
-}
-
 } // namespace
 
-const MappingTable* MappingTables::conversionTarget(std::string_view layoutName) const
+const musx::dom::DeviceNoteList* ConversionTable::conversionTarget(std::string_view layoutName, const musx::dom::PlaybackResources* resources) const
 {
+    if (!resources) {
+        return nullptr;
+    }
     const auto conversions = m_conversions.find(std::string(trimMappingField(layoutName)));
     if (conversions == m_conversions.end()) {
         return nullptr;
     }
-    for (const auto& target : conversions->second) {
-        if (const auto table = m_namedTables.find(target); table != m_namedTables.end()) {
-            return &table->second;
+    for (const auto& [fileName, listName] : conversions->second) {
+        if (const auto list = resources->findNoteList(fileName, listName)) {
+            return list.value;
         }
     }
     return nullptr;
 }
 
-MappingTables parseMappingTables(std::span<const PercussionMappingXml> documents, std::span<const std::uint8_t> conversionTable, XmlParser parseXml)
+ConversionTable parseConversionTable(std::span<const std::uint8_t> conversionTable)
 {
-    MappingTables result;
-    for (const auto& document : documents) {
-        if (document.bytes.empty()) {
-            continue;
-        }
-        const auto xml = parseXml(reinterpret_cast<const char*>(document.bytes.data()), document.bytes.size());
-        std::vector<std::pair<std::string, MappingTable>> parsedTables;
-        collectNoteNameLists(xml->getRootElement(), parsedTables);
-        if (document.fileName.empty()) {
-            continue;
-        }
-        for (auto& [name, table] : parsedTables) {
-            result.m_namedTables.try_emplace({mappingFileName(document.fileName), std::move(name)}, std::move(table));
-        }
-    }
+    ConversionTable result;
     if (!conversionTable.empty()) {
         std::string_view contents(reinterpret_cast<const char*>(conversionTable.data()), conversionTable.size());
         if (contents.starts_with("\xef\xbb\xbf")) {

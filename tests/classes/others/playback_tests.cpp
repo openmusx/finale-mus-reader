@@ -1,7 +1,6 @@
 // Copyright (c) 2026 Robert G. Patterson
 // SPDX-License-Identifier: MIT
 #include "class_test_support.h"
-#include "reader/resources.h"
 #include <set>
 
 namespace finale_mus_reader_tests {
@@ -12,7 +11,7 @@ using TestPlaybackName = musx::dom::others::PlaybackRouteName;
 using TestStaffPlayback = musx::dom::others::StaffPlayData;
 
 ImportReport importPlaybackTest(const finale_mus_reader::container::ParsedContainer& parsed, musx::dom::DocumentPtr& document,
-    std::optional<SourceVersion> version = std::nullopt, const finale_mus_reader::soundmap::Documents* soundmaps = nullptr)
+    std::optional<SourceVersion> version = std::nullopt, const musx::dom::PlaybackResourcesPtr& resources = nullptr)
 {
     const auto index = LegacyRecordIndex::build(parsed);
     auto session = musx::factory::DocumentFactory::begin();
@@ -25,7 +24,7 @@ ImportReport importPlaybackTest(const finale_mus_reader::container::ParsedContai
     profile.byteOrder = parsed.byteOrder;
     profile.version = version;
     profile.platform = finale_mus_reader::SourcePlatform::Windows;
-    profile.soundmaps = soundmaps;
+    profile.playbackResources = resources.get();
     musx::factory::ConstructionContext construction;
     const finale_mus_reader::ImportContext context{index, profile, noSource, document, reference, report, pending, construction};
     finale_mus_reader::others::importPlaybackRoutes(context);
@@ -334,18 +333,16 @@ TEST_CASE("Playback rejects short records and reports unknown or missing data", 
 
 TEST_CASE("Playback upgrades bank-selected names and SoftSynth sounds from supplied maps", "[class][playback][soundmaps]")
 {
-    finale_mus_reader::soundmap::Documents maps;
-    auto addMap = [&](const std::string& xml) {
-        auto document = std::make_unique<TestXmlDocument>();
-        document->loadFromString(xml);
-        maps.push_back(std::move(document));
-    };
-    addMap(R"(<Soundmap><Description><PluginID>GARA</PluginID><Name>Example sample library</Name></Description></Soundmap>)");
-    addMap(R"(<Soundmap><Description><PluginID>SMSS</PluginID><Name>Example synth</Name></Description>
+    const std::string sampleMap = R"(<Soundmap><Description><PluginID>GARA</PluginID><Name>Example sample library</Name></Description></Soundmap>)";
+    const std::string synthMap = R"(<Soundmap><Description><PluginID>SMSS</PluginID><Name>Example synth</Name></Description>
         <Sound uuid="11111111-1111-1111-1111-111111111111"><PatchMIDICommands><ProgramChange Number="0"/></PatchMIDICommands></Sound>
         <Sound uuid="22222222-2222-2222-2222-222222222222"><PatchMIDICommands><ControlChange Control="0" Value="99"/><ProgramChange Number="42"/></PatchMIDICommands></Sound>
         <Sound uuid="33333333-3333-3333-3333-333333333333"><PatchMIDICommands><ProgramChange Number="42"/></PatchMIDICommands></Sound>
-        </Soundmap>)");
+        </Soundmap>)";
+    musx::factory::PlaybackResourceInputs inputs;
+    inputs.soundmaps.emplace_back("sample.soundmap", sampleMap);
+    inputs.soundmaps.emplace_back("synth.soundmap", synthMap);
+    const auto maps = makePlaybackResources(inputs);
     for (auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
         for (auto epoch : {FormatEpoch::DclLegacy, FormatEpoch::ZlibLegacy}) {
             const auto bank = [&](std::uint32_t id) {
@@ -380,7 +377,7 @@ TEST_CASE("Playback upgrades bank-selected names and SoftSynth sounds from suppl
                 parsed = makeContainer(fixed, epoch, order);
             }
             musx::dom::DocumentPtr doc;
-            const auto report = importPlaybackTest(parsed, doc, SourceVersion{.major = 11, .build = 7}, &maps);
+            const auto report = importPlaybackTest(parsed, doc, SourceVersion{.major = 11, .build = 7}, maps);
             CHECK(doc->getOthers()->get<TestPlaybackName>(0, 1)->name == "Example synth");
             CHECK(doc->getOthers()->get<TestPlaybackName>(0, 2)->name == "ARIA Player");
             CHECK(doc->getOthers()->get<TestPlaybackRoute>(0, 1)->soundUuid == "22222222-2222-2222-2222-222222222222");
@@ -398,9 +395,9 @@ TEST_CASE("Playback upgrades bank-selected names and SoftSynth sounds from suppl
                 rows[1].words = {78, 78, 0};
                 rows[3].words = {78, 78, 0};
                 parsed = makeClassContainer(rows, order);
-                importPlaybackTest(parsed, doc, SourceVersion{.major = 17, .devStatus = 2, .build = 111}, &maps);
+                importPlaybackTest(parsed, doc, SourceVersion{.major = 17, .devStatus = 2, .build = 111}, maps);
                 CHECK(doc->getOthers()->get<TestPlaybackRoute>(0, 1)->soundUuid == "11111111-1111-1111-1111-111111111111");
-                importPlaybackTest(parsed, doc, SourceVersion{.major = 17, .devStatus = 2, .build = 112}, &maps);
+                importPlaybackTest(parsed, doc, SourceVersion{.major = 17, .devStatus = 2, .build = 112}, maps);
                 CHECK(doc->getOthers()->get<TestPlaybackName>(0, 1)->name == "NN");
                 CHECK(doc->getOthers()->get<TestPlaybackName>(0, 2)->name == "NN");
                 CHECK(doc->getOthers()->get<TestPlaybackRoute>(0, 1)->soundUuid.empty());
@@ -410,13 +407,13 @@ TEST_CASE("Playback upgrades bank-selected names and SoftSynth sounds from suppl
                 rows[4].classId = 0x116;
                 rows[5].classId = 0x116;
                 parsed = makeClassContainer(rows, order);
-                importPlaybackTest(parsed, doc, SourceVersion{.major = 13}, &maps);
+                importPlaybackTest(parsed, doc, SourceVersion{.major = 13}, maps);
                 CHECK(doc->getOthers()->get<TestPlaybackName>(0, 1)->name == "Example synth");
                 CHECK(doc->getOthers()->get<TestPlaybackName>(0, 2)->name == "NN");
 
                 rows[4].words.resize(4);
                 parsed = makeClassContainer(rows, order);
-                importPlaybackTest(parsed, doc, SourceVersion{.major = 13}, &maps);
+                importPlaybackTest(parsed, doc, SourceVersion{.major = 13}, maps);
                 CHECK(doc->getOthers()->get<TestPlaybackName>(0, 1)->name == "NN");
             }
         }
@@ -425,17 +422,17 @@ TEST_CASE("Playback upgrades bank-selected names and SoftSynth sounds from suppl
 
 TEST_CASE("Playback name upgrades can resolve a stored sound UUID without replacing it", "[class][playback][soundmaps]")
 {
-    finale_mus_reader::soundmap::Documents maps;
-    auto xml = std::make_unique<TestXmlDocument>();
-    xml->loadFromString(R"(<Soundmap><Description><PluginID>GARA</PluginID><Name>Example</Name></Description>
-        <Sound uuid="11111111-1111-1111-1111-111111111111"/></Soundmap>)");
-    maps.push_back(std::move(xml));
+    const std::string soundmap = R"(<Soundmap><Description><PluginID>GARA</PluginID><Name>Example</Name></Description>
+        <Sound uuid="11111111-1111-1111-1111-111111111111"/></Soundmap>)";
+    musx::factory::PlaybackResourceInputs inputs;
+    inputs.soundmaps.emplace_back("example.soundmap", soundmap);
+    const auto maps = makePlaybackResources(inputs);
     for (auto order : {ByteOrder::BigEndian, ByteOrder::LittleEndian}) {
         const std::vector<std::int16_t> route{0, 0, 0, 0, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111, 0x1111};
         const auto parsed =
             makeClassContainer({{0xb9, route, 1}, {0xba, {78, 78, 0}, 1}, {0xb9, {0, 0, 0, 0, 0, 0}, 2}, {0xba, {78, 78, 0}, 2}}, order);
         musx::dom::DocumentPtr doc;
-        const auto report = importPlaybackTest(parsed, doc, SourceVersion{.major = 17, .devStatus = 2, .build = 111}, &maps);
+        const auto report = importPlaybackTest(parsed, doc, SourceVersion{.major = 17, .devStatus = 2, .build = 111}, maps);
         CHECK(doc->getOthers()->get<TestPlaybackName>(0, 1)->name == "ARIA Player");
         CHECK(doc->getOthers()->get<TestPlaybackName>(0, 2)->name == "NN");
         CHECK(doc->getOthers()->get<TestPlaybackRoute>(0, 1)->soundUuid == "11111111-1111-1111-1111-111111111111");

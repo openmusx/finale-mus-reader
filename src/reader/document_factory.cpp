@@ -71,6 +71,7 @@ musx::dom::DocumentPtr createDocument(const container::ParsedContainer& parsed, 
         constructionOptions.sourcePath = sourcePath;
         constructionOptions.partVoicingPolicy = partVoicingPolicy;
         constructionOptions.embeddedGraphics = std::move(embeddedGraphics);
+        constructionOptions.playbackResources = resources.playbackResources;
         return musx::factory::DocumentFactory::begin(std::move(constructionOptions));
     }();
     const auto& document = session.getDocument();
@@ -97,9 +98,8 @@ musx::dom::DocumentPtr createDocument(const container::ParsedContainer& parsed, 
     profile.platform = report.sourcePlatform;
     profile.codaFormatFlags = parsed.codaFormatFlags;
     profile.symbolFontNames = &resources.symbolFontNames;
-    profile.percussionMappings = &resources.percussionMappings;
-    profile.soundmaps = &resources.soundmaps;
-    profile.instrumentCatalog = &resources.instrumentCatalog;
+    profile.percussionConversions = &resources.percussionConversions;
+    profile.playbackResources = resources.playbackResources.get();
     const auto recordIndex = [&] {
         FINALE_MUS_READER_TIMED_SCOPE(timing::Phase::RecordIndex);
         return records::LegacyRecordIndex::build(parsed);

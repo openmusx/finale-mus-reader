@@ -91,7 +91,7 @@ ImportResult runGuarded(FormatEpoch epoch, Body&& body)
 
 Reader Reader::createWithParser(const ReaderOptions& options, XmlParser parseXml, DocumentParser parseDocument)
 {
-    return Reader(std::make_shared<detail::ReaderResources>(detail::prepareReaderResources(options, parseXml)), parseXml, parseDocument);
+    return Reader(std::make_shared<detail::ReaderResources>(detail::prepareReaderResources(options)), parseXml, parseDocument);
 }
 
 musx::dom::DocumentPtr Reader::read(const std::filesystem::path& path, const ImportOptions& importOptions) const

@@ -5,6 +5,7 @@
 #include "import/support/playback_plugin_names.h"
 #include "musx/musx.h"
 
+#include <algorithm>
 #include <array>
 #include <cctype>
 #include <iomanip>
@@ -180,12 +181,6 @@ void synthesizeCodaPlaybackNames(const ImportContext& context)
     }
 }
 
-std::string playbackMapText(const musx::xml::XmlElementPtr& parent, const char* tag)
-{
-    const auto child = parent ? parent->getFirstChildElement(tag) : nullptr;
-    return child ? child->getTextTrimmed() : std::string{};
-}
-
 std::string playbackBankPlugin(const ImportContext& context, std::uint16_t bank)
 {
     if (bank >= 8) {
@@ -256,7 +251,8 @@ int staffSemitones(const musx::dom::others::Staff& staff)
 
 std::string staffInstrumentUuid(const ImportContext& context, const musx::dom::others::Staff& staff)
 {
-    if (!context.profile.instrumentCatalog || !staff.fullNameTextId || staff.defaultClef != 0) {
+    const auto* resources = context.profile.playbackResources;
+    if (!resources || resources->getInstruments().empty() || !staff.fullNameTextId || staff.defaultClef != 0) {
         return {};
     }
     const auto name = normalizedStaffName(musx::dom::others::TextBlock::getText(context.document, staff.fullNameTextId, 0, true));
@@ -266,9 +262,9 @@ std::string staffInstrumentUuid(const ImportContext& context, const musx::dom::o
     const auto notation = staff.notationStyle == musx::dom::others::Staff::NotationStyle::Standard ? "standard" : "";
     // Catalog transposition is sounding pitch relative to written pitch; Staff reports the inverse.
     const auto transposition = -staffSemitones(staff);
-    const playback::Instrument* best = nullptr;
+    const musx::dom::CatalogInstrument* best = nullptr;
     std::size_t bestLength = 0;
-    for (const auto& instrument : *context.profile.instrumentCatalog) {
+    for (const auto& instrument : resources->getInstruments()) {
         if (instrument.clef != "treble" || instrument.notation != notation || instrument.transposition != transposition) {
             continue;
         }
@@ -288,7 +284,8 @@ std::string staffInstrumentUuid(const ImportContext& context, const musx::dom::o
 std::map<musx::dom::Cmper, std::string> playbackRouteInstruments(const ImportContext& context)
 {
     std::map<musx::dom::Cmper, std::string> routes;
-    if (!context.profile.instrumentCatalog) {
+    const auto* resources = context.profile.playbackResources;
+    if (!resources || resources->getInstruments().empty()) {
         return routes;
     }
     for (const auto& staff : context.document->getOthers()->getArray<musx::dom::others::Staff>(musx::dom::SCORE_PARTID)) {
@@ -319,36 +316,12 @@ std::map<musx::dom::Cmper, std::string> playbackRouteInstruments(const ImportCon
     return routes;
 }
 
-musx::xml::XmlElementPtr mappedSound(const musx::xml::XmlElementPtr& root, const std::string& instrumentUuid)
-{
-    for (auto mapping = root->getFirstChildElement("MapSounds"); mapping; mapping = mapping->getNextSibling("MapSounds")) {
-        const auto instrument = mapping->getFirstChildElement("FinInstrument");
-        const auto uuid = instrument ? instrument->findAttribute("uuid") : nullptr;
-        if (!uuid || lowerAscii(uuid->getValueTrimmed()) != instrumentUuid) {
-            continue;
-        }
-        const auto reference = mapping->getFirstChildElement("Sound");
-        const auto id = reference ? reference->findAttribute("ref") : nullptr;
-        if (!id) {
-            continue;
-        }
-        for (auto sound = root->getFirstChildElement("Sound"); sound; sound = sound->getNextSibling("Sound")) {
-            const auto soundId = sound->findAttribute("id");
-            if (soundId && soundId->getValueTrimmed() == id->getValueTrimmed()) {
-                return sound;
-            }
-        }
-    }
-    return {};
-}
-
 void upgradePlaybackNames(const ImportContext& context)
 {
     if (!sourcePredatesVersion(context.profile, FormatEpoch::ZlibLegacy, VersionBound{17, 0, 0, 2, 112})) {
         return;
     }
-    const soundmap::Documents emptyMaps;
-    const auto& maps = context.profile.soundmaps ? *context.profile.soundmaps : emptyMaps;
+    const auto* resources = context.profile.playbackResources;
     const auto instruments = playbackRouteInstruments(context);
     for (const auto& name : context.document->getOthers()->getArray<PlaybackNameTarget>(musx::dom::SCORE_PARTID)) {
         const auto route = context.document->getOthers()->get<PlaybackRouteTarget>(musx::dom::SCORE_PARTID, name->getCmper());
@@ -356,53 +329,34 @@ void upgradePlaybackNames(const ImportContext& context)
             continue;
         }
         auto plugin = playbackBankPlugin(context, static_cast<std::uint16_t>(route->virtualChannel) >> 4);
-        if (!plugin.empty() && plugin != "SMSS" && route->soundUuid.empty()) {
+        if (resources && !plugin.empty() && plugin != "SMSS" && route->soundUuid.empty()) {
             const auto instrument = instruments.find(route->getCmper());
             if (instrument != instruments.end() && !instrument->second.empty()) {
-                for (const auto& document : maps) {
-                    const auto root = document->getRootElement();
-                    if (playbackMapText(root->getFirstChildElement("Description"), "PluginID") != plugin) {
-                        continue;
-                    }
-                    const auto sound = mappedSound(root, instrument->second);
-                    const auto uuid = sound ? sound->findAttribute("uuid") : nullptr;
-                    if (uuid && !uuid->getValueTrimmed().empty()) {
-                        std::const_pointer_cast<PlaybackRouteTarget>(route)->soundUuid = uuid->getValueTrimmed();
-                        withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
-                            const auto key = reporting.template instanceKey<PlaybackRouteTarget>(musx::dom::SCORE_PARTID, route->getCmper());
-                            reportFallbackField(reporting, key, "soundUuid", Reporting::Origin::LegacyMusAdjusted, 0);
-                        });
-                        break;
-                    }
+                // The first supplied map for the plugin that maps the instrument to a sound with a UUID supplies it.
+                if (const auto sound = resources->findMappedSound(plugin, instrument->second)) {
+                    std::const_pointer_cast<PlaybackRouteTarget>(route)->soundUuid = sound.value->uuid;
+                    withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
+                        const auto key = reporting.template instanceKey<PlaybackRouteTarget>(musx::dom::SCORE_PARTID, route->getCmper());
+                        reportFallbackField(reporting, key, "soundUuid", Reporting::Origin::LegacyMusAdjusted, 0);
+                    });
                 }
             }
         }
         const bool requestedSoftSynth = plugin == "SMSS";
-        musx::xml::XmlElementPtr selected;
-        for (const auto& document : maps) {
-            const auto root = document->getRootElement();
-            const auto mapPlugin = playbackMapText(root->getFirstChildElement("Description"), "PluginID");
+        // A requested plugin selects the first supplied map for it; otherwise a stored sound UUID
+        // selects the first supplied map containing that sound and supplies the plugin.
+        const musx::dom::Soundmap* selected = nullptr;
+        if (resources) {
             if (!plugin.empty()) {
-                if (mapPlugin == plugin) {
-                    selected = root;
-                    break;
-                }
+                selected = resources->findSoundmap(plugin).value;
             } else if (!route->soundUuid.empty()) {
-                for (auto sound = root->getFirstChildElement("Sound"); sound; sound = sound->getNextSibling("Sound")) {
-                    const auto uuid = sound->findAttribute("uuid");
-                    if (uuid && uuid->getValueTrimmed() == route->soundUuid) {
-                        selected = root;
-                        plugin = mapPlugin;
-                        break;
-                    }
-                }
-                if (selected) {
-                    break;
+                if (const auto sound = resources->findSoundByUuid(route->soundUuid)) {
+                    selected = &resources->getSoundmaps()[sound.value->soundmapIndex];
+                    plugin = selected->getDescription().pluginId;
                 }
             }
         }
-        const auto label =
-            playback::resolvePluginName(plugin, playbackMapText(selected ? selected->getFirstChildElement("Description") : nullptr, "Name"));
+        const auto label = playback::resolvePluginName(plugin, selected ? std::string_view(selected->getDescription().name) : std::string_view{});
         if (!label.empty()) {
             std::const_pointer_cast<PlaybackNameTarget>(name)->name = label;
             withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
@@ -414,18 +368,11 @@ void upgradePlaybackNames(const ImportContext& context)
         }
         if (requestedSoftSynth && selected) {
             // Match the program only; an unmatched program uses the first sound in map order.
-            auto selectedSound = selected->getFirstChildElement("Sound");
-            for (auto sound = selectedSound; sound; sound = sound->getNextSibling("Sound")) {
-                const auto commands = sound->getFirstChildElement("PatchMIDICommands");
-                const auto program = commands ? commands->getFirstChildElement("ProgramChange") : nullptr;
-                const auto number = program ? program->findAttribute("Number") : nullptr;
-                if (number && number->getValueAs<int>() == route->patch) {
-                    selectedSound = sound;
-                    break;
-                }
-            }
-            const auto uuid = selectedSound ? selectedSound->findAttribute("uuid") : nullptr;
-            std::const_pointer_cast<PlaybackRouteTarget>(route)->soundUuid = uuid ? uuid->getValueTrimmed() : std::string{};
+            const auto& sounds = selected->getSounds();
+            const auto matched = std::find_if(
+                sounds.begin(), sounds.end(), [&](const musx::dom::SoundmapSound& sound) { return sound.programChange == route->patch; });
+            const auto* selectedSound = matched != sounds.end() ? &*matched : (sounds.empty() ? nullptr : &sounds.front());
+            std::const_pointer_cast<PlaybackRouteTarget>(route)->soundUuid = selectedSound ? selectedSound->uuid : std::string{};
             withReporting(context.report, [&]<typename Reporting>(Reporting& reporting) {
                 const auto key = reporting.template instanceKey<PlaybackRouteTarget>(musx::dom::SCORE_PARTID, route->getCmper());
                 reportFallbackField(reporting, key, "soundUuid", Reporting::Origin::LegacyMusAdjusted, route->patch);
